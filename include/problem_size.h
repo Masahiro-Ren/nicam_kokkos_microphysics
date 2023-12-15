@@ -1,16 +1,15 @@
 #ifndef PROBLEM_SIZE_H
 #define PROBLEM_SIZE_H
 
-#include "ndarray.h"
-
-namespace problem_size {
+#include <string>
 
 const int H_SHORT   = 32;
 const int H_LONG    = 1024;
-int IO_FID_LOG = 6;
 const int ADM_prc_all = 1;
 const int IO_FREAD = 0;
 const int ADM_KNONE = 1;
+
+int IO_FID_LOG = 6;
 
 int ADM_gall_in_orig = 16641;
 int ADM_gall_in = 16641;
@@ -36,6 +35,7 @@ int SET_rgnid = 4;
 const double CONST_PI = 3.141592653589793;
 const double CONST_EPS = 2.220446E-16;
 const double CONST_UNDEF = -9.9999E+30;
+const double CONST_GRAV = 9.79764;
 const double CONST_STB = 5.670373E-8;
 
 const double CONST_Rdry = 287.04;
@@ -88,16 +88,16 @@ const double TEM00 = CONST_TEM00;
 // grd, gmtr, vmtr
 const char* vgrid_fname = "./vgrid94.dat";
 
-Vec1D<double> GRD_gz   ;
-Vec1D<double> GRD_gzh  ;
-Vec1D<double> GRD_dgz  ;
-Vec1D<double> GRD_dgzh ;
-Vec1D<double> GRD_rdgz ;
-Vec1D<double> GRD_rdgzh;
-Vec1D<double> GRD_afact;
-Vec1D<double> GRD_bfact;
-Vec1D<double> GRD_cfact;
-Vec1D<double> GRD_dfact;
+double* GRD_gz   ;
+double* GRD_gzh  ;
+double* GRD_dgz  ;
+double* GRD_dgzh ;
+double* GRD_rdgz ;
+double* GRD_rdgzh;
+double* GRD_afact;
+double* GRD_bfact;
+double* GRD_cfact;
+double* GRD_dfact;
 
 // run conf
 const char* EIN_TYPE            = "SIMPLE";
@@ -141,7 +141,7 @@ int I_NS = 10;
 int I_NG = 11;
 
 // not sure ??
-const char* TRC_name[6] = {
+const std::string TRC_name[6] = {
     "QV",
     "QC",
     "QR",
@@ -171,6 +171,5 @@ double CPW[6] = {
 int SET_iteration = 1;
 bool SET_check     = true;
 
-}
 
 #endif

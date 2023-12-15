@@ -18,9 +18,6 @@
 #include "problem_size.h"
 #include <cstdlib>
 
-namespace mod_debug {
-
-using namespace problem_size;
 
 //++ Public parameters & variables
 int EX_STEP = 49;
@@ -34,36 +31,6 @@ int sat_ite_count = 0;
 int sat_ite_max = 0;
 int sat_ite_min = -1;
 
-// ++ Private parameters & variables
-// 
-const int PROF_rapnlimit = 300;
-int PROF_rapnmax   = 0;
-int PROF_grpnmax   = 0;
-int PROF_grpid   [PROF_rapnlimit];
-int PROF_rapnstr [PROF_rapnlimit];
-int PROF_rapnend [PROF_rapnlimit];
-int PROF_raplevel[PROF_rapnlimit];
-char* PROF_grpname  ;
-char* PROF_rapname  ;
-char* PROF_prefix   ;
-double PROF_raptstr [PROF_rapnlimit];
-double PROF_rapttot [PROF_rapnlimit];
-
-int PROF_default_rap_level = 2;
-int PROF_rap_level         = 2;
-bool PROF_mpi_barrier       = false;
-
-char* PROF_header;
-char* PROF_item;
-double PROF_max;
-double PROF_min;
-double PROF_sum;
-
-const int min_fid = 7;
-const int max_fid = 99;
-const bool NSTR_ZERO_START = true;
-const int NSTR_MAX_DIGIT  = 5;
-
 // void PROF_setup();
 // void PROF_setprefx();
 // void PROF_rapstart();
@@ -72,8 +39,34 @@ const int NSTR_MAX_DIGIT  = 5;
 // 
 // void PROF_valcheck();
 // void PROF_valcheck_DP_3D_ToText();
-// void PROF_valcheck_DP_3D_ToText_max(); // add yamanashi
+// void PROF_valcheck_DP_3D_ToText_max(); 
 // void PROF_valcheck_DP_4D_ToText();
+
+/**
+ * Value Check functions
+*/
+// void PROF_valcheck_SP_1D();
+// void PROF_valcheck_SP_2D();
+// void PROF_valcheck_SP_3D();
+// void PROF_valcheck_SP_4D();
+// void PROF_valcheck_SP_5D();
+// void PROF_valcheck_SP_6D();
+// void PROF_valcheck_DP_1D();
+// void PROF_valcheck_DP_2D();
+// void PROF_valcheck_DP_3D();
+// void PROF_valcheck_DP_4D();
+// void PROF_valcheck_DP_5D();
+// void PROF_valcheck_DP_6D();
+
+// // make file name with a number
+// void MISC_make_idstr();
+// // get an available file ID
+// void IO_get_available_fid();
+// // Gamma function
+// void MISC_gammafunc();
+// void MISC_gammafunc_h();
+// void MISC_gammafunc_s();
+// void MISC_gammafunc_d();
 
 void ADM_proc_stop();
 void ADM_MPItime();
@@ -81,7 +74,18 @@ void GRD_Setup();
 void GRD_input_vgrid();
 
 void cnvvar_rhogkin_in();
+void cnvvar_rhogkin_in__FROM__precip_transport_new_3578();
+void cnvvar_rhogkin_in__FROM__precip_transport_new_3951();
 
-}
+/* ============== public parameters & variables ================  */
+int EX_STEP = 49;
+int EX_rgnid;
+int EX_fid;
+int EX_err;
+int EX_fname;
+int sat_ite_sum = 0;
+int sat_ite_count = 0;
+int sat_ite_max = 0;
+int sat_ite_min = -1;
 
 #endif
