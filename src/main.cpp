@@ -1,2 +1,6 @@
-#include "problem_size.h"
-#include "mod_debug.h"
+#include "problemsize.h"
+
+int main()
+{
+    return 0;
+}
