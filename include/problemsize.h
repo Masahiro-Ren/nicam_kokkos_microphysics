@@ -17,14 +17,14 @@ constexpr int ADM_gall_in_orig = 16641; // horizontal grid number (for physics)
 constexpr int ADM_gall_in      = 16641; // horizontal grid number (for physics)
 constexpr int ADM_kall     = 96;   // vertical   grid number
 constexpr int ADM_vlayer   = 94;
-constexpr int ADM_kmin     = 2 ;
-constexpr int ADM_kmax     = 95;
+constexpr int ADM_kmin     = 1 ; // 2 in fortran
+constexpr int ADM_kmax     = 94; // 95 in fortran
 constexpr int ADM_lall     = 1 ;
 constexpr int TRC_VMAX     = 6 ;
 
 constexpr int kdim         = 96;
-constexpr int kmin         = 2 ;
-constexpr int kmax         = 95;
+constexpr int kmin         = 1 ; // 2 in fortran
+constexpr int kmax         = 94; // 95 in fortran
 constexpr int knone        = 1 ;
 constexpr int nqmax        = 6 ;
 
