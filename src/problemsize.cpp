@@ -1,5 +1,8 @@
 #include "problemsize.h"
 
+namespace PROBLEM_SIZE
+{
+
 // define run conf
 std::string EIN_TYPE     = "SIMPLE";
 std::string RAIN_TYPE    = "COLD";
@@ -64,3 +67,5 @@ std::vector<double> CPW{    CONST_CPdry,
 
 int SET_iteration = 1;
 bool SET_check = true;
+
+}

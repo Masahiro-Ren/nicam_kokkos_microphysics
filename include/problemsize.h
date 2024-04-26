@@ -5,6 +5,15 @@
 #include <string>
 #include <vector>
 
+template <typename T>
+using Vec1d = std::vector<T>;
+
+template <typename T>
+using Vec2d = std::vector<std::vector<T>;
+
+namespace PROBLEM_SIZE 
+{
+
 constexpr int H_SHORT = 32;
 constexpr int H_LONG = 1024;
 constexpr int IO_FID_LOG = 6;
@@ -149,5 +158,6 @@ extern std::vector<double> CPW;
 extern int SET_iteration;
 extern bool SET_check;
 
+}
 
 #endif
