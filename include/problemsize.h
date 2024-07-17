@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
+#include <cmath>
 #include <vector>
 
 template <typename T>
@@ -98,16 +100,16 @@ constexpr double Tstd  = CONST_Tstd  ;
 constexpr double TEM00 = CONST_TEM00 ;
 
 // grd, gmtr, vmtr
-extern std::vector<double> GRD_gz   ;
-extern std::vector<double> GRD_gzh  ;
-extern std::vector<double> GRD_dgz  ;
-extern std::vector<double> GRD_dgzh ;
-extern std::vector<double> GRD_rdgz ;
-extern std::vector<double> GRD_rdgzh;
-extern std::vector<double> GRD_afact;
-extern std::vector<double> GRD_bfact;
-extern std::vector<double> GRD_cfact;
-extern std::vector<double> GRD_dfact;
+extern double* GRD_gz   ;
+extern double* GRD_gzh  ;
+extern double* GRD_dgz  ;
+extern double* GRD_dgzh ;
+extern double* GRD_rdgz ;
+extern double* GRD_rdgzh;
+extern double* GRD_afact;
+extern double* GRD_bfact;
+extern double* GRD_cfact;
+extern double* GRD_dfact;
 
 // run conf
 extern std::string EIN_TYPE  ;

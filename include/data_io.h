@@ -1,5 +1,4 @@
-#ifndef DATA_IO
-#define DATA_IO
+#pragma once
 
 #include "problemsize.h"
 #include <fstream>
@@ -117,6 +116,3 @@ public:
     void close(VAR_LIST var_name);
     void closeall();
 };
-
-#endif
-

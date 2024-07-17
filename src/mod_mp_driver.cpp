@@ -1,6 +1,8 @@
 #include "mod_mp_driver.h"
 
-void MOD_MP_Driver::mp_init(std::string& MP_TYPE)
+namespace MOD_MP_DIRVER{
+
+void mp_init(std::string& MP_TYPE)
 {
     if(MP_TYPE == "NSW6")
     {
@@ -9,7 +11,9 @@ void MOD_MP_Driver::mp_init(std::string& MP_TYPE)
     }
 }
 
-void MOD_MP_Driver::mp_driver()
+void mp_driver()
 {
-
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
+
+};

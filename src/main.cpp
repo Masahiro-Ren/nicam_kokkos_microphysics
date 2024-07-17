@@ -2,26 +2,10 @@
 #include "data_io.h"
 #include "mod_mp_driver.h"
 
-
-Vec2d<double> rhog;
-
+using namespace PROBLEM_SIZE;
 
 int main(int argc, char* argv[])
 {
-    // int kernel_num = 0;
-    // /**
-    //  * Read arguments
-    // */
-    // if(argc == 2)
-    // {
-    //     kernel_num = atoi(argv[1]);
-    // }
-    // else if (argc > 2)
-    // {
-    //     std::cerr << "Too many arguments \n";
-    //     exit(1);
-    // }
-    
 
     /**
      * Display Simulation Configuerations
@@ -35,10 +19,6 @@ int main(int argc, char* argv[])
     std::cout << "EPS = " << PROBLEM_SIZE::EPS << std::endl;
     std::cout << "============= Start Initialize =============== \n";
 
-    Data_IO dumpio;
-    MOD_MP_Driver driver;
-    dumpio.read(RHOG, rhog);
-
 
     std::cout << "============= Finish Initialize =============== \n";
 
@@ -46,11 +26,6 @@ int main(int argc, char* argv[])
      * Start Simulation
     */
     std::cout << "============= Start Kernel =============== \n";
-
-    driver.mp_init(PROBLEM_SIZE::MP_TYPE);
-
-    driver.mp_driver();
-
 
     std::cout << "============= Finish Kernel =============== \n";
 
