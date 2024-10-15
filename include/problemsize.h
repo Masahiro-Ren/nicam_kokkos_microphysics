@@ -100,21 +100,32 @@ constexpr double Tstd  = CONST_Tstd  ;
 constexpr double TEM00 = CONST_TEM00 ;
 
 // grd, gmtr, vmtr
-extern double* GRD_gz   ;
-extern double* GRD_gzh  ;
-extern double* GRD_dgz  ;
-extern double* GRD_dgzh ;
-extern double* GRD_rdgz ;
-extern double* GRD_rdgzh;
-extern double* GRD_afact;
-extern double* GRD_bfact;
-extern double* GRD_cfact;
-extern double* GRD_dfact;
+// extern double* GRD_gz   ;
+// extern double* GRD_gzh  ;
+// extern double* GRD_dgz  ;
+// extern double* GRD_dgzh ;
+// extern double* GRD_rdgz ;
+// extern double* GRD_rdgzh;
+// extern double* GRD_afact;
+// extern double* GRD_bfact;
+// extern double* GRD_cfact;
+// extern double* GRD_dfact;
+extern double GRD_gz   [ADM_kall];
+extern double GRD_gzh  [ADM_kall];
+extern double GRD_dgz  [ADM_kall];
+extern double GRD_dgzh [ADM_kall];
+extern double GRD_rdgz [ADM_kall];
+extern double GRD_rdgzh[ADM_kall];
+extern double GRD_afact[ADM_kall];
+extern double GRD_bfact[ADM_kall];
+extern double GRD_cfact[ADM_kall];
+extern double GRD_dfact[ADM_kall];
 
 // run conf
 extern std::string EIN_TYPE  ;
 extern std::string RAIN_TYPE ;
 extern std::string MP_TYPE   ;
+extern std::string vgrid_fname;
 extern int MP_DIV_NUM;
 extern bool opt_2moment_water   ;
 extern bool ISOTOPE             ;
