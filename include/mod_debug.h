@@ -1,6 +1,7 @@
 #pragma once
 
 #include "problemsize.h"
+#include "data_io.h"
 
 namespace DEBUG {
 

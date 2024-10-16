@@ -7,7 +7,7 @@ namespace PROBLEM_SIZE
 std::string EIN_TYPE     = "SIMPLE";
 std::string RAIN_TYPE    = "COLD";
 std::string MP_TYPE      = "NSW6";
-std::string vgrid_fname  = "./vgrid94.dat";
+// std::string vgrid_fname  = "./vgrid94.dat";
 int MP_DIV_NUM           = 1;
 bool opt_2moment_water   = false;
 bool ISOTOPE             = false;

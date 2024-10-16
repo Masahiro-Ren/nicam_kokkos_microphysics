@@ -1,6 +1,7 @@
 #include "mod_debug.h"
 
 using namespace PROBLEM_SIZE;
+using namespace DATA_IO;
 
 namespace DEBUG {
     void ADM_Proc_stop()
@@ -33,7 +34,8 @@ namespace DEBUG {
         // GRD_dfact = new double[ADM_kall];
 
         // Reading data from vgrid94.dat
-        GRD_Input_vgrid(vgrid_fname);
+        // GRD_Input_vgrid(vgrid_fname);
+        GRD_Input_vgrid();
 
         for(int k = 0; k <= ADM_kmax; k++)
         {
@@ -67,13 +69,26 @@ namespace DEBUG {
         }
     }
 
-    void GRD_Input_vgrid(const std::string& fname)
+    void GRD_Input_vgrid()
     {
         /** Waiting for implementing */
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        read_data_1d("data/vgrid/GRD_gz.dat", GRD_dgz);
+        read_data_1d("data/vgrid/GRD_gzh.dat", GRD_dgzh);
     }
 
-    void cnvvar_rhogkin_in()
+    template<size_t ijdim, size_t kdim>
+    void cnvvar_rhogkin_in(
+        double rhog     [kdim][ijdim],
+        double rhogvx   [kdim][ijdim],
+        double rhogvy   [kdim][ijdim],
+        double rhogvz   [kdim][ijdim],
+        double rhogw    [kdim][ijdim],
+        double C2Wfact  [2][kdim][ijdim],
+        double W2Cfaxt  [2][kdim][ijdim],
+        double rhogkin  [kdim][ijdim],
+        double rhogkin_h[kdim][ijdim],
+        double rhogkin_v[kdim][ijdim] )
     {
         /** Waiting for implementing */
         std::cout << __PRETTY_FUNCTION__ << std::endl;
