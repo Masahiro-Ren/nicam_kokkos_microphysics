@@ -72,7 +72,7 @@ namespace DEBUG {
     void GRD_Input_vgrid()
     {
         /** Waiting for implementing */
-        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << " Reading vgrid data " << std::endl;
         read_data_1d("data/vgrid/GRD_gz.dat", GRD_dgz);
         read_data_1d("data/vgrid/GRD_gzh.dat", GRD_dgzh);
     }
