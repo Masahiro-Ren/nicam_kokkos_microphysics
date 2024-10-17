@@ -3,6 +3,17 @@
 namespace PROBLEM_SIZE
 {
 
+double GRD_gz   [ADM_kall];
+double GRD_gzh  [ADM_kall];
+double GRD_dgz  [ADM_kall];
+double GRD_dgzh [ADM_kall];
+double GRD_rdgz [ADM_kall];
+double GRD_rdgzh[ADM_kall];
+double GRD_afact[ADM_kall];
+double GRD_bfact[ADM_kall];
+double GRD_cfact[ADM_kall];
+double GRD_dfact[ADM_kall];
+
 // define run conf
 std::string EIN_TYPE     = "SIMPLE";
 std::string RAIN_TYPE    = "COLD";

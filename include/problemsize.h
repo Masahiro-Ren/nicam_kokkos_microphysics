@@ -1,5 +1,4 @@
-#ifndef PROBLEMSIZE
-#define PROBLEMSIZE
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -11,7 +10,7 @@ template <typename T>
 using Vec1d = std::vector<T>;
 
 template <typename T>
-using Vec2d = std::vector<std::vector<T>;
+using Vec2d = std::vector<std::vector<T>>;
 
 namespace PROBLEM_SIZE 
 {
@@ -100,16 +99,6 @@ constexpr double Tstd  = CONST_Tstd  ;
 constexpr double TEM00 = CONST_TEM00 ;
 
 // grd, gmtr, vmtr
-// extern double* GRD_gz   ;
-// extern double* GRD_gzh  ;
-// extern double* GRD_dgz  ;
-// extern double* GRD_dgzh ;
-// extern double* GRD_rdgz ;
-// extern double* GRD_rdgzh;
-// extern double* GRD_afact;
-// extern double* GRD_bfact;
-// extern double* GRD_cfact;
-// extern double* GRD_dfact;
 extern double GRD_gz   [ADM_kall];
 extern double GRD_gzh  [ADM_kall];
 extern double GRD_dgz  [ADM_kall];
@@ -172,5 +161,3 @@ extern int SET_iteration;
 extern bool SET_check;
 
 }
-
-#endif

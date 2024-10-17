@@ -5,17 +5,6 @@ using namespace PROBLEM_SIZE;
 using namespace DATA_IO;
 
 // declare all variables
-double GRD_gz   [ADM_kall];
-double GRD_gzh  [ADM_kall];
-double GRD_dgz  [ADM_kall];
-double GRD_dgzh [ADM_kall];
-double GRD_rdgz [ADM_kall];
-double GRD_rdgzh[ADM_kall];
-double GRD_afact[ADM_kall];
-double GRD_bfact[ADM_kall];
-double GRD_cfact[ADM_kall];
-double GRD_dfact[ADM_kall];
-
 double rhog  [ADM_lall][ADM_kall][ADM_gall_in];
 double rhogvx[ADM_lall][ADM_kall][ADM_gall_in];
 double rhogvy[ADM_lall][ADM_kall][ADM_gall_in];

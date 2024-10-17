@@ -5,13 +5,13 @@
 
 namespace DEBUG {
 
-    int EX_STEP = 49;
-    int EX_rgnid;
+    extern int EX_STEP;
+    extern int EX_rgnid;
 
-    int sat_ite_sum = 0;
-    int sat_ite_count = 0;
-    int sat_ite_max = 0;
-    int sat_ite_min = -1;
+    extern int sat_ite_sum;
+    extern int sat_ite_count;
+    extern int sat_ite_max;
+    extern int sat_ite_min;
 
 
     void ADM_Proc_stop();
@@ -20,7 +20,7 @@ namespace DEBUG {
 
     void GRD_Setup();
 
-    void GRD_Input_vgrid(const std::string& fname);
+    void GRD_Input_vgrid();
 
     void cnvvar_rhogkin_in();
 

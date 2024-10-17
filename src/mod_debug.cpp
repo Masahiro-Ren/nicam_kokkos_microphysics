@@ -4,6 +4,15 @@ using namespace PROBLEM_SIZE;
 using namespace DATA_IO;
 
 namespace DEBUG {
+
+    int EX_STEP = 49;
+    int EX_rgnid;
+
+    int sat_ite_sum = 0;
+    int sat_ite_count = 0;
+    int sat_ite_max = 0;
+    int sat_ite_min = -1;
+
     void ADM_Proc_stop()
     {
         exit(1);
