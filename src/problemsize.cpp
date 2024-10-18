@@ -41,8 +41,9 @@ int NTAU                = 7;
 int NPRES               = 7;
 int HYDRO_MAX           = 7;
 
-int NQW_STR = 2;
-int NQW_END = 6;
+int NQW_STR = 1; // 2 in fortran
+int NQW_END = 5; // 6 in fortran
+// values below may need minus 1 in C++ impl.
 int I_QV =  1;
 int I_QC =  2;
 int I_QR =  3;

@@ -26,8 +26,7 @@ namespace DEBUG {
 
     void GRD_Setup()
     {
-        /** Waiting for implementing */
-        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
 
         // Setting the vertical coordinate
         // GRD_gz    = new double[ADM_kall];
@@ -100,7 +99,8 @@ namespace DEBUG {
         double rhogkin_v[kdim][ijdim] )
     {
         /** TO DO */
-        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+
         size_t gall = ijdim;
 
         // --- horizontal kinetic energy

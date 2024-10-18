@@ -15,4 +15,6 @@ extern double LovR_ice;
 
 void SATURATION_Setup();
 
+void SATURATION_Setrange(double Tw, double Ti);
+
 };

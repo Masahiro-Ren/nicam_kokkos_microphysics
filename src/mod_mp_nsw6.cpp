@@ -431,6 +431,8 @@ void Bergeron_param( double tem[kdim][ijdim],
                      double a2 [kdim][ijdim],
                      double ma2[kdim][ijdim])
 {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
     int itemc;
     double temc;
     double fact;

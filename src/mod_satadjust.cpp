@@ -44,4 +44,10 @@ void SATURATION_Setup()
     LovR_ice = LHS / CONST_Rvap;
 }
 
+void SATURATION_Setrange(double Tw, double Ti)
+{
+    SATURATION_ULIMIT_TEMP = Tw;
+    SATURATION_LLIMIT_TEMP = Ti;
+}
+
 };
