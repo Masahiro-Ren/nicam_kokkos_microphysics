@@ -100,7 +100,61 @@ namespace DEBUG {
         double rhogkin_v[kdim][ijdim] )
     {
         /** TO DO */
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        size_t gall = ijdim;
+
+        // --- horizontal kinetic energy
+        for(int k = kmin; k <= kmax; k++)
+        {
+            for(int g = 0; g < gall; g++)
+            {
+                rhogkin[k][g] = 0.5 * ( rhogvx[k][g] * rhogvx[k][g] +
+                                        rhogvy[k][g] * rhogvy[k][g] +
+                                        rhogvz[k][g] * rhogvz[k][g] ) / rhog[k][g];
+            }
+        }
+
+        for(int g = 0; g < gall; g++)
+        {
+            rhogkin_h[kmin - 1][g] = 0.0;
+            rhogkin_h[kmax + 1][g] = 0.0;
+        }
+
+        // --- vertical kinetic energy
+        for(int k = kmin; k <= kmax; k++)
+        {
+            for(int g = 0; g < gall; g++)
+            {
+                rhogkin_v[k][g] = 0.5 * ( rhogw[k][g] * rhogw[k][g] ) /
+                                        ( C2Wfact[1][k][g] * rhog[k][g] +
+                                          C2Wfact[2][k][g] * rhog[k-1][g] );
+            }
+        }
+
+        for(int g = 0; g < gall; g++)
+        {
+            rhogkin_v[kmin - 1][g] = 0.0;
+            rhogkin_v[kmin][g]     = 0.0;
+            rhogkin_v[kmax + 1][g] = 0.0;
+        }
+
+        // -- total kinetic energy
+        for(int k = kmin; k <= kmax; k++)
+        {
+            for(int g = 0; g < gall; g++)
+            {
+                rhogkin(g,k) = rhogkin_h[k][g] +                            // horizontal
+                               ( W2Cfact[1][k][g] * rhogkin_v[k + 1][g] +   // vertical
+                                 W2Cfact[2][k][g] * rhogkin_v[k][g] );
+            }
+        }
+
+        for(int g = 0; g < gall; g++)
+        {
+            rhogkin[kmin - 1][g] = 0.0;
+            rhogkin[kmax + 1][g] = 0.0;
+        }
+
     }
 
     double MISC_gammafunc(double xx)
