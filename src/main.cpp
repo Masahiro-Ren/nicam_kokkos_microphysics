@@ -151,7 +151,10 @@ int main(int argc, char* argv[])
      * Start Simulation
     */
     std::cout << "============= Start Kernel =============== \n";
-
+    for(int i = 0; i < SET_iteration; i++)
+    {
+        // Call mp_driver
+    }
     std::cout << "============= Finish Kernel =============== \n";
 
     /**

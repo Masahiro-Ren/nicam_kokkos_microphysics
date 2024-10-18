@@ -2,9 +2,11 @@
 
 #include "problemsize.h"
 #include "mod_debug.h"
+#include "mod_mp_nsw6.h"
 
 using namespace PROBLEM_SIZE;
 using namespace DEBUG;
+using namespace MP_NSW6;
 
 namespace MP_DRIVER{
 

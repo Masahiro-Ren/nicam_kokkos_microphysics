@@ -99,7 +99,7 @@ namespace DEBUG {
         double rhogkin_h[kdim][ijdim],
         double rhogkin_v[kdim][ijdim] )
     {
-        /** Waiting for implementing */
+        /** TO DO */
         std::cout << __PRETTY_FUNCTION__ << std::endl;
     }
 

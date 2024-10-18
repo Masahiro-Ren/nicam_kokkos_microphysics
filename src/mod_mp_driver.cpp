@@ -13,7 +13,8 @@ void mp_init(const std::string& MP_TYPE_in)
 	if(MP_TYPE_in == "NSW6")
 	{
 		std::cout << "*** microphysics type: NSW6 *** \n";
-		std::cout << "Call mp_nsw6_init \n";
+		// std::cout << "Call mp_nsw6_init \n";
+		mp_nsw6_init();
 	}
 	else
 	{

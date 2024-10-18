@@ -225,6 +225,246 @@ bool Roh_flag              = false;   // enable setting by Roh and Satoh (2014)?
 double sw_constVti = 0.0;
 double CONST_Vti;           // force constant terminal velocity for ice
 
+template<size_t ijdim, size_t kdim>
+void negative_filter( double rhog  [kdim][ijdim],
+                      double rhoge [kdim][ijdim],
+                      double rhogq [nqmax][kdim][ijdim],
+                      double rho   [kdim][ijdim],
+                      double tem   [kdim][ijdim],
+                      double pre   [kdim][ijdim],
+                      double q     [nqmax][kdim][ijdim],
+                      double gsgam2[kdim][ijdim]  );
+
+template<size_t ijdim, size_t kdim>
+void Bergeron_param( double tem[kdim][ijdim],
+                     double a1 [kdim][ijdim],
+                     double a2 [kdim][ijdim],
+                     double ma2[kdim][ijdim]);
+
 namespace MP_NSW6{
 
+void mp_nsw6_init()
+{
+    bool INC_PGAUT = false;
+    double PSAUT_BETA0;
+
+    std::string qr_aut_acc_type = "Default";
+
+    Nc_def = Nc_ocn;
+    CONST_Vti = UNDEF;
+    PSAUT_BETA0 = beta_saut;
+
+    gamma_sacr = 6.0E-2;
+    PSAUT_BETA0 = 5.0E-3;
+    gamma_saut = 6.0E-2;
+    precip_scheme_type = "Flux-Semilag_new";
+    Roh_flag = true;
+    qr_aut_acc_type = "KK2000";
+
+    beta_saut = PSAUT_BETA0;
+
+    std::cout << std::endl;
+    std::cout << "*** Calculation flag of sedimentation: \n";
+    std::cout << "*** QV => NO \n";
+    std::cout << "*** QC => NO \n";
+    std::cout << "*** QR => YES \n";
+
+    if(precip_transport_type == "3WATER")
+    {
+        std::cout << "*** QI => NO \n";
+    }
+    else if(precip_transport_type == "4WATER")
+    {
+        std::cout << "*** QI => YES \n";
+    }
+
+    std::cout << "*** QS => YES \n";
+    std::cout << "*** QG => YES \n\n";
+
+    std::cout << "*** Precipitation(sedimentation) scheme: \n";
+    if(precip_scheme_type == "Upwind-Euler")
+    {
+        std::cout << "*** => Upwind-Euler\n";
+    }
+    else if (precip_scheme_type == "Flux-Semilag_new")
+    {
+        std::cout << "*** => Flux-Semilag_new\n";
+    }
+    else
+    {
+        std::cout << "*** => Default(Flux-Semilag) \n";
+    }
+
+    //--- empirical coefficients A, B, C, D
+    Ar = PI * rho_w / 6.0;
+    As = PI * rho_s / 6.0;
+    Ag = PI * rho_g / 6.0;
+
+    Br = 3.0;
+    Bs = 3.0;
+    Bg = 3.0;
+    
+    Cg = std::sqrt( ( 4.0 * rho_g * GRAV ) / ( 3.0 * dens00 * C_d ) );
+
+    Dr = 0.50;
+    Ds = 0.25;
+    Dg = 0.50;
+
+    std::cout << std::endl;
+    std::cout << "*** Use setting of Roh and Satoh(2014)?: \n";
+    if(Roh_flag)
+    {
+        std::cout << "*** => Yes\n";
+        OPT_EXPLICIT_ICEGEN = true;
+        sw_roh2014 = 1.0;
+        N0g        = 4.0E+8;
+        As         = 0.069;
+        Bs         = 2.0;
+        Esi        = 0.25;
+        Egi        = 0.0;
+        Egs        = 0.0;
+    }
+    else
+    {
+        std::cout << "*** => No: default. \n";
+    }
+    
+    std::cout << std::endl;
+    std::cout << "*** Use explicit ice generation scheme?:\n";
+    if(OPT_EXPLICIT_ICEGEN)
+    {
+        std::cout << "*** => Yes \n";
+        sw_expice = 1.0;
+    }
+    else
+    {
+        std::cout << "*** => No: default.\n";
+        sw_expice = 0.0;
+    }
+
+    std::cout << std::endl;
+    std::cout << "*** Autoconversion & Accretion scheme for QC->Qr:\n";
+    if(qr_aut_acc_type == "Default")
+    {
+        std::cout << "*** => Berry(1968) : default \n";
+        sw_kk2000 = 0.0;
+    }
+    else if (qr_aut_acc_type == "KK2000")
+    {
+        std::cout << "*** => Khairoutdinov and Kogan(2000) \n";
+        sw_kk2000 = 1.0;
+    }
+    else
+    {
+        std::cerr << "Not appropriate qr_aut_acc_type. Type: " << qr_aut_acc_type << std::endl;
+        std::cerr << "STOP! \n";
+        ADM_Proc_stop();
+    }
+
+    if(!INC_PGAUT)
+    {
+        beta_gaut = 0.0;
+    }
+
+    if(CONST_Vti != UNDEF)
+    {
+        sw_constVti = 1.0;
+    }
+    else
+    {
+        sw_constVti = 0.0;
+    }
+
+    GAM       = 1.0; // =0!
+    GAM_2     = 1.0; // =1!
+    GAM_3     = 2.0; // =2!
+
+    GAM_1br   = MISC_gammafunc( 1.0 + Br ); // = 4!
+    GAM_2br   = MISC_gammafunc( 2.0 + Br ); // = 5!
+    GAM_3br   = MISC_gammafunc( 3.0 + Br ); // = 6!
+    GAM_3dr   = MISC_gammafunc( 3.0 + Dr );
+    GAM_6dr   = MISC_gammafunc( 6.0 + Dr );
+    GAM_1brdr = MISC_gammafunc( 1.0 + Br + Dr );
+    GAM_5dr_h = MISC_gammafunc( 0.5 * (5.0 + Dr) );
+
+    GAM_1bs   = MISC_gammafunc( 1.0 + Bs ); // = 4!
+    GAM_2bs   = MISC_gammafunc( 2.0 + Bs ); // = 5!
+    GAM_3bs   = MISC_gammafunc( 3.0 + Bs ); // = 6!
+    GAM_3ds   = MISC_gammafunc( 3.0 + Ds );
+    GAM_1bsds = MISC_gammafunc( 1.0 + Bs + Ds );
+    GAM_5ds_h = MISC_gammafunc( 0.5 * (5.0 + Ds) );
+
+    GAM_1bg   = MISC_gammafunc( 1.0 + Bg ); // = 4!
+    GAM_3dg   = MISC_gammafunc( 3.0 + Dg );
+    GAM_1bgdg = MISC_gammafunc( 1.0 + Bg + Dg);
+    GAM_5dg_h = MISC_gammafunc( 0.5 * (5.0 + Dg) );
+
+    ln10 = std::log(10.0);
+}
+
+void mp_nsw6()
+{
+    /* TO DO */
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+}
+
 };
+
+
+template<size_t ijdim, size_t kdim>
+void negative_filter( double rhog  [kdim][ijdim],
+                      double rhoge [kdim][ijdim],
+                      double rhogq [nqmax][kdim][ijdim],
+                      double rho   [kdim][ijdim],
+                      double tem   [kdim][ijdim],
+                      double pre   [kdim][ijdim],
+                      double q     [nqmax][kdim][ijdim],
+                      double gsgam2[kdim][ijdim]  )
+{
+    /* TO DO */
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+}
+
+template<size_t ijdim, size_t kdim>
+void Bergeron_param( double tem[kdim][ijdim],
+                     double a1 [kdim][ijdim],
+                     double a2 [kdim][ijdim],
+                     double ma2[kdim][ijdim])
+{
+    int itemc;
+    double temc;
+    double fact;
+    double a1_tab[32] = {0.0001E-7, 0.7939E-7, 0.7841E-6, 0.3369E-5, 0.4336E-5,
+                         0.5285E-5, 0.3728E-5, 0.1852E-5, 0.2991E-6, 0.4248E-6,
+                         0.7434E-6, 0.1812E-5, 0.4394E-5, 0.9145E-5, 0.1725E-4,
+                         0.3348E-4, 0.1725E-4, 0.9175E-5, 0.4412E-5, 0.2252E-5,
+                         0.9115E-6, 0.4876E-6, 0.3473E-6, 0.4758E-6, 0.6306E-6,
+                         0.8573E-6, 0.7868E-6, 0.7192E-6, 0.6513E-6, 0.5956E-6,
+                         0.5333E-6, 0.4834E-6};
+
+    double a2_tab[32] = { 0.0100, 0.4006, 0.4831, 0.5320, 0.5307,
+                          0.5319, 0.5249, 0.4888, 0.3849, 0.4047,
+                          0.4318, 0.4771, 0.5183, 0.5463, 0.5651,
+                          0.5813, 0.5655, 0.5478, 0.5203, 0.4906,
+                          0.4447, 0.4126, 0.3960, 0.4149, 0.4320,
+                          0.4506, 0.4483, 0.4460, 0.4433, 0.4413,
+                          0.4382, 0.4361 };
+
+    for(int k = kim; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            temc = std::min( std::max( tem[k][ij] - TEM00, -30.99 ), 0.0 );
+            itemc = int(-temc) + 1;
+            fact = -(temc + double(itemc - 1));
+            a1[k][ij] = (1.0 - fact) * a1_tab[itemc] +
+                        (fact) * a1_tab[itemc + 1];
+            a2[k][ij] = (1.0 - fact) * a2_tab[itemc] +
+                        (fact) * a2_tab[itemc + 1];
+            ma2[k][ij] = 1.0 - a2[k][ij];
+
+            a1[k][ij] = a1[k][ij] * std::pow(1.0E-3, ma2[k][ij]);
+        }
+    } 
+}
+
