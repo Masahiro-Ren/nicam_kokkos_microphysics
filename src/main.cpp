@@ -1,10 +1,12 @@
 #include "problemsize.h"
 #include "data_io.h"
-// #include "mod_debug.h"
+#include "mod_debug.h"
+#include "mod_satadjust.h"
 
 using namespace PROBLEM_SIZE;
 using namespace DATA_IO;
-// using namespace DEBUG;
+using namespace DEBUG;
+using namespace SATADJUST;
 
 // declare all variables
 double rhog  [ADM_lall][ADM_kall][ADM_gall_in];
@@ -134,11 +136,11 @@ int main(int argc, char* argv[])
     /**
      * Vertical grid setup
      */
-
+    GRD_Setup();
     /**
      * Saturation set_up
      */
-
+    SATURATION_Setup();
     /**
      * microphysics initialization
      */

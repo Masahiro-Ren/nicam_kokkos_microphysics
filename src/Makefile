@@ -8,6 +8,7 @@ OBJS = 	\
 	problemsize.o \
 	data_io.o \
 	mod_debug.o \
+	mod_satadjust.o \
 	main.o \
 
 TARGET = physicskernel_microphysics.exe

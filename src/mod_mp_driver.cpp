@@ -1,14 +1,26 @@
-#pragma once
+#include "mod_mp_driver.h"
 
-#include "problemsize.h"
-#include "mod_debug.h"
+bool opt_radius_explicit = false;
+bool opt_volume_explicit = false;
 
-using namespace PROBLEM_SIZE;
-using namespace DEBUG;
+double TSICE = 273.15;
+double TWICE = 258.15;
 
-namespace DRIVER{
+namespace MP_DRIVER{
 
-void mp_init(const std::string& MP_TYPE_in);
+void mp_init(const std::string& MP_TYPE_in)
+{
+	if(MP_TYPE_in == "NSW6")
+	{
+		std::cout << "*** microphysics type: NSW6 *** \n";
+		std::cout << "Call mp_nsw6_init \n";
+	}
+	else
+	{
+		std::cerr << __PRETTY_FUNCTION__ << " NOT appropriate type. Type:  " << MP_TYPE << std::endl;
+		ADM_Proc_stop();
+	}
+}
 
 template<size_t ijdim, size_t kdim>
 void mp_driver( size_t l_region,
@@ -64,6 +76,9 @@ void mp_driver( size_t l_region,
 				double GDCFRC		 [kdim][ijdim],
 				double GPREC		 [kdim][ijdim],
 				double CBMFX		 [kdim][ijdim]
-				);
+				)
+{
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+}
 
 }
