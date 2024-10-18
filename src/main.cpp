@@ -1,8 +1,10 @@
 #include "problemsize.h"
 #include "data_io.h"
+// #include "mod_debug.h"
 
 using namespace PROBLEM_SIZE;
 using namespace DATA_IO;
+// using namespace DEBUG;
 
 // declare all variables
 double rhog  [ADM_lall][ADM_kall][ADM_gall_in];
@@ -20,7 +22,7 @@ double rho   [ADM_lall][ADM_kall][ADM_gall_in];
 double pre   [ADM_lall][ADM_kall][ADM_gall_in];
 double tem   [ADM_lall][ADM_kall][ADM_gall_in];
 
-double rhogq_Lswp[ADM_lall][TRC_VMAX][ADM_kall][ADM_gall_in];
+double rhogq_Lswp [ADM_lall][TRC_VMAX][ADM_kall][ADM_gall_in];
 double q_Lswp     [ADM_lall][TRC_VMAX][ADM_kall][ADM_gall_in];
 
 double precip_mp  [2][ADM_lall][ADM_KNONE][ADM_gall_in];
@@ -128,6 +130,18 @@ int main(int argc, char* argv[])
     read_data_3d("data/zh.dat", zh);
     read_data_3d("data/GPREC.dat", GPREC);
     read_data_3d("data/CBMFX.dat", CBMFX);
+
+    /**
+     * Vertical grid setup
+     */
+
+    /**
+     * Saturation set_up
+     */
+
+    /**
+     * microphysics initialization
+     */
 
     std::cout << "============= Finish Initialize =============== \n";
 
