@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
     read_data_4d("data/q_Lswp.dat", q_Lswp);
 
     read_data_4d("data/precip_mp.dat", precip_mp);
-    read_data_4d("data/precip_mp1.dat", precip1_mp);
-    read_data_4d("data/precip_mp2.dat", precip2_mp);
+    read_data_4d("data/precip1_mp.dat", precip1_mp);
+    read_data_4d("data/precip2_mp.dat", precip2_mp);
 
     read_data_3d("data/rhoein_precip_mp.dat", rhoein_precip_mp);
     read_data_3d("data/lh_precip_mp.dat", lh_precip_mp);

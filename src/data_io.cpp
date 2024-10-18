@@ -17,7 +17,7 @@ void read_data_1d(const std::string& filename, double arr1d[ADM_kall])
 
     if(!infile)
     {
-        std::cerr << __PRETTY_FUNCTION__ << " Error opeing " << filename << std::endl;
+        std::cerr << __PRETTY_FUNCTION__ << " Error opening " << filename << std::endl;
         DEBUG::ADM_Proc_stop();
     }
 
@@ -39,7 +39,7 @@ void read_data_2d(const std::string& filename, double arr2d[ADM_lall][ADM_gall_i
 
     if(!infile)
     {
-        std::cerr << __PRETTY_FUNCTION__ << " Error opeing " << filename << std::endl;
+        std::cerr << __PRETTY_FUNCTION__ << " Error opening " << filename << std::endl;
         DEBUG::ADM_Proc_stop();
     }
 
@@ -67,7 +67,7 @@ void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_kall][
 
     if(!infile)
     {
-        std::cerr << __PRETTY_FUNCTION__ << " Error opeing " << filename << std::endl;
+        std::cerr << __PRETTY_FUNCTION__ << " Error opening " << filename << std::endl;
         DEBUG::ADM_Proc_stop();
     }
 
@@ -99,7 +99,7 @@ void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_KNONE]
 
     if(!infile)
     {
-        std::cerr << __PRETTY_FUNCTION__ << " Error opeing " << filename << std::endl;
+        std::cerr << __PRETTY_FUNCTION__ << " Error opening " << filename << std::endl;
         DEBUG::ADM_Proc_stop();
     }
 
@@ -131,7 +131,7 @@ void read_data_4d(const std::string& filename, double arr4d[ADM_lall][TRC_VMAX][
 
     if(!infile)
     {
-        std::cerr << __PRETTY_FUNCTION__ << " Error opeing " << filename << std::endl;
+        std::cerr << __PRETTY_FUNCTION__ << " Error opening " << filename << std::endl;
         DEBUG::ADM_Proc_stop();
     }
 
@@ -167,7 +167,7 @@ void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNO
 
     if(!infile)
     {
-        std::cerr << __PRETTY_FUNCTION__ << " Error opeing " << filename << std::endl;
+        std::cerr << __PRETTY_FUNCTION__ << " Error opening " << filename << std::endl;
         DEBUG::ADM_Proc_stop();
     }
 
