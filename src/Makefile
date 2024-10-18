@@ -1,8 +1,11 @@
-CXX = clang++
+# CXX = clang++
+CXX = FCCpx
 INCLUDE_PATH = ../include
 
-CXXFLAGS = --std=c++17 -I$(INCLUDE_PATH)
+# FLAGS for a64fx
+A64FX_FLAGS = -Kfast
 
+CXXFLAGS = --std=c++17 -I$(INCLUDE_PATH) $(A64FX_FLAGS)
 
 OBJS = 	\
 	problemsize.o \
