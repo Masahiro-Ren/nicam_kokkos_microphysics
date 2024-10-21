@@ -125,4 +125,4 @@ void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNO
 
 // template<size_t WDIM, size_t LDIM, size_t KDIM, size_t IJDIM>
 // void read_data_4d(const std::string& filename, double arr4d[WDIM][LDIM][KDIM][IJDIM]);
-};
+}

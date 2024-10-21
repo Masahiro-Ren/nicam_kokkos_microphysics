@@ -26,4 +26,4 @@ void cnvvar_rhogkin_in();
 
 double MISC_gammafunc(double xx);
 
-};
+}

@@ -15,4 +15,4 @@ void mp_nsw6_init();
 
 void mp_nsw6();
 
-};
+}
