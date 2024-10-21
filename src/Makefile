@@ -12,6 +12,8 @@ OBJS = 	\
 	data_io.o \
 	mod_debug.o \
 	mod_satadjust.o \
+	mod_mp_nsw6.o \
+	mod_mp_driver.o \
 	main.o \
 
 TARGET = physicskernel_microphysics.exe

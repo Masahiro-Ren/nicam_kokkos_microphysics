@@ -13,7 +13,7 @@ namespace MP_DRIVER{
 void mp_init(const std::string& MP_TYPE_in);
 
 template<size_t ijdim, size_t kdim>
-void mp_driver( size_t l_region,
+void mp_driver( int l_region,
 				double rhog          [kdim][ijdim],
 				double rhogvx        [kdim][ijdim],
 				double rhogvy        [kdim][ijdim],
@@ -25,7 +25,7 @@ void mp_driver( size_t l_region,
 				double vy            [kdim][ijdim],
 				double vz            [kdim][ijdim],
 				double w             [kdim][ijdim],
-				double uccn          [kdim][ijdim],
+				double unccn         [kdim][ijdim],
 				double rho           [kdim][ijdim],
 				double tem           [kdim][ijdim],
 				double pre           [kdim][ijdim],
