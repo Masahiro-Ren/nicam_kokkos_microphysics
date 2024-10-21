@@ -85,7 +85,6 @@ namespace DEBUG {
         read_data_1d("data/vgrid/GRD_gzh.dat", GRD_dgzh);
     }
 
-    template<size_t ijdim, size_t kdim>
     void cnvvar_rhogkin_in(
         double rhog     [kdim][ijdim],
         double rhogvx   [kdim][ijdim],
@@ -143,9 +142,9 @@ namespace DEBUG {
         {
             for(int g = 0; g < gall; g++)
             {
-                rhogkin(g,k) = rhogkin_h[k][g] +                            // horizontal
-                               ( W2Cfact[1][k][g] * rhogkin_v[k + 1][g] +   // vertical
-                                 W2Cfact[2][k][g] * rhogkin_v[k][g] );
+                rhogkin[k][g] = rhogkin_h[k][g] +                            // horizontal
+                                ( W2Cfact[1][k][g] * rhogkin_v[k + 1][g] +   // vertical
+                                  W2Cfact[2][k][g] * rhogkin_v[k][g] );
             }
         }
 

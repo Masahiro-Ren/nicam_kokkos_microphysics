@@ -13,7 +13,6 @@ namespace MP_NSW6{
 
 void mp_nsw6_init();
 
-template <size_t ijdim, size_t kdim>
 void mp_nsw6(
             int l_region,
             double rhog          [kdim][ijdim],

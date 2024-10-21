@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
      *      precip1_mp(:,ADM_KNONE,l,:)
      *      precip2_mp(:,ADM_KNONE,l,:)
      */
-    double precip_mp_tmp[2][ADM_gall_in];
+    double precip_mp_tmp [2][ADM_gall_in];
     double precip1_mp_tmp[2][ADM_gall_in];
     double precip2_mp_tmp[2][ADM_gall_in];
 
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
     {
         for(int ij = 0; ij < ADM_gall_in; ij++)
         {
-            precip_mp_tmp[k][ij] = precip_mp[k][0][0][ij];
+            precip_mp_tmp [k][ij] = precip_mp [k][0][0][ij];
             precip1_mp_tmp[k][ij] = precip1_mp[k][0][0][ij];
             precip2_mp_tmp[k][ij] = precip2_mp[k][0][0][ij];
         }
@@ -181,61 +181,61 @@ int main(int argc, char* argv[])
     for(int i = 0; i < SET_iteration; i++)
     {
         // Call mp_driver
-        mp_driver<ADM_gall_in, ADM_kall>(
-                                         l,
-                                         rhog            [0],
-                                         rhogvx          [0],
-                                         rhogvy          [0],
-                                         rhogvz          [0],
-                                         rhogw           [0],
-                                         rhoge           [0],
-                                         rhogq_Lswp      [0],
-                                         vx              [0],
-                                         vy              [0],
-                                         vz              [0],
-                                         w               [0],
-                                         unccn           [0],
-                                         rho             [0],
-                                         tem             [0],
-                                         pre             [0],
-                                         q_Lswp          [0],
-                                         qd              [0],
-                                         precip_mp_tmp,
-                                         precip1_mp_tmp,
-                                         precip2_mp_tmp,
-                                         rhoein_precip_mp[0][0],
-                                         lh_precip_mp    [0][0],
-                                         rhophi_precip_mp[0][0],
-                                         rhokin_precip_mp[0][0],
-                                         rceff           [0],
-                                         rceff_solid     [0],
-                                         rceff_cld       [0],
-                                         rctop           [0],
-                                         rwtop           [0],
-                                         tctop           [0],
-                                         frhoge_af       [0],
-                                         frhogqv_af      [0],
-                                         frhoge_rad      [0],
-                                         qke             [0],
-                                         gsgam2          [0],
-                                         gsgam2h         [0],
-                                         gam2            [0],
-                                         gam2h           [0],
-                                         ix              [0],
-                                         iy              [0],
-                                         iz              [0],
-                                         jx              [0],
-                                         jy              [0],
-                                         jz              [0],
-                                         z               [0],
-                                         zh              [0],
-                                         TIME_DTL,
-                                         TIME_CTIME,
-                                         GDCLW           [0],
-                                         GDCFRC          [0],
-                                         GPREC           [0],
-                                         CBMFX           [0]
-                                         );
+        mp_driver(
+                  l,
+                  rhog            [0],
+                  rhogvx          [0],
+                  rhogvy          [0],
+                  rhogvz          [0],
+                  rhogw           [0],
+                  rhoge           [0],
+                  rhogq_Lswp      [0],
+                  vx              [0],
+                  vy              [0],
+                  vz              [0],
+                  w               [0],
+                  unccn           [0],
+                  rho             [0],
+                  tem             [0],
+                  pre             [0],
+                  q_Lswp          [0],
+                  qd              [0],
+                  precip_mp_tmp,
+                  precip1_mp_tmp,
+                  precip2_mp_tmp,
+                  rhoein_precip_mp[0][0],
+                  lh_precip_mp    [0][0],
+                  rhophi_precip_mp[0][0],
+                  rhokin_precip_mp[0][0],
+                  rceff           [0],
+                  rceff_solid     [0],
+                  rceff_cld       [0],
+                  rctop           [0],
+                  rwtop           [0],
+                  tctop           [0],
+                  frhoge_af       [0],
+                  frhogqv_af      [0],
+                  frhoge_rad      [0],
+                  qke             [0],
+                  gsgam2          [0],
+                  gsgam2h         [0],
+                  gam2            [0],
+                  gam2h           [0],
+                  ix              [0],
+                  iy              [0],
+                  iz              [0],
+                  jx              [0],
+                  jy              [0],
+                  jz              [0],
+                  z               [0],
+                  zh              [0],
+                  TIME_DTL,
+                  TIME_CTIME,
+                  GDCLW           [0],
+                  GDCFRC          [0],
+                  GPREC           [0],
+                  CBMFX           [0]
+                  );
     }
     std::cout << "============= Finish Kernel =============== \n";
 

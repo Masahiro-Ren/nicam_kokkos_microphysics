@@ -225,7 +225,6 @@ bool Roh_flag              = false;   // enable setting by Roh and Satoh (2014)?
 double sw_constVti = 0.0;
 double CONST_Vti;           // force constant terminal velocity for ice
 
-template<size_t ijdim, size_t kdim>
 void negative_filter( double rhog  [kdim][ijdim],
                       double rhoge [kdim][ijdim],
                       double rhogq [nqmax][kdim][ijdim],
@@ -235,7 +234,6 @@ void negative_filter( double rhog  [kdim][ijdim],
                       double q     [nqmax][kdim][ijdim],
                       double gsgam2[kdim][ijdim]  );
 
-template<size_t ijdim, size_t kdim>
 void Bergeron_param( double tem[kdim][ijdim],
                      double a1 [kdim][ijdim],
                      double a2 [kdim][ijdim],
@@ -402,7 +400,6 @@ void mp_nsw6_init()
     ln10 = std::log(10.0);
 }
 
-template <size_t ijdim, size_t kdim>
 void mp_nsw6(
             int l_region,
             double rhog          [kdim][ijdim],
@@ -457,7 +454,6 @@ void mp_nsw6(
 }
 
 
-template<size_t ijdim, size_t kdim>
 void negative_filter( double rhog  [kdim][ijdim],
                       double rhoge [kdim][ijdim],
                       double rhogq [nqmax][kdim][ijdim],
@@ -471,7 +467,6 @@ void negative_filter( double rhog  [kdim][ijdim],
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 
-template<size_t ijdim, size_t kdim>
 void Bergeron_param( double tem[kdim][ijdim],
                      double a1 [kdim][ijdim],
                      double a2 [kdim][ijdim],

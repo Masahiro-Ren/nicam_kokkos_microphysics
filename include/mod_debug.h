@@ -3,6 +3,8 @@
 #include "problemsize.h"
 #include "data_io.h"
 
+using namespace PROBLEM_SIZE;
+
 namespace DEBUG {
 
 extern int EX_STEP;
@@ -22,7 +24,17 @@ void GRD_Setup();
 
 void GRD_Input_vgrid();
 
-void cnvvar_rhogkin_in();
+void cnvvar_rhogkin_in(
+    double rhog     [kdim][ijdim],
+    double rhogvx   [kdim][ijdim],
+    double rhogvy   [kdim][ijdim],
+    double rhogvz   [kdim][ijdim],
+    double rhogw    [kdim][ijdim],
+    double C2Wfact  [2][kdim][ijdim],
+    double W2Cfact  [2][kdim][ijdim],
+    double rhogkin  [kdim][ijdim],
+    double rhogkin_h[kdim][ijdim],
+    double rhogkin_v[kdim][ijdim] );
 
 double MISC_gammafunc(double xx);
 
