@@ -498,7 +498,7 @@ void Bergeron_param( double tem[kdim][ijdim],
                           0.4506, 0.4483, 0.4460, 0.4433, 0.4413,
                           0.4382, 0.4361 };
 
-    for(int k = kim; k <= kmax; k++)
+    for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
         {

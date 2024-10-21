@@ -6,6 +6,7 @@ INCLUDE_PATH = ../include
 A64FX_FLAGS = -Kfast
 
 CXXFLAGS = --std=c++17 -I$(INCLUDE_PATH) $(A64FX_FLAGS)
+# CXXFLAGS = --std=c++17 -I$(INCLUDE_PATH)
 
 OBJS = 	\
 	problemsize.o \

@@ -93,7 +93,7 @@ namespace DEBUG {
         double rhogvz   [kdim][ijdim],
         double rhogw    [kdim][ijdim],
         double C2Wfact  [2][kdim][ijdim],
-        double W2Cfaxt  [2][kdim][ijdim],
+        double W2Cfact  [2][kdim][ijdim],
         double rhogkin  [kdim][ijdim],
         double rhogkin_h[kdim][ijdim],
         double rhogkin_v[kdim][ijdim] )

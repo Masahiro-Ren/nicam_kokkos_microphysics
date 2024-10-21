@@ -32,7 +32,7 @@ constexpr int ADM_kmax     = 94; // 95 in fortran
 constexpr int ADM_lall     = 1 ;
 constexpr int TRC_VMAX     = 6 ;
 
-constexpr int kdim         = 96;
+// constexpr int kdim         = 96;
 constexpr int kmin         = 1 ; // 2 in fortran
 constexpr int kmax         = 94; // 95 in fortran
 constexpr int knone        = 1 ;

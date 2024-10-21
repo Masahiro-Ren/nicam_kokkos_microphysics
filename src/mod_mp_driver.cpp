@@ -90,18 +90,18 @@ void mp_driver( int l_region,
 	double precip_lh_heat_sum[ijdim];
 	double precip_rhophi_sum [ijdim];
 	double precip_rhokin_sum [ijdim];
-	double precip_trc_sum	 [nqmax][ijdim]
+	double precip_trc_sum	 [nqmax][ijdim];
 	double GDCLW_sum		 [kdim][ijdim];
 	double GDCFRC_sum		 [kdim][ijdim];
 	double GPREC_sum		 [kdim][ijdim];
 
-	double re_rain           [kdim][ijdim] // Effective Radius
-	double re_ice            [kdim][ijdim] // Effective Radius
-	double re_snow           [kdim][ijdim] // Effective Radius
-	double re_graupel        [kdim][ijdim] // Effective Radius
-	double rctop_cld         [1][ijdim]    // Effective Radius of Cloud Top
-	double rwtop_cld         [1][ijdim]    // Effective Radius of Warm-Cloud Top
-	double tctop_cld         [1][ijdim]    // Cloud Top Temperature
+	double re_rain           [kdim][ijdim]; // Effective Radius
+	double re_ice            [kdim][ijdim]; // Effective Radius
+	double re_snow           [kdim][ijdim]; // Effective Radius
+	double re_graupel        [kdim][ijdim]; // Effective Radius
+	double rctop_cld         [1][ijdim];    // Effective Radius of Cloud Top
+	double rwtop_cld         [1][ijdim];    // Effective Radius of Warm-Cloud Top
+	double tctop_cld         [1][ijdim];    // Cloud Top Temperature
 
 	double qke				 [kdim][ijdim];
 
@@ -270,7 +270,7 @@ void mp_driver( int l_region,
 		{
 			for(int ij = 0; ij < ijdim; ij++)
 			{
-				precip_sum[k][ij]      += preci[k][ij];
+				precip_sum[k][ij]      += precip[k][ij];
 				ISO1_precip_sum[k][ij] += ISO1_precip[k][ij];
 				ISO2_precip_sum[k][ij] += ISO2_precip[k][ij];
 			}
