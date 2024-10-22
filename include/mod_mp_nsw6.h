@@ -3,11 +3,13 @@
 #include "problemsize.h"
 #include "mod_debug.h"
 #include "mod_satadjust.h"
+#include "mod_thrmdyn.h"
 
 
 using namespace PROBLEM_SIZE;
 using namespace DEBUG;
 using namespace SATADJUST;
+using namespace THRMDYN;
 
 namespace MP_NSW6{
 

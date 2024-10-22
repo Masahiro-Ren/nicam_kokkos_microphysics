@@ -463,8 +463,87 @@ void negative_filter( double rhog  [kdim][ijdim],
                       double q     [nqmax][kdim][ijdim],
                       double gsgam2[kdim][ijdim]  )
 {
-    /* TO DO */
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    double qd[kdim][ijdim];
+    double cva[kdim][ijdim];
+    double Rdry = CONST_Rdry;
+    double Rvap = CONST_Rvap;
+
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            double diffq = 0.0;
+            for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
+            {
+                // total hydrometeor (before correction)
+                diffq += rhogq[nq][k][ij];
+                // remove negative value of hydrometeors (mass)
+                rhogq[nq][k][ij] = std::max(rhogq[nq][k][ij], 0.0);
+            }
+
+            for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
+            {
+                // difference between before and after correction
+                diffq -= rhogq[nq][k][ij];
+            }
+
+            // Compensate for the lack of hydrometeors by the water vapor
+            rhogq[I_QV][k][ij] += diffq;
+        }
+    }
+
+
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            double diffq = rhogq[I_QV][k][ij];
+            // remove negative value of water vapor (mass)
+            rhogq[I_QV][k][ij] = std::max(rhogq[I_QV][k][ij], 0.0);
+
+            diffq -= rhogq[I_QV][k][ij];
+
+            // Apply correction to total density
+            rhog[k][ij] = rhog[k][ij] * (1.0 - diffq);
+            rho[k][ij] = rhog[k][ij] / gsgam2[k][ij];
+        }
+    }
+
+    for(int nq = NQW_STR; nq <= NQW_END; nq++)
+    {
+        for(int k = kmin; k <= kmax; k++)
+        {
+            for(int ij = 0; ij < ijdim; ij++)
+            {
+                //--- update mass concentration
+                q[nq][k][ij] = rhogq[nq][k][ij] / rhog[k][ij];
+            }
+        }
+    }
+
+    /**
+     * q  [IN]
+     * qd [OUT]
+     */
+    THRMDYN_qd(q, qd);
+    /**
+     * qd  [IN]
+     * q   [IN]
+     * cva [OUT]
+     */
+    THRMDYN_cv(qd, q, cva);
+
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            rhoge[k][ij] = tem[k][ij] * rhog[k][ij] * cva[k][ij];
+            pre[k][ij] = rho[k][ij] * ( qd[k][ij] * Rdry + q[I_QV][k][ij] * Rvap ) * tem[k][ij];
+        }
+    }
+
 }
 
 void Bergeron_param( double tem[kdim][ijdim],

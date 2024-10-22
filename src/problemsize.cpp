@@ -43,19 +43,19 @@ int HYDRO_MAX           = 7;
 
 int NQW_STR = 1; // 2 in fortran
 int NQW_END = 5; // 6 in fortran
-// values below may need minus 1 in C++ impl.
-int I_QV =  1;
-int I_QC =  2;
-int I_QR =  3;
-int I_QI =  4;
-int I_QS =  5;
-int I_QG =  6;
-int I_QH =  7;
-int I_NC =  7;
-int I_NR =  8;
-int I_NI =  9;
-int I_NS = 10;
-int I_NG = 11;
+// values below are all 1 less than fortran impl.
+int I_QV =  0;
+int I_QC =  1;
+int I_QR =  2;
+int I_QI =  3;
+int I_QS =  4;
+int I_QG =  5;
+int I_QH =  6;
+int I_NC =  6;
+int I_NR =  7;
+int I_NI =  8;
+int I_NS =  9;
+int I_NG = 10;
 
 std::vector<std::string> TRC_name{ "QV",
                                    "QC",

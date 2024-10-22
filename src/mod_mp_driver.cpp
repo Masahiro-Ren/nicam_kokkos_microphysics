@@ -321,9 +321,9 @@ void mp_driver( int l_region,
 	{
 		for(int ij = 0; ij < ijdim; ij++)
 		{
-			GDCLW [k][ij] = GDCLW[k][ij] * fraction_mp;
-			GDCFRC[k][ij] = GDCFRC[k][ij] * fraction_mp;
-			GPREC [k][ij] = GPREC[k][ij] * fraction_mp;
+			GDCLW [k][ij] = GDCLW_sum[k][ij] * fraction_mp;
+			GDCFRC[k][ij] = GDCFRC_sum[k][ij] * fraction_mp;
+			GPREC [k][ij] = GPREC_sum[k][ij] * fraction_mp;
 		}
 	}
 
