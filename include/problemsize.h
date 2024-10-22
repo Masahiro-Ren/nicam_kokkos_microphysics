@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 template <typename T>
 using Vec1d = std::vector<T>;
