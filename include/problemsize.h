@@ -101,6 +101,9 @@ constexpr double Pstd  = CONST_Pstd  ;
 constexpr double Tstd  = CONST_Tstd  ;
 constexpr double TEM00 = CONST_TEM00 ;
 
+// RP_PREC = precision(0.D0) in fortran
+constexpr int    RP_PREC = 15;
+
 // grd, gmtr, vmtr
 extern double GRD_gz   [ADM_kall];
 extern double GRD_gzh  [ADM_kall];

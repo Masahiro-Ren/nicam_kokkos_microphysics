@@ -41,4 +41,17 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double qd     [kdim][ijdim],
                             double gsgam2 [kdim][ijdim],
                             bool   ice_adjust );
+
+// private procedures
+void satadjust_all( double rho    [kdim][ijdim],
+                    double Emoist [kdim][ijdim],
+                    double qsum   [kdim][ijdim],
+                    double tem    [kdim][ijdim],
+                    double q      [nqmax][kdim][ijdim] );
+
+void satadjust_liq( double rho    [kdim][ijdim],
+                    double Emoist [kdim][ijdim],
+                    double qsum   [kdim][ijdim],
+                    double tem    [kdim][ijdim],
+                    double q      [nqmax][kdim][ijdim] );
 }
