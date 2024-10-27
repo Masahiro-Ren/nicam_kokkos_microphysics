@@ -4,12 +4,14 @@
 #include "mod_debug.h"
 #include "mod_satadjust.h"
 #include "mod_thrmdyn.h"
+#include "mod_precip_transport.h"
 
 
 using namespace PROBLEM_SIZE;
 using namespace DEBUG;
 using namespace SATADJUST;
 using namespace THRMDYN;
+using namespace PRECIP_TRANSPORT;
 
 namespace MP_NSW6{
 
