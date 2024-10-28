@@ -447,8 +447,181 @@ void mp_nsw6(
             double dt
             )
 {
-    /* TO DO */
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    // working
+    double drhogqv[kdim][ijdim];
+    double drhogqc[kdim][ijdim];
+    double drhogqi[kdim][ijdim];
+    double drhogqr[kdim][ijdim];
+    double drhogqs[kdim][ijdim];
+    double drhogqg[kdim][ijdim];
+
+    double psatl[kdim][ijdim];
+    double qsatl[kdim][ijdim];                //< saturated water vapor for liquid water [kg/kg]
+    double psati[kdim][ijdim];
+    double qsati[kdim][ijdim];                //< saturated water vapor for ice water    [kg/kg]
+    double Nc   [kdim][ijdim];                //< Number concentration of cloud water [1/cc]
+
+    double dens    ;                         //< density
+    double temp    ;                         //< T [K]
+    double qv      ;                         //< mixing ratio of water vapor  [kg/kg]
+    double qc      ;                         //< mixing ratio of liquid water [kg/kg]
+    double qr      ;                         //< mixing ratio of rain         [kg/kg]
+    double qi      ;                         //< mixing ratio of ice water    [kg/kg]
+    double qs      ;                         //< mixing ratio of snow         [kg/kg]
+    double qg      ;                         //< mixing ratio of graupel      [kg/kg]
+    double qv_t    ;                         //< tendency     of water vapor  [kg/kg/s]
+    double qc_t    ;                         //< tendency     of liquid water [kg/kg/s]
+    double qr_t    ;                         //< tendency     of rain         [kg/kg/s]
+    double qi_t    ;                         //< tendency     of ice water    [kg/kg/s]
+    double qs_t    ;                         //< tendency     of snow         [kg/kg/s]
+    double qg_t    ;                         //< tendency     of graupel      [kg/kg/s]
+    double Sliq    ;                         //< saturated ratio S for liquid water [0-1]
+    double Sice    ;                         //< saturated ratio S for ice water    [0-1]
+    double Rdens   ;                         //< 1 / density
+    double rho_fact;                         //< density factor
+    double temc    ;                         //< T - T0 [K]
+
+    double RLMDr, RLMDr_2, RLMDr_3        ;
+    double RLMDs, RLMDs_2, RLMDs_3        ;
+    double RLMDg, RLMDg_2, RLMDg_3        ;
+    double RLMDr_1br, RLMDr_2br, RLMDr_3br;
+    double RLMDs_1bs, RLMDs_2bs, RLMDs_3bs;
+    double RLMDr_dr, RLMDr_3dr, RLMDr_5dr ;
+    double RLMDs_ds, RLMDs_3ds, RLMDs_5ds ;
+    double RLMDg_dg, RLMDg_3dg, RLMDg_5dg ;
+    double RLMDr_7                        ;
+    double RLMDr_6dr                      ;
+
+    //---< Roh and Satoh (2014) >---
+    double tems, Xs2                     ;
+    double MOMs_0, MOMs_1, MOMs_2        ;
+    double MOMs_0bs, MOMs_1bs, MOMs_2bs  ;
+    double MOMs_2ds, MOMs_5ds_h, RMOMs_Vt;
+    double coef_at[4]                    ;
+    double coef_bt[4]                    ;
+    double loga_, b_, nm                 ;
+
+    double Vti, Vtr, Vts, Vtg   ;           //< terminal velocity
+    double Esi_mod, Egs_mod     ;           //< modified accretion efficiency
+    double rhoqc                ;           //< rho * qc
+    double Pracw_orig,  Pracw_kk;           //< accretion       term by orig  & k-k scheme
+    double Praut_berry, Praut_kk;           //< auto-conversion term by berry & k-k scheme
+    double Dc                   ;           //< relative variance
+    double betai, betas         ;           //< sticky parameter for auto-conversion
+    double Ka                   ;           //< thermal diffusion coefficient of air
+    double Kd                   ;           //< diffusion coefficient of water vapor in air
+    double Nu                   ;           //< kinematic viscosity of air
+    double Glv, Giv, Gil        ;           //< thermodynamic function
+    double ventr, vents, ventg  ;           //< ventilation factor
+    double net, fac, fac_sw     ;
+    double zerosw, tmp          ;
+
+    //---< Bergeron process >---
+    double sw_bergeron     ;                 //< if 0C<T<30C, sw=1
+    double a1 [kdim][ijdim];                 //<
+    double a2 [kdim][ijdim];                 //<
+    double ma2[kdim][ijdim];                 //< 1-a2
+    double dt1             ;                 //< time during which the an ice particle of 40um grows to 50um
+    double Ni50            ;                 //< number concentration of ice particle of 50um
+
+    //---< Explicit ice generation >---
+    double sw, rhoqi, XNi, XMi, Di, Ni0, Qi0;
+
+    //---< Effective radius >---
+    constexpr double r2_min = 1.0E-10;
+    constexpr double q_min  = 1.0E-5;
+    double xf_qc;                 //< mean mass   of qc [kg]
+    double rf_qc;                 //< mean radius of qc [m]
+    double r2_qc;                 //< r^2 moment  of qc
+    double r2_qr;                 //< r^2 moment  of qr
+    double r3_qc;                 //< r^3 moment  of qc
+    double r3_qr;                 //< r^3 moment  of qr
+    double dgamma_a, GAM_dgam23, GAM_dgam;
+    double coef_dgam, coef_xf;
+
+    //---< Precipitation >---
+    bool preciptation_flag[nqmax];
+
+    double Vt    [nqmax][kdim][ijdim];
+    double cva   [kdim][ijdim];
+    double rgs   [kdim][ijdim];
+    double rgsh  [kdim][ijdim];
+
+    double wk    [wk_nmax];
+    //double ml_wk   [wk_nmax][kdim][ijdim]; tentatively remove due to the stack overflow
+    double ml_Pconv[kdim][ijdim];
+    double ml_Pconw[kdim][ijdim];
+    double ml_Pconi[kdim][ijdim];
+
+    double UNDEF, EPS, PI, Rvap, LHV0, LHS0, LHF0, PRE00;
+
+    // constexpr int simdlen = 8;
+    // int blk, vec, veclen;
+
+    //---------------------------------------------------------------------------
+    UNDEF = CONST_UNDEF;
+    EPS   = CONST_EPS  ;
+    PI    = CONST_PI   ;
+    Rvap  = CONST_Rvap ;
+    LHV0  = CONST_LHV0 ;
+    LHS0  = CONST_LHS0 ;
+    LHF0  = CONST_LHF0 ;
+    PRE00 = CONST_Pstd ;
+
+    negative_filter(rhog, rhoge, rhogq, rho, tem, pre, q, gsgam2);
+
+    if(OPT_INDIR) // aerosol indirect effect
+    {
+        for(int k = 0; k < kdim; k++)
+        {
+            for(int ij = 0; ij < ijdim; ij++)
+            {
+                Nc[k][ij] = std::max( UNCCN[k][ij] * 1.0E-6, Nc_def );
+            }
+        }
+    }
+    else
+    {
+        for(int k = 0; k < kdim; k++)
+        {
+            for(int ij = 0; ij < ijdim; ij++)
+            {
+                Nc[k][ij] = Nc_def;
+            }
+        }
+    }
+
+    // saturation water contensts
+    SATURATION_psat_liq(tem, psatl);
+    SATURATION_psat_ice(tem, psati);
+
+    for(int k = 0; k < kdim; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            qsatl[k][ij] = psatl[k][ij] / ( rho[k][ij] * Rvap * tem[k][ij] );
+            qsati[k][ij] = psati[k][ij] / ( rho[k][ij] * Rvap * tem[k][ij] );
+        }
+    }
+
+    // Bergeron process parameters
+    Bergeron_param(tem, a1, a2, ma2);
+
+    // work for Effective Radius of Liquid Water
+    // dgamma_a is parameter of Gamma-Dist.
+    // "Berry and Reinhardt(1974-a) eq.(16-a,b)"
+    // 0.38 * {var1/2x} =~ {var1/2 r}
+    //         dgamma_a = 1.0_RP /{var x}
+    Dc = 0.146 - 5.964E-2 * std::log(Nc_def / 2000.0);
+    dgamma_a = 0.1444 / (Dc * Dc); // Dc**2 in fortran
+    GAM_dgam   = MISC_gammafunc(dgamma_a);
+    GAM_dgam23 = MISC_gammafunc(dgamma_a + 2.0/3.0);
+    coef_dgam  = GAM_dgam23 / GAM_dgam * std::pow(dgamma_a, (-2.0/3.0));
+    coef_xf    = 3.0 / 4.0 / PI / rho_w;
+
+    // !! Big loop start here !!
 }
 
 }
