@@ -730,9 +730,170 @@ void mp_nsw6(
                      + ( 1.0 - sw_roh2014 ) * MOMs_1;
             // 2nd moment
             MOMs_2 = sw_roh2014 * Xs2 + (1.0 - sw_roh2014) * MOMs_2;
-            /* TO DO */
+            // 0 + Bs(=2) moment
+            nm = 2.0;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            MOMs_0bs = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+                       + ( 1.0 - sw_roh2014 ) * MOMs_0bs;
+            // 1 + Bs(=2) moment
+            nm = 3.0;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            MOMs_1bs = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+                       + ( 1.0 - sw_roh2014 ) * MOMs_1bs;
+            // 2 + Bs(=2) moment
+            nm = 4.0;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            MOMs_2bs = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+                       + ( 1.0 - sw_roh2014 ) * MOMs_2bs;
+            // 2 + Ds(=0.25) moment
+            nm = 2.25;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            MOMs_2ds = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+                       + ( 1.0 - sw_roh2014 ) * MOMs_2ds;
+            // ( 3 + Ds(=0.25) ) / 2  moment
+            nm = 1.625;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            MOMs_5ds_h = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+                         + ( 1.0 - sw_roh2014 ) * MOMs_5ds_h;
+            // Bs(=2) + Ds(=0.25) moment
+            nm = 2.25;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            RMOMs_Vt = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw ) / (MOMs_0bs + zerosw)
+                       + ( 1.0 - sw_roh2014 ) * RMOMs_Vt;
+
+            // slope parameter lambda (Graupel)
+            zerosw = 0.5 - std::copysign(0.5, qg - 1.0E-12);
+            RLMDg  = std::sqrt( std::sqrt( dens * qg / ( Ag * N0g * GAM_1bg ) + zerosw ) ) * ( 1.0 - zerosw );
+            RLMDg_dg  = std::sqrt( RLMDg );       // **Dg
+            RLMDg_2   = std::pow(RLMDg, 2);
+            RLMDg_3   = std::pow(RLMDg, 3);
+            RLMDg_3dg = std::pow(RLMDg, 3) * RLMDg_dg;
+            RLMDg_5dg = std::pow(RLMDg, 5) * RLMDg_dg;
+
+            wk[I_RLMDr] = RLMDr;
+            wk[I_RLMDs] = RLMDs;
+            wk[I_RLMDg] = RLMDg;
+
+            //---< terminal velocity >---
+            zerosw = 0.5 - std::copysign(0.5, qi - 1.0E-8 );
+            Vti = ( 1.0 - sw_constVti ) * (-3.29) * std::exp( std::log( dens * qi + zerosw ) * 0.16 ) * ( 1.0 - zerosw ) 
+                  + ( sw_constVti ) * (-CONST_Vti);
+            Vtr = -Cr * rho_fact * GAM_1brdr / GAM_1br * RLMDr_dr;
+            Vts = -Cs * rho_fact * RMOMs_Vt;
+            Vtg = -Cg * rho_fact * GAM_1bgdg / GAM_1bg * RLMDg_dg;
+
+            //---< Nucleation >---
+            // [Pigen] ice nucleation
+            Ni0 = std::max( std::exp(-0.1 * temc), 1.0 ) * 1000.0;
+            Qi0 = 4.92E-11 * std::exp( std::log(Ni0) * 1.33 ) * Rdens;
+
+            wk[I_Pigen] = std::max( std::min( Qi0 - qi, qv - qsati[k][ij] ), 0.0 ) / dt;
+
+            //---< Accretion >---
+            Esi_mod = std::min( Esi, Esi * std::exp( gamma_sacr * temc ) );
+            Egs_mod = std::min( Egs, Egs * std::exp( gamma_gacs * temc ) );
+
+            // [Pracw] accretion rate of cloud water by rain
+            Pracw_orig = qc * 0.25 * PI * Erw * N0r * Cr * GAM_3dr * RLMDr_3dr * rho_fact;
+
+            zerosw     = 0.5 - std::copysign(0.5, qc * qr - 1.0E-12 );
+            Pracw_kk   = 67.0 * std::exp( std::log( qc * qr + zerosw ) * 1.15 ) * ( 1.0 - zerosw ); // eq.(33) in KK(2000)
+
+            // switch orig / k-k scheme
+            wk[I_Pracw] = ( 1.0 - sw_kk2000 ) * Pracw_orig
+                        + (       sw_kk2000 ) * Pracw_kk;
+
+            // [Psacw] accretion rate of cloud water by snow
+            wk[I_Psacw] = qc * 0.25 * PI * Esw * Cs * MOMs_2ds * rho_fact;
+
+            // [Pgacw] accretion rate of cloud water by graupel
+            wk[I_Pgacw] = qc * 0.25 * PI * Egw * N0g * Cg * GAM_3dg * RLMDg_3dg * rho_fact;
+
+            // [Praci] accretion rate of cloud ice by rain
+            wk[I_Praci] = qi * 0.25 * PI * Eri * N0r * Cr * GAM_3dr * RLMDr_3dr * rho_fact;
+
+            // [Psaci] accretion rate of cloud ice by snow
+            wk[I_Psaci] = qi * 0.25 * PI * Esi_mod * Cs * MOMs_2ds * rho_fact;
+
+            // [Pgaci] accretion rate of cloud ice by grupel
+            wk[I_Pgaci] = qi * 0.25 * PI * Egi * N0g * Cg * GAM_3dg * RLMDg_3dg * rho_fact;
+
+            // [Piacr] accretion rate of rain by cloud ice
+            wk[I_Piacr] = qi * Ar / mi * 0.25 * PI * Eri * N0r * Cr * GAM_6dr * RLMDr_6dr * rho_fact;
+
+            // [Psacr] accretion rate of rain by snow
+            wk[I_Psacr] = Ar * 0.25 * PI * Rdens * Esr * N0r * std::abs(Vtr - Vts)
+                             * ( GAM_1br * RLMDr_1br * MOMs_2          
+                                 + 2.0 * GAM_2br * RLMDr_2br * MOMs_1          
+                                 + GAM_3br * RLMDr_3br * MOMs_0 );
+
+            // [Pgacr] accretion rate of rain by graupel
+            wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * abs(Vtg - Vtr)
+                             * ( GAM_1br * RLMDr_1br * GAM_3 * RLMDg_3
+                                 + 2.0 * GAM_2br * RLMDr_2br * GAM_2 * RLMDg_2
+                                 + GAM_3br * RLMDr_3br * GAM * RLMDg );
+
+            // [Pracs] accretion rate of snow by rain
+            wk[I_Pracs] = As * 0.25 * PI * Rdens * Esr *  N0r * std::abs(Vtr - Vts)
+                             * ( MOMs_0bs * GAM_3 * RLMDr_3
+                                 + 2.0 * MOMs_1bs * GAM_2 * RLMDr_2
+                                 + MOMs_2bs * GAM * RLMDr );
+
+            // [Pgacs] accretion rate of snow by graupel
+            wk[I_Pgacs] = As * 0.25 * PI * Rdens * Egs_mod * N0g * std::abs(Vtg - Vts)
+                             * ( MOMs_0bs * GAM_3 * RLMDg_3
+                                 + 2.0 * MOMs_1bs * GAM_2 * RLMDg_2
+                                 + MOMs_2bs * GAM * RLMDg );
+
+            //---< Autoconversion >---            
+            // [Praut] auto-conversion rate from cloud water to rain
+            rhoqc = dens * qc * 1000.0; // [g/m3]
+            Dc    = 0.146 - 5.964E-2 * std::log( Nc[k][ij] / 2000.0 );
+            Praut_berry = Rdens * 1.67E-5 * rhoqc * rhoqc / ( 5.0 + 3.66E-2 * Nc[k][ij] / ( Dc * rhoqc + EPS ) );
+
+            zerosw      = 0.5 - std::copysign(0.5, qc - 1.0E-12 );
+            Praut_kk    = 1350.0                                           
+                          * std::exp( std::log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
+                          * std::exp( std::log( Nc[k][ij] ) * (-1.79) );                     // eq.(29) in KK(2000)
+
+            Praut_kk    = 1350.0 * std::pow(qc, 2.47) * std::pow(Nc[k][ij], -1.79);
+
+
+            // switch berry / k-k scheme
+            wk[I_Praut] = ( 1.0 - sw_kk2000 ) * Praut_berry
+                          + sw_kk2000 * Praut_kk;
+
+            // [Psaut] auto-conversion rate from cloud ice to snow
+            betai = std::min( beta_saut, beta_saut * std::exp( gamma_saut * temc ) );
+            wk[I_Psaut] = std::max( betai * (qi - qicrt_saut), 0.0 );
+
+            // [Pgaut] auto-conversion rate from snow to graupel
+            betas = std::min( beta_gaut, beta_gaut * std::exp( gamma_gaut * temc ) );
+            wk[I_Pgaut] = std::max( betas * (qs - qscrt_gaut), 0.0 );
+
+            //---< Evaporation, Sublimation, Melting, and Freezing >---
+            Ka  = ( Ka0 + dKa_dT * temc );
+            Kd  = ( Kd0 + dKd_dT * temc ) * PRE00 / pre[k][ij];
+            Nu  = ( nu0 + dnu_dT * temc ) * Rdens;
+
+            Glv = 1.0 / ( LHV0/(Ka * temp) * ( LHV0/(Rvap * temp) - 1.0 ) + 1.0 / (Kd * dens * qsatl[k][ij]) );
+            Giv = 1.0 / ( LHS0/(Ka * temp) * ( LHS0/(Rvap * temp) - 1.0 ) + 1.0 / (Kd * dens * qsati[k][ij]) );
+            Gil = 1.0 / ( LHF0/(Ka * temc) );
+
+            // [Prevp] evaporation rate of rain
+            ventr = f1r * GAM_2 * RLMDr_2 + f2r * std::sqrt( Cr * rho_fact / Nu * RLMDr_5dr ) * GAM_5dr_h;
+
+            wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - std::min(Sliq, 1.0) ) * Glv * ventr;
         }
     }
+
+// End of nsw6
 }
 
 }
