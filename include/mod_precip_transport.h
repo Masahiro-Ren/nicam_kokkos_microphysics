@@ -48,7 +48,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                             double jy                 [ijdim],
                             double jz                 [ijdim],
                             double dt,
-                            double **precip_trc = nullptr      // precip[nqmax][ijdim]
+                            double **precip_trc      // precip[nqmax][ijdim]
                             );
 
 }

@@ -167,7 +167,7 @@ void mp_driver( int l_region,
 	}
 
 
-	for(int m = 1; m < MP_DIV_NUM; m++)
+	for(int m = 0; m < MP_DIV_NUM; m++)
 	{
 		for(int k = 0; k < 2; k++)
 		{

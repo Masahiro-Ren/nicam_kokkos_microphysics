@@ -622,6 +622,117 @@ void mp_nsw6(
     coef_xf    = 3.0 / 4.0 / PI / rho_w;
 
     // !! Big loop start here !!
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            dens = rho[k][ij];
+            temp = tem[k][ij];
+            qv   = std::max( q[I_QV][k][ij], 0.0 );
+            qc   = std::max( q[I_QC][k][ij], 0.0 );
+            qr   = std::max( q[I_QR][k][ij], 0.0 );
+            qi   = std::max( q[I_QI][k][ij], 0.0 );
+            qs   = std::max( q[I_QS][k][ij], 0.0 );
+            qg   = std::max( q[I_QG][k][ij], 0.0 );
+
+            // saturation ration S
+            Sliq = qv / (std::max(qsatl[k][ij], EPS));
+            Sice = qv / (std::max(qsati[k][ij], EPS));
+
+            Rdens = 1.0 / dens;
+            rho_fact = std::sqrt(dens00 * Rdens);
+            temc = temp - TEM00;
+
+            wk[I_delta1] = ( 0.5 + std::copysign(0.5, qr - 1.0E-4) );
+
+            wk[I_delta2] = ( 0.5 + std::copysign(0.5, 1.0E-4 - qr) )
+                            * ( 0.5 + std::copysign(0.5, 1.0E-4 - qs) );
+            
+            wk[I_spsati] = 0.5 + std::copysign(0.5, Sice - 1.0);
+
+            wk[I_iceflg] = 0.5 - std::copysign(0.5, temc); // 0: warm, 1: ice
+
+            wk[I_dqv_dt] = qv / dt;
+            wk[I_dqc_dt] = qc / dt;
+            wk[I_dqr_dt] = qr / dt;
+            wk[I_dqi_dt] = qi / dt;
+            wk[I_dqs_dt] = qs / dt;
+            wk[I_dqg_dt] = qg / dt;
+
+            sw_bergeron = ( 0.5 + std::copysign(0.5, temc + 30.0) )
+                            * ( 0.5 + std::copysign(0.5, 0.0 - temc) )
+                            * ( 1.0 - sw_expice );
+            
+            // slope parameter lambda (Rain)
+            zerosw = 0.5 - std::copysign(0.5, qr - 1.0E-12);
+            RLMDr = std::sqrt( std::sqrt( dens * qr / (Ar * N0r * GAM_1br) + zerosw ) ) * (1.0 - zerosw);
+
+            RLMDr_dr  = std::sqrt(RLMDr);   // **Dr
+            RLMDr_2   = std::pow(RLMDr, 2);
+            RLMDr_3   = std::pow(RLMDr, 3);
+            RLMDr_7   = std::pow(RLMDr, 7);
+            RLMDr_1br = std::pow(RLMDr, 4); // (1+Br)
+            RLMDr_2br = std::pow(RLMDr, 5); // (2+Br)
+            RLMDr_3br = std::pow(RLMDr, 6); // (3+Br)
+            RLMDr_3dr = std::pow(RLMDr, 3) * RLMDr_dr;
+            RLMDr_5dr = std::pow(RLMDr, 5) * RLMDr_dr;
+            RLMDr_6dr = std::pow(RLMDr, 6) * RLMDr_dr;
+
+            // slope parameter lambda (Snow)
+            zerosw = 0.5 - std::copysign(0.5, qs - 1.0E-12);
+            RLMDs  = std::sqrt( std::sqrt( dens * qs / ( As * N0s * GAM_1bs ) + zerosw ) ) * ( 1.0 - zerosw );
+
+            RLMDs_ds  = std::sqrt( std::sqrt(RLMDs) ); // **Ds
+            RLMDs_2   = std::pow(RLMDs, 2);
+            RLMDs_3   = std::pow(RLMDs, 3);
+            RLMDs_1bs = std::pow(RLMDs, 4); // (1+Bs)
+            RLMDs_2bs = std::pow(RLMDs, 5); // (2+Bs)
+            RLMDs_3bs = std::pow(RLMDs, 6); // (3+Bs)
+            RLMDs_3ds = std::pow(RLMDs, 3) * RLMDs_ds;
+            RLMDs_5ds = std::pow(RLMDs, 5) * RLMDs_ds;
+
+            MOMs_0     = N0s * GAM       * RLMDs    ;       // Ns * 0th moment
+            MOMs_1     = N0s * GAM_2     * RLMDs_2  ;       // Ns * 1st moment
+            MOMs_2     = N0s * GAM_3     * RLMDs_3  ;       // Ns * 2nd moment
+            MOMs_0bs   = N0s * GAM_1bs   * RLMDs_1bs;       // Ns * 0+bs
+            MOMs_1bs   = N0s * GAM_2bs   * RLMDs_2bs;       // Ns * 1+bs
+            MOMs_2bs   = N0s * GAM_3bs   * RLMDs_3bs;       // Ns * 2+bs
+            MOMs_2ds   = N0s * GAM_3ds   * RLMDs_3ds;       // Ns * 2+ds
+            MOMs_5ds_h = N0s * GAM_5ds_h * std::sqrt(RLMDs_5ds); // Ns * (5+ds)/2
+            RMOMs_Vt   = GAM_1bsds / GAM_1bs * RLMDs_ds;
+
+            //---< modification by Roh and Satoh (2014) >---
+
+            // bimodal size distribution of snow
+            Xs2 = dens * qs / As;
+            zerosw = 0.5 - std::copysign(0.5, Xs2 - 1.0E-12);
+
+            tems = std::min(-0.1, temc);
+            coef_at[0] = coef_a[0] + tems * ( coef_a[1] + tems * ( coef_a[4] + tems * coef_a[8] ) );
+            coef_at[1] = coef_a[2] + tems * ( coef_a[3] + tems *   coef_a[6] );
+            coef_at[2] = coef_a[5] + tems *   coef_a[7];
+            coef_at[3] = coef_a[9];
+            coef_bt[0] = coef_b[0] + tems * ( coef_b[1] + tems * ( coef_b[4] + tems * coef_b[8] ) );
+            coef_bt[1] = coef_b[2] + tems * ( coef_b[3] + tems *   coef_b[6] );
+            coef_bt[2] = coef_b[5] + tems *   coef_b[7];
+            coef_bt[3] = coef_b[9];
+
+            // 0th moment
+            loga_ = coef_at[0];
+            b_    = coef_bt[0];
+            MOMs_0 = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+                     + ( 1.0 - sw_roh2014 ) * MOMs_0;
+            // 1st moment
+            nm = 1.0;
+            loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
+            b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
+            MOMs_1 = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw ) * b_) * ( 1.0 - zerosw )
+                     + ( 1.0 - sw_roh2014 ) * MOMs_1;
+            // 2nd moment
+            MOMs_2 = sw_roh2014 * Xs2 + (1.0 - sw_roh2014) * MOMs_2;
+            /* TO DO */
+        }
+    }
 }
 
 }

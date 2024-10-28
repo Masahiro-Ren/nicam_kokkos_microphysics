@@ -64,7 +64,7 @@ std::vector<std::string> TRC_name{ "QV",
                                    "QS",
                                    "QG"  };
 
-std::vector<double> CVM{    CONST_CVdry,
+std::vector<double> CVW{    CONST_CVdry,
                             CONST_CVdry,
                             CONST_CVdry,
                             CONST_CVdry,

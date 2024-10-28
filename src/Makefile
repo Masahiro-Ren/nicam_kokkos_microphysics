@@ -12,7 +12,7 @@ OBJS = 	\
 	problemsize.o          \
 	data_io.o              \
 	mod_debug.o            \
-	mod_vav1d.o            \
+	mod_vadv1d.o           \
 	mod_thrmdyn.o          \
 	mod_satadjust.o        \
 	mod_precip_transport.o \

@@ -135,9 +135,9 @@ void vadv1d_prep( double dz       [kdim],
 void vadv1d_getflux_new( double dz       [kdim],
                          double rhof     [kdim][ijdim],
                          double zdis0    [kdim][ijdim],
-                         double kcell    [kdim][ijdim],
-                         double kcell_max[kdim],
-                         double kcell_min[kdim],
+                         int    kcell    [kdim][ijdim],
+                         int    kcell_max[kdim],
+                         int    kcell_min[kdim],
                          double frhof    [kdim][ijdim] )
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;

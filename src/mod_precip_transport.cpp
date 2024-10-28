@@ -112,30 +112,30 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
-            C2Wfact[1][k][ij] = GRD_afact[k] / gsgam2[k][ij] * gsgam2h[k][ij];
-            C2Wfact[2][k][ij] = GRD_bfact[k] / gsgam2[k-1][ij] * gsgam2h[k][ij];
+            C2Wfact[0][k][ij] = GRD_afact[k] / gsgam2[k][ij] * gsgam2h[k][ij];
+            C2Wfact[1][k][ij] = GRD_bfact[k] / gsgam2[k-1][ij] * gsgam2h[k][ij];
         }
     }
 
     for(int ij = 0; ij < ijdim; ij++)
     {
+        C2Wfact[0][kmin-1][ij] = 0.0;
         C2Wfact[1][kmin-1][ij] = 0.0;
-        C2Wfact[2][kmin-1][ij] = 0.0;
     }
 
     for(int k = kmin - 1; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
-            W2Cfact[1][k][ij] = GRD_cfact[k] * gsgam2[k][ij] / gsgam2h[k+1][ij];
-            W2Cfact[2][k][ij] = GRD_dfact[k] * gsgam2[k][ij] / gsgam2h[k+1][ij];
+            W2Cfact[0][k][ij] = GRD_cfact[k] * gsgam2[k][ij] / gsgam2h[k+1][ij];
+            W2Cfact[1][k][ij] = GRD_dfact[k] * gsgam2[k][ij] / gsgam2h[k+1][ij];
         }
     }
 
     for(int ij = 0; ij < ijdim; ij++)
     {
+        W2Cfact[0][kmax+1][ij] = 0.0; 
         W2Cfact[1][kmax+1][ij] = 0.0; 
-        W2Cfact[2][kmax+1][ij] = 0.0; 
     }
 
 
@@ -439,8 +439,8 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                tmp2[k][ij] = rhogkin_h[k][ij] + ( W2Cfact[1][k][ij] * rhogkin_v[k+1][ij] 
-                                                 + W2Cfact[2][k][ij] * rhogkin_v[k][ij] );
+                tmp2[k][ij] = rhogkin_h[k][ij] + ( W2Cfact[0][k][ij] * rhogkin_v[k+1][ij] 
+                                                 + W2Cfact[1][k][ij] * rhogkin_v[k][ij] );
             }
         }
 
@@ -504,8 +504,8 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                rhogh[k][ij] = ( C2Wfact[1][k][ij] * rhog[k][ij] 
-                                + C2Wfact[2][k][ij] * rhog[k-1][ij]);
+                rhogh[k][ij] = ( C2Wfact[0][k][ij] * rhog[k][ij] 
+                                + C2Wfact[1][k][ij] * rhog[k-1][ij]);
             }
         }
 
