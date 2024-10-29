@@ -18,6 +18,7 @@ void vadv1d_prep( int    mkmin,
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 
     double wh[kdim][ijdim];
+    
     double dt2 = std::pow(dt, 2);
     double dt3 = std::pow(dt, 3);
     // double zzmax, zzmin;
@@ -27,7 +28,7 @@ void vadv1d_prep( int    mkmin,
         for(int ij = 0; ij < ijdim; ij++)
             wh[k][ij] = 0.5 * (wp[k-1][ij] + wp[k][ij]);
     
-     
+
     // bottom boundary for wh
     // top    boundary for wh : same as inner region
     for(int ij = 0; ij < ijdim; ij++)
