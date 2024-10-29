@@ -100,7 +100,7 @@ void vadv1d_prep( int    mkmin,
 
         if(zzmin < 0.0)
         {
-            for(int k2 = k; k <= mkmax; k2++)
+            for(int k2 = k; k2 <= mkmax; k2++)
             {
                 if( (zh[k2] <= zh[k] - zzmin) && (zh[k2+1] > zh[k] - zzmin) )
                 {
