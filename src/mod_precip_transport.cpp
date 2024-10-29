@@ -276,11 +276,11 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             {
                 for(int ij = 0; ij < ijdim; ij++)
                 {
-                    drhogv[k][ij] = drhogv[k][ij] - ( fprec_rhou[k+1][ij] - fprec_rhou[k][ij] ) * GRD_rdgz[k];
+                    drhogv[k][ij] = drhogv[k][ij] - ( fprec_rhov[k+1][ij] - fprec_rhov[k][ij] ) * GRD_rdgz[k];
                 }
             }
 
-            // hafl level
+            // half level
 
             for(int k = kmin + 1; k <= kmax - 1; k++)
             {
