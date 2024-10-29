@@ -834,7 +834,7 @@ void mp_nsw6(
                                  + GAM_3br * RLMDr_3br * MOMs_0 );
 
             // [Pgacr] accretion rate of rain by graupel
-            wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * abs(Vtg - Vtr)
+            wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * std::abs(Vtg - Vtr)
                              * ( GAM_1br * RLMDr_1br * GAM_3 * RLMDg_3
                                  + 2.0 * GAM_2br * RLMDr_2br * GAM_2 * RLMDg_2
                                  + GAM_3br * RLMDr_3br * GAM * RLMDg );
@@ -891,10 +891,462 @@ void mp_nsw6(
 
             wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - std::min(Sliq, 1.0) ) * Glv * ventr;
 
-            /* TO DO: from group 19 */
+            // [Pidep,Pisub] deposition/sublimation rate for ice
+            rhoqi = std::max(dens * qi, EPS);
+            XNi   = std::min( std::max( 5.38E+7 * std::exp( std::log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
+            XMi   = rhoqi / XNi;
+            Di    = std::min( Di_a * std::sqrt(XMi), Di_max );
+
+            tmp = 4.0 * Di * XNi * Rdens * ( Sice - 1.0 ) * Giv;
+
+            wk[I_Pidep] = (       wk[I_spsati] ) * ( tmp); // Sice > 2
+            wk[I_Pisub] = ( 1.0 - wk[I_spsati] ) * (-tmp); // Sice < 1
+
+            // [Pihom] homogenious freezing at T < -40C
+            sw = ( 0.5 - std::copysign(0.5, temc + 40.0) ); // if T < -40C, sw=1
+
+            wk[I_Pihom] = sw * qc / dt;
+
+            // [Pihtr] heteroginous freezing at -40C < T < 0C
+            sw =   ( 0.5 + std::copysign(0.5, temc + 40.0) )
+                 * ( 0.5 - std::copysign(0.5, temc       ) ); // if -40C < T < 0C, sw=1
+
+            wk[I_Pihtr] = sw * ( dens / rho_w * (qc*qc) / ( Nc_ihtr * 1.0E+6 ) )
+                             * B_frz * ( std::exp(-A_frz * temc) - 1.0 );
+
+            // [Pimlt] ice melting at T > 0C
+            sw = ( 0.5 + std::copysign(0.5, temc) ); // if T > 0C, sw=1
+
+            wk[I_Pimlt] = sw * qi / dt;
+
+            // [Psdep,Pssub] deposition/sublimation rate for snow
+            vents = f1s * MOMs_1 + f2s * std::sqrt( Cs * rho_fact / Nu ) * MOMs_5ds_h;
+
+            tmp = 2.0 * PI * Rdens * ( Sice - 1.0 ) * Giv * vents;
+
+            wk[I_Psdep] = (       wk[I_spsati] ) * ( tmp); // Sice > 1
+            wk[I_Pssub] = ( 1.0 - wk[I_spsati] ) * (-tmp); // Sice < 1            
+
+            // [Psmlt] melting rate of snow
+            wk[I_Psmlt] = 2.0 * PI * Rdens * Gil * vents
+                          + CL * temc / LHF0 * ( wk[I_Psacw] + wk[I_Psacr] );
+            wk[I_Psmlt] = std::max( wk[I_Psmlt], 0.0 );
+
+            // [Pgdep/pgsub] deposition/sublimation rate for graupel
+            ventg = f1g * GAM_2 * RLMDg_2 + f2g * std::sqrt( Cg * rho_fact / Nu * RLMDg_5dg ) * GAM_5dg_h;
+
+            tmp = 2.0 * PI * Rdens * N0g * ( Sice - 1.0 ) * Giv * ventg;
+
+            wk[I_Pgdep] = (       wk[I_spsati] ) * ( tmp); // Sice > 1
+            wk[I_Pgsub] = ( 1.0 - wk[I_spsati] ) * (-tmp); // Sice < 1
+
+            // [Pgmlt] melting rate of graupel
+            wk[I_Pgmlt] = 2.0 * PI * Rdens * N0g * Gil * ventg
+                          + CL * temc / LHF0 * ( wk[I_Pgacw] + wk[I_Pgacr] );
+            wk[I_Pgmlt] = std::max( wk[I_Pgmlt], 0.0 );
+
+            // [Pgfrz] freezing rate of graupel
+            wk[I_Pgfrz] = 2.0 * PI * Rdens * N0r * 60.0 * B_frz * Ar * ( std::exp(-A_frz * temc) - 1.0 ) * RLMDr_7;
+
+            // [Psfw,Psfi] ( Bergeron process ) growth rate of snow by Bergeron process from cloud water/ice
+            dt1  = ( std::exp( std::log(mi50) * ma2[k][ij] )
+                   - std::exp( std::log(mi40) * ma2[k][ij] ) ) / ( a1[k][ij] * ma2[k][ij] );
+            Ni50 = qi * dt / ( mi50 * dt1 );
+
+            wk[I_Psfw] = Ni50 * ( a1[k][ij] * std::pow(mi50, a2[k][ij])
+                                  + PI * Eiw * dens * qc * Ri50 * Ri50 * vti50 );
+            wk[I_Psfi] = qi / dt1;
+
+            //---< limiter >---
+            wk[I_Pigen] = std::min( wk[I_Pigen], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
+            wk[I_Pidep] = std::min( wk[I_Pidep], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
+            wk[I_Psdep] = std::min( wk[I_Psdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
+            wk[I_Pgdep] = std::min( wk[I_Pgdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
+
+            wk[I_Pracw] = wk[I_Pracw]                           
+                        + wk[I_Psacw] * ( 1.0 - wk[I_iceflg] )   // c->r by s
+                        + wk[I_Pgacw] * ( 1.0 - wk[I_iceflg] );  // c->r by g
+
+            wk[I_Praut] = std::min( wk[I_Praut], wk[I_dqc_dt] ); 
+            wk[I_Pracw] = std::min( wk[I_Pracw], wk[I_dqc_dt] ); 
+            wk[I_Pihom] = std::min( wk[I_Pihom], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
+            wk[I_Pihtr] = std::min( wk[I_Pihtr], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
+            wk[I_Psacw] = std::min( wk[I_Psacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
+            wk[I_Psfw ] = std::min( wk[I_Psfw ], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_bergeron;
+            wk[I_Pgacw] = std::min( wk[I_Pgacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
+
+            wk[I_Prevp] = std::min( wk[I_Prevp], wk[I_dqr_dt] );
+            wk[I_Piacr] = std::min( wk[I_Piacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+            wk[I_Psacr] = std::min( wk[I_Psacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+            wk[I_Pgacr] = std::min( wk[I_Pgacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+            wk[I_Pgfrz] = std::min( wk[I_Pgfrz], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+
+            wk[I_Pisub] = std::min( wk[I_Pisub], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_expice;
+            wk[I_Pimlt] = std::min( wk[I_Pimlt], wk[I_dqi_dt] ) * ( 1.0 - wk[I_iceflg] ) * sw_expice;
+            wk[I_Psaut] = std::min( wk[I_Psaut], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+            wk[I_Praci] = std::min( wk[I_Praci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+            wk[I_Psaci] = std::min( wk[I_Psaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+            wk[I_Psfi ] = std::min( wk[I_Psfi ], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_bergeron;
+            wk[I_Pgaci] = std::min( wk[I_Pgaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+
+            wk[I_Pssub] = std::min( wk[I_Pssub], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+            wk[I_Psmlt] = std::min( wk[I_Psmlt], wk[I_dqs_dt] ) * ( 1.0 - wk[I_iceflg] );
+            wk[I_Pgaut] = std::min( wk[I_Pgaut], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+            wk[I_Pracs] = std::min( wk[I_Pracs], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+            wk[I_Pgacs] = std::min( wk[I_Pgacs], wk[I_dqs_dt] );
+
+            wk[I_Pgsub] = std::min( wk[I_Pgsub], wk[I_dqg_dt] ) * (       wk[I_iceflg] );
+            wk[I_Pgmlt] = std::min( wk[I_Pgmlt], wk[I_dqg_dt] ) * ( 1.0 - wk[I_iceflg] );
+
+            wk[I_Piacr_s] = ( 1.0 - wk[I_delta1] ) * wk[I_Piacr];
+            wk[I_Piacr_g] = (       wk[I_delta1] ) * wk[I_Piacr];
+            wk[I_Praci_s] = ( 1.0 - wk[I_delta1] ) * wk[I_Praci];
+            wk[I_Praci_g] = (       wk[I_delta1] ) * wk[I_Praci];
+            wk[I_Psacr_s] = (       wk[I_delta2] ) * wk[I_Psacr];
+            wk[I_Psacr_g] = ( 1.0 - wk[I_delta2] ) * wk[I_Psacr];
+            wk[I_Pracs  ] = ( 1.0 - wk[I_delta2] ) * wk[I_Pracs];
+
+            // [QC]
+            net = 
+               + wk[I_Pimlt]  // [prod] i->c
+               - wk[I_Praut]  // [loss] c->r
+               - wk[I_Pracw]  // [loss] c->r
+               - wk[I_Pihom]  // [loss] c->i
+               - wk[I_Pihtr]  // [loss] c->i
+               - wk[I_Psacw]  // [loss] c->s
+               - wk[I_Psfw ]  // [loss] c->s
+               - wk[I_Pgacw]; // [loss] c->g
+
+            fac_sw = 0.5 + std::copysign( 0.5, net + EPS ); // if production > loss , fac_sw=1
+            fac    = fac_sw + ( 1.0 - fac_sw ) 
+                     * std::min( -wk[I_dqc_dt]/(net - fac_sw), 1.0 ); // loss limiter
+
+            wk[I_Pimlt] = wk[I_Pimlt] * fac;
+            wk[I_Praut] = wk[I_Praut] * fac;
+            wk[I_Pracw] = wk[I_Pracw] * fac;
+            wk[I_Pihom] = wk[I_Pihom] * fac;
+            wk[I_Pihtr] = wk[I_Pihtr] * fac;
+            wk[I_Psacw] = wk[I_Psacw] * fac;
+            wk[I_Psfw ] = wk[I_Psfw ] * fac;
+            wk[I_Pgacw] = wk[I_Pgacw] * fac;
+
+            // [QI]
+            net = 
+               + wk[I_Pigen  ]  // [prod] v->i
+               + wk[I_Pidep  ]  // [prod] v->i
+               + wk[I_Pihom  ]  // [prod] c->i
+               + wk[I_Pihtr  ]  // [prod] c->i
+               - wk[I_Pisub  ]  // [loss] i->v
+               - wk[I_Pimlt  ]  // [loss] i->c
+               - wk[I_Psaut  ]  // [loss] i->s
+               - wk[I_Praci_s]  // [loss] i->s
+               - wk[I_Psaci  ]  // [loss] i->s
+               - wk[I_Psfi   ]  // [loss] i->s
+               - wk[I_Praci_g]  // [loss] i->g
+               - wk[I_Pgaci  ]; // [loss] i->g
+
+            fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+            fac = fac_sw + ( 1.0 - fac_sw ) 
+                  * std::min( -wk[I_dqi_dt]/(net - fac_sw), 1.0 ); // loss limiter
+
+            wk[I_Pigen  ] = wk[I_Pigen  ] * fac;
+            wk[I_Pidep  ] = wk[I_Pidep  ] * fac;
+            wk[I_Pihom  ] = wk[I_Pihom  ] * fac;
+            wk[I_Pihtr  ] = wk[I_Pihtr  ] * fac;
+            wk[I_Pisub  ] = wk[I_Pisub  ] * fac;
+            wk[I_Pimlt  ] = wk[I_Pimlt  ] * fac;
+            wk[I_Psaut  ] = wk[I_Psaut  ] * fac;
+            wk[I_Praci_s] = wk[I_Praci_s] * fac;
+            wk[I_Psaci  ] = wk[I_Psaci  ] * fac;
+            wk[I_Psfi   ] = wk[I_Psfi   ] * fac;
+            wk[I_Praci_g] = wk[I_Praci_g] * fac;
+            wk[I_Pgaci  ] = wk[I_Pgaci  ] * fac;
+
+
+            // [QR]
+            net = 
+               + wk[I_Praut  ]  // [prod] c->r
+               + wk[I_Pracw  ]  // [prod] c->r
+               + wk[I_Psmlt  ]  // [prod] s->r
+               + wk[I_Pgmlt  ]  // [prod] g->r
+               - wk[I_Prevp  ]  // [loss] r->v
+               - wk[I_Piacr_s]  // [loss] r->s
+               - wk[I_Psacr_s]  // [loss] r->s
+               - wk[I_Piacr_g]  // [loss] r->g
+               - wk[I_Psacr_g]  // [loss] r->g
+               - wk[I_Pgacr  ]  // [loss] r->g
+               - wk[I_Pgfrz  ]; // [loss] r->g
+
+            fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+            fac    = fac_sw + ( 1.0 - fac_sw ) 
+                     * std::min( -wk[I_dqr_dt]/(net - fac_sw), 1.0 ); // loss limiter
+
+            wk[I_Praut  ] = wk[I_Praut  ] * fac;
+            wk[I_Pracw  ] = wk[I_Pracw  ] * fac;
+            wk[I_Psmlt  ] = wk[I_Psmlt  ] * fac;
+            wk[I_Pgmlt  ] = wk[I_Pgmlt  ] * fac;
+            wk[I_Prevp  ] = wk[I_Prevp  ] * fac;
+            wk[I_Piacr_s] = wk[I_Piacr_s] * fac;
+            wk[I_Psacr_s] = wk[I_Psacr_s] * fac;
+            wk[I_Piacr_g] = wk[I_Piacr_g] * fac;
+            wk[I_Psacr_g] = wk[I_Psacr_g] * fac;
+            wk[I_Pgacr  ] = wk[I_Pgacr  ] * fac;
+            wk[I_Pgfrz  ] = wk[I_Pgfrz  ] * fac;
+
+            // [QV]
+            net =
+               + wk[I_Prevp]  // [prod] r->v
+               + wk[I_Pisub]  // [prod] i->v
+               + wk[I_Pssub]  // [prod] s->v
+               + wk[I_Pgsub]  // [prod] g->v
+               - wk[I_Pigen]  // [loss] v->i
+               - wk[I_Pidep]  // [loss] v->i
+               - wk[I_Psdep]  // [loss] v->s
+               - wk[I_Pgdep]; // [loss] v->g
+
+            fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+            fac = fac_sw + ( 1.0 - fac_sw ) 
+                  * std::min( -wk[I_dqv_dt]/(net - fac_sw), 1.0 ); // loss limiter
+
+            wk[I_Prevp] = wk[I_Prevp] * fac;
+            wk[I_Pisub] = wk[I_Pisub] * fac;
+            wk[I_Pssub] = wk[I_Pssub] * fac;
+            wk[I_Pgsub] = wk[I_Pgsub] * fac;
+            wk[I_Pigen] = wk[I_Pigen] * fac;
+            wk[I_Pidep] = wk[I_Pidep] * fac;
+            wk[I_Psdep] = wk[I_Psdep] * fac;
+            wk[I_Pgdep] = wk[I_Pgdep] * fac;
+
+            // [QS]
+            net =
+               + wk[I_Psdep  ]  // [prod] v->s
+               + wk[I_Psacw  ]  // [prod] c->s
+               + wk[I_Psfw   ]  // [prod] c->s
+               + wk[I_Piacr_s]  // [prod] r->s
+               + wk[I_Psacr_s]  // [prod] r->s
+               + wk[I_Psaut  ]  // [prod] i->s
+               + wk[I_Praci_s]  // [prod] i->s
+               + wk[I_Psaci  ]  // [prod] i->s
+               + wk[I_Psfi   ]  // [prod] i->s
+               - wk[I_Pssub  ]  // [loss] s->v
+               - wk[I_Psmlt  ]  // [loss] s->r
+               - wk[I_Pgaut  ]  // [loss] s->g
+               - wk[I_Pracs  ]  // [loss] s->g
+               - wk[I_Pgacs  ]; // [loss] s->g
+
+            fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+            fac = fac_sw + ( 1.0 - fac_sw ) 
+                  * std::min( -wk[I_dqs_dt]/(net - fac_sw), 1.0 ); // loss limiter
+
+            wk[I_Psdep  ] = wk[I_Psdep  ] * fac;
+            wk[I_Psacw  ] = wk[I_Psacw  ] * fac;
+            wk[I_Psfw   ] = wk[I_Psfw   ] * fac;
+            wk[I_Piacr_s] = wk[I_Piacr_s] * fac;
+            wk[I_Psacr_s] = wk[I_Psacr_s] * fac;
+            wk[I_Psaut  ] = wk[I_Psaut  ] * fac;
+            wk[I_Praci_s] = wk[I_Praci_s] * fac;
+            wk[I_Psaci  ] = wk[I_Psaci  ] * fac;
+            wk[I_Psfi   ] = wk[I_Psfi   ] * fac;
+            wk[I_Pssub  ] = wk[I_Pssub  ] * fac;
+            wk[I_Psmlt  ] = wk[I_Psmlt  ] * fac;
+            wk[I_Pgaut  ] = wk[I_Pgaut  ] * fac;
+            wk[I_Pracs  ] = wk[I_Pracs  ] * fac;
+            wk[I_Pgacs  ] = wk[I_Pgacs  ] * fac;
+
+            // [QG]
+            net =
+               + wk[I_Pgdep  ]  // [prod] v->g
+               + wk[I_Pgacw  ]  // [prod] c->g
+               + wk[I_Piacr_g]  // [prod] r->g
+               + wk[I_Psacr_g]  // [prod] r->g
+               + wk[I_Pgacr  ]  // [prod] r->g
+               + wk[I_Pgfrz  ]  // [prod] r->g
+               + wk[I_Praci_g]  // [prod] i->g
+               + wk[I_Pgaci  ]  // [prod] i->g
+               + wk[I_Pgaut  ]  // [prod] s->g
+               + wk[I_Pracs  ]  // [prod] s->g
+               + wk[I_Pgacs  ]  // [prod] s->g
+               - wk[I_Pgsub  ]  // [loss] g->v
+               - wk[I_Pgmlt  ]; // [loss] g->r
+
+            fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+            fac = fac_sw + ( 1.0 - fac_sw ) 
+                  * std::min( -wk[I_dqg_dt]/(net - fac_sw), 1.0 ); // loss limiter
+
+            wk[I_Pgdep  ] = wk[I_Pgdep  ] * fac;
+            wk[I_Pgacw  ] = wk[I_Pgacw  ] * fac;
+            wk[I_Piacr_g] = wk[I_Piacr_g] * fac;
+            wk[I_Psacr_g] = wk[I_Psacr_g] * fac;
+            wk[I_Pgacr  ] = wk[I_Pgacr  ] * fac;
+            wk[I_Pgfrz  ] = wk[I_Pgfrz  ] * fac;
+            wk[I_Praci_g] = wk[I_Praci_g] * fac;
+            wk[I_Pgaci  ] = wk[I_Pgaci  ] * fac;
+            wk[I_Pgaut  ] = wk[I_Pgaut  ] * fac;
+            wk[I_Pracs  ] = wk[I_Pracs  ] * fac;
+            wk[I_Pgacs  ] = wk[I_Pgacs  ] * fac;
+            wk[I_Pgsub  ] = wk[I_Pgsub  ] * fac;
+            wk[I_Pgmlt  ] = wk[I_Pgmlt  ] * fac;
+
+            qc_t = + wk[I_Pimlt]  // [prod] i->c
+                   - wk[I_Praut]  // [loss] c->r
+                   - wk[I_Pracw]  // [loss] c->r
+                   - wk[I_Pihom]  // [loss] c->i
+                   - wk[I_Pihtr]  // [loss] c->i
+                   - wk[I_Psacw]  // [loss] c->s
+                   - wk[I_Psfw ]  // [loss] c->s
+                   - wk[I_Pgacw]; // [loss] c->g
+ 
+            qr_t = + wk[I_Praut  ]  // [prod] c->r
+                   + wk[I_Pracw  ]  // [prod] c->r
+                   + wk[I_Psmlt  ]  // [prod] s->r
+                   + wk[I_Pgmlt  ]  // [prod] g->r
+                   - wk[I_Prevp  ]  // [loss] r->v
+                   - wk[I_Piacr_s]  // [loss] r->s
+                   - wk[I_Psacr_s]  // [loss] r->s
+                   - wk[I_Piacr_g]  // [loss] r->g
+                   - wk[I_Psacr_g]  // [loss] r->g
+                   - wk[I_Pgacr  ]  // [loss] r->g
+                   - wk[I_Pgfrz  ]; // [loss] r->g
+
+            qi_t = + wk[I_Pigen  ]  // [prod] v->i
+                   + wk[I_Pidep  ]  // [prod] v->i
+                   + wk[I_Pihom  ]  // [prod] c->i
+                   + wk[I_Pihtr  ]  // [prod] c->i
+                   - wk[I_Pisub  ]  // [loss] i->v
+                   - wk[I_Pimlt  ]  // [loss] i->c
+                   - wk[I_Psaut  ]  // [loss] i->s
+                   - wk[I_Praci_s]  // [loss] i->s
+                   - wk[I_Psaci  ]  // [loss] i->s
+                   - wk[I_Psfi   ]  // [loss] i->s
+                   - wk[I_Praci_g]  // [loss] i->g
+                   - wk[I_Pgaci  ]; // [loss] i->g
+
+            qs_t = + wk[I_Psdep  ]  // [prod] v->s
+                   + wk[I_Psacw  ]  // [prod] c->s
+                   + wk[I_Psfw   ]  // [prod] c->s
+                   + wk[I_Piacr_s]  // [prod] r->s
+                   + wk[I_Psacr_s]  // [prod] r->s
+                   + wk[I_Psaut  ]  // [prod] i->s
+                   + wk[I_Praci_s]  // [prod] i->s
+                   + wk[I_Psaci  ]  // [prod] i->s
+                   + wk[I_Psfi   ]  // [prod] i->s
+                   - wk[I_Pssub  ]  // [loss] s->v
+                   - wk[I_Psmlt  ]  // [loss] s->r
+                   - wk[I_Pgaut  ]  // [loss] s->g
+                   - wk[I_Pracs  ]  // [loss] s->g
+                   - wk[I_Pgacs  ]; // [loss] s->g
+
+            qg_t = + wk[I_Pgdep  ]  // [prod] v->g
+                   + wk[I_Pgacw  ]  // [prod] c->g
+                   + wk[I_Piacr_g]  // [prod] r->g
+                   + wk[I_Psacr_g]  // [prod] r->g
+                   + wk[I_Pgacr  ]  // [prod] r->g
+                   + wk[I_Pgfrz  ]  // [prod] r->g
+                   + wk[I_Praci_g]  // [prod] i->g
+                   + wk[I_Pgaci  ]  // [prod] i->g
+                   + wk[I_Pgaut  ]  // [prod] s->g
+                   + wk[I_Pracs  ]  // [prod] s->g
+                   + wk[I_Pgacs  ]  // [prod] s->g
+                   - wk[I_Pgsub  ]  // [loss] g->v
+                   - wk[I_Pgmlt  ]; // [loss] g->r
+
+            qc_t = std::max( qc_t, -wk[I_dqc_dt] );
+            qr_t = std::max( qr_t, -wk[I_dqr_dt] );
+            qi_t = std::max( qi_t, -wk[I_dqi_dt] );
+            qs_t = std::max( qs_t, -wk[I_dqs_dt] );
+            qg_t = std::max( qg_t, -wk[I_dqg_dt] );
+
+            qv_t = - ( qc_t 
+                     + qr_t 
+                     + qi_t 
+                     + qs_t 
+                     + qg_t );
+
+            drhogqv[k][ij] = rhog[k][ij] * qv_t * dt;
+            drhogqc[k][ij] = rhog[k][ij] * qc_t * dt;
+            drhogqr[k][ij] = rhog[k][ij] * qr_t * dt;
+            drhogqi[k][ij] = rhog[k][ij] * qi_t * dt;
+            drhogqs[k][ij] = rhog[k][ij] * qs_t * dt;
+            drhogqg[k][ij] = rhog[k][ij] * qg_t * dt;
+
+            Vt[I_QR][k][ij] = Vtr;
+            Vt[I_QI][k][ij] = Vti;
+            Vt[I_QS][k][ij] = Vts;
+            Vt[I_QG][k][ij] = Vtg;
+
+            //--- Effective Radius of Liquid Water
+            xf_qc = rhoqc / Nc[k][ij] * 1.0E-9;                            // mean mass   of qc [kg]
+            rf_qc = std::pow(( coef_xf * xf_qc + EPS ), 0.33333333);       // mean radius of qc [m]
+            r2_qc = coef_dgam * (rf_qc * rf_qc) * ( Nc[k][ij] * 1.0E+6 );  // r^2 moment  of qc
+            r2_qr = 0.25 * N0r * GAM_3 * RLMDr_3;                          // r^2 moment  of qr
+            r3_qc = coef_xf * dens * qc;                                   // r^3 moment  of qc
+            r3_qr = coef_xf * dens * qr;                                   // r^3 moment  of qr
+
+            zerosw = 0.5 - std::copysign(0.5, (r2_qc + r2_qr) - r2_min );
+            rceff[k][ij] = ( r3_qc + r3_qr ) / ( r2_qc + r2_qr + zerosw ) * ( 1.0 - zerosw );
+
+            sw = ( 0.5 + std::copysign(0.5, (qc + qr) - q_min ) ) * zerosw; // if qc+qr > 0.01[g/kg], sw=1
+
+            rctop[0][ij] = (       sw ) * rceff[k][ij]
+                         + ( 1.0 - sw ) * UNDEF;
+            tctop[0][ij] = (       sw ) * temp
+                         + ( 1.0 - sw ) * UNDEF;
+
+            zerosw = 0.5 - std::copysign( 0.5, r2_qc - r2_min );
+            rceff_cld[k][ij] = r3_qc / ( r2_qc + zerosw ) * ( 1.0 - zerosw );
+
+            sw = ( 0.5 + std::copysign( 0.5, qc - q_min ) ) * zerosw; // if qc > 0.01[g/kg], sw=1
+
+            rctop_cld[0][ij] = (       sw ) * rceff_cld[k][ij]
+                             + ( 1.0 - sw ) * UNDEF;
+            tctop_cld[0][ij] = (       sw ) * temp
+                             + ( 1.0 - sw ) * UNDEF;
         }
     }
 
+
+    // update rhogq
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            rhogq[I_QV][k][ij] += drhogqv[k][ij];
+            rhogq[I_QC][k][ij] += drhogqc[k][ij];
+            rhogq[I_QR][k][ij] += drhogqr[k][ij];
+            rhogq[I_QI][k][ij] += drhogqi[k][ij];
+            rhogq[I_QS][k][ij] += drhogqs[k][ij];
+            rhogq[I_QG][k][ij] += drhogqg[k][ij];
+        }
+    }
+
+    // update rhoge
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            rhoge[k][ij] = rhoge[k][ij] - LHV * drhogqv[k][ij]
+                                        + LHF * drhogqi[k][ij]
+                                        + LHF * drhogqs[k][ij]
+                                        + LHF * drhogqg[k][ij];
+        }
+    }
+    for(int ij = 0; ij < ijdim; ij++)
+    {
+         rceff    [kmin-1][ij] = 0.0;
+         rceff_cld[kmin-1][ij] = 0.0;
+         rceff    [kmax+1][ij] = 0.0;
+         rceff_cld[kmax+1][ij] = 0.0;
+
+         sw = ( 0.5 + std::copysign(0.5, tctop[0][ij] - TEM00 ) ); // if T > 0C, sw=1
+
+         rwtop[0][ij] =  (       sw ) * rctop[0][ij]
+                       + ( 1.0 - sw ) * UNDEF;
+
+         sw = ( 0.5 + std::copysign(0.5, rctop_cld[0][ij] - TEM00 ) ); // if T > 0C, sw=1
+
+         rwtop_cld[0][ij] =  (       sw ) * rctop_cld[0][ij]
+                           + ( 1.0 - sw ) * UNDEF;
+    }
 // End of nsw6
 }
 
