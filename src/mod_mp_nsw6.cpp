@@ -542,7 +542,7 @@ void mp_nsw6(
     double coef_dgam, coef_xf;
 
     //---< Precipitation >---
-    bool preciptation_flag[nqmax];
+    bool preciptation_flag[nqmax] = {false};
 
     double Vt    [nqmax][kdim][ijdim];
     double cva   [kdim][ijdim];
@@ -1383,8 +1383,8 @@ void mp_nsw6(
         }
     }
 
-    for(int nq = 0; nq < nqmax; nq++)
-        preciptation_flag[nq] = false;
+    // for(int nq = 0; nq < nqmax; nq++)
+    //     preciptation_flag[nq] = false;
     preciptation_flag[I_QR] = true;
     preciptation_flag[I_QI] = true;
     preciptation_flag[I_QS] = true;
@@ -1441,14 +1441,35 @@ void mp_nsw6(
         }
     }
 
-    // if(OPT_EXPLICIT_ICEGEN)
-    // {
+    bool ice_adjust;
+    if(OPT_EXPLICIT_ICEGEN)
+    {
+        ice_adjust = false;
+        SATURATION_Setrange(100.0, 90.0);
 
-    // }
-    // else
-    // {
+        SATURATION_adjustment(rhog, rhoge, rhogq, tem, q, qd, gsgam2, ice_adjust);
+    }
+    else
+    {
+        ice_adjust = true;
+        SATURATION_Setrange(273.16, 233.16);
 
-    // }
+        SATURATION_adjustment(rhog, rhoge, rhogq, tem , q, qd, gsgam2, ice_adjust);
+    }
+
+    for(int k = 0; k < kdim; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            ml_Pconv[k][ij] = q[I_QV][k][ij] - ml_Pconv[k][ij];
+            ml_Pconw[k][ij] = q[I_QC][k][ij] - ml_Pconw[k][ij];
+            ml_Pconi[k][ij] = q[I_QI][k][ij] - ml_Pconi[k][ij];
+        }
+    }
+
+    negative_filter(rhog, rhoge, rhogq, rho, tem, pre, q, gsgam2);
+
+    // End of nsw6
 }
 
 }
