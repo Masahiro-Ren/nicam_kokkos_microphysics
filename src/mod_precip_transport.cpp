@@ -232,13 +232,13 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
             vadv1d_getflux_new(GRD_dgz, rhoeq, zdis0, kcell, kcell_max, kcell_min, fprec_rhoe);
 
-            vadv1d_getflux_new(GRD_dgz, rhoeq, zdis0, kcell, kcell_max, kcell_min, fprec_rhophi);
+            vadv1d_getflux_new(GRD_dgz, rhophiq, zdis0, kcell, kcell_max, kcell_min, fprec_rhophi);
 
-            vadv1d_getflux_new(GRD_dgz, rhoeq, zdis0, kcell, kcell_max, kcell_min, fprec_rhokin_h);
+            vadv1d_getflux_new(GRD_dgz, rhokin_h, zdis0, kcell, kcell_max, kcell_min, fprec_rhokin_h);
 
-            vadv1d_getflux_new(GRD_dgz, rhoeq, zdis0, kcell, kcell_max, kcell_min, fprec_rhou);
+            vadv1d_getflux_new(GRD_dgz, rhouq, zdis0, kcell, kcell_max, kcell_min, fprec_rhou);
 
-            vadv1d_getflux_new(GRD_dgz, rhoeq, zdis0, kcell, kcell_max, kcell_min, fprec_rhov);
+            vadv1d_getflux_new(GRD_dgz, rhovq, zdis0, kcell, kcell_max, kcell_min, fprec_rhov);
 
             for(int k = kmin; k <= kmax; k++)
             {
@@ -329,7 +329,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
             vadv1d_getflux_new(GRD_dgzh, rhokin_v, zdis0h, kcellh, kcell_max, kcellh_min, fprec_rhokin_v);
 
-            vadv1d_getflux_new(GRD_dgzh, rhokin_v, zdis0h, kcellh, kcell_max, kcellh_min, fprec_rhow);
+            vadv1d_getflux_new(GRD_dgzh, rhowq, zdis0h, kcellh, kcell_max, kcellh_min, fprec_rhow);
 
             for(int k = kmin + 1; k <= kmax; k++)
             {
