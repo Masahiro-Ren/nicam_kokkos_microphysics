@@ -1347,7 +1347,108 @@ void mp_nsw6(
          rwtop_cld[0][ij] =  (       sw ) * rctop_cld[0][ij]
                            + ( 1.0 - sw ) * UNDEF;
     }
-// End of nsw6
+    
+
+    //---< preciptation（降水量） >---
+    for(int nq = 0; nq < nqmax; nq++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            Vt[nq][kmin-1][ij] = 0.0;
+            Vt[nq][kmax+1][ij] = 0.0;
+        }
+    }
+    //--- update mass concentration（質量濃度）
+    for(int nq = NQW_STR; nq <= NQW_END; nq++)
+    {
+        for(int k = kmin; k <= kmax; k++)
+        {
+            for(int ij = 0; ij < ijdim; ij++)
+            {
+                q[nq][k][ij] = rhogq[nq][k][ij] / rhog[k][ij];
+            }
+        }
+    }
+
+    THRMDYN_qd(q, qd);
+    THRMDYN_cv(qd, q, cva);
+
+    for(int k = kmin; k <= kmax; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            tem [k][ij] = rhoge[k][ij] / ( rhog[k][ij] * cva[k][ij] );
+            rgs [k][ij] = gam2 [k][ij] / gsgam2 [k][ij];
+            rgsh[k][ij] = gam2h[k][ij] / gsgam2h[k][ij];
+        }
+    }
+
+    for(int nq = 0; nq < nqmax; nq++)
+        preciptation_flag[nq] = false;
+    preciptation_flag[I_QR] = true;
+    preciptation_flag[I_QI] = true;
+    preciptation_flag[I_QS] = true;
+    preciptation_flag[I_QG] = true;
+    if(precip_transport_type == "3WATER")
+    {
+        preciptation_flag[I_QI] = false;
+    }
+
+    precip_transport_new( rhog,
+                          rhogvx,
+                          rhogvy,
+                          rhogvz,
+                          rhogw,
+                          rhoge,
+                          rhogq,
+                          rho,
+                          tem,
+                          pre,
+                          vx,
+                          vy,
+                          vz,
+                          w,
+                          q,
+                          qd,
+                          z,
+                          Vt,
+                          preciptation_flag,
+                          precip,precip_rhoe,
+                          precip_lh_heat,
+                          precip_rhophi,
+                          precip_rhokin,
+                          gprec,
+                          gsgam2,
+                          gsgam2h,
+                          rgs,
+                          rgsh,
+                          ix,
+                          iy,
+                          iz,
+                          jx,
+                          jy,
+                          jz,
+                          dt,
+                          nullptr); // precip_trc**
+    
+    for(int k = 0; k < kdim; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            ml_Pconv[k][ij] = q[I_QV][k][ij];
+            ml_Pconw[k][ij] = q[I_QC][k][ij];
+            ml_Pconi[k][ij] = q[I_QI][k][ij];
+        }
+    }
+
+    // if(OPT_EXPLICIT_ICEGEN)
+    // {
+
+    // }
+    // else
+    // {
+
+    // }
 }
 
 }
