@@ -4,7 +4,9 @@
 
 namespace VADV1D {
 
-void vadv1d_prep( double dz       [kdim],
+void vadv1d_prep( int    mkmin,
+                  int    mkmax,
+                  double dz       [kdim],
                   double zh       [kdim],
                   double wp       [kdim][ijdim],
                   double zdis     [kdim][ijdim],
@@ -21,20 +23,20 @@ void vadv1d_prep( double dz       [kdim],
     // double zzmax, zzmin;
 
     // vetical velocity at the half level
-    for(int k = kmin + 1; k <= kmax; k++)
+    for(int k = mkmin + 1; k <= mkmax; k++)
         for(int ij = 0; ij < ijdim; ij++)
             wh[k][ij] = 0.5 * (wp[k-1][ij] + wp[k][ij]);
     // bottom boundary for wh
     // top    boundary for wh : same as inner region
     for(int ij = 0; ij < ijdim; ij++)
     {
-        wh[kmin - 1][ij] = wp[kmin - 1][ij];
-        wh[kmin][ij]     = wp[kmin][ij];
-        wh[kmax + 1][ij] = wp[kmax + 1][ij];
+        wh[mkmin - 1][ij] = wp[mkmin - 1][ij];
+        wh[mkmin][ij]     = wp[mkmin][ij];
+        wh[mkmax + 1][ij] = wp[mkmax + 1][ij];
     }
 
     // calculation of distance of cell wall during dt
-    for(int k = kmin + 1; k <= kmax; k++)
+    for(int k = mkmin + 1; k <= mkmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
@@ -49,11 +51,11 @@ void vadv1d_prep( double dz       [kdim],
     // bottom and top boundary for zdis
     for(int ij = 0; ij < ijdim; ij++)
     {
-        zdis[kmin - 1][ij] = 0.0;
-        zdis[kmin][ij] = dt  * wh[kmin][ij] -
-                         dt2 * wh[kmin][ij] * ( wh[kmin+1][ij] - wh[kmin][ij] ) / dz[kmin] / 2.0;
-        zdis[kmax][ij] = dt  * wh[kmax][ij] -
-                         dt2 * wh[kmax][ij] * ( wh[kmax+1][ij] - wh[kmax][ij] ) / dz[kmax] / 2.0;
+        zdis[mkmin - 1][ij] = 0.0;
+        zdis[mkmin][ij] = dt  * wh[mkmin][ij] -
+                          dt2 * wh[mkmin][ij] * ( wh[mkmin+1][ij] - wh[mkmin][ij] ) / dz[mkmin] / 2.0;
+        zdis[mkmax][ij] = dt  * wh[mkmax][ij] -
+                          dt2 * wh[mkmax][ij] * ( wh[mkmax+1][ij] - wh[mkmax][ij] ) / dz[mkmax] / 2.0;
     }
 
     // calculation of kcell
@@ -69,7 +71,7 @@ void vadv1d_prep( double dz       [kdim],
     }
 
     // setup limiter of max and min of kcell
-    for(int k = kmin; k <= kmax; k++)
+    for(int k = mkmin; k <= mkmax; k++)
     {
         // find_max_min(zdis[k], ijdim, zzmax, zzmin);
         double zzmax = *std::max_element(zdis[k], zdis[k] + ijdim);
@@ -77,7 +79,7 @@ void vadv1d_prep( double dz       [kdim],
 
         if(zzmax > 0.0)
         {
-            for(int k2 = k; k2 >= kmin; k2--)
+            for(int k2 = k; k2 >= mkmin; k2--)
             {
                 if( (zh[k2] <= zh[k] - zzmax) && (zh[k2+1] > zh[k] - zzmax) )
                 {
@@ -89,7 +91,7 @@ void vadv1d_prep( double dz       [kdim],
 
         if(zzmin < 0.0)
         {
-            for(int k2 = k; k <= kmax; k2++)
+            for(int k2 = k; k <= mkmax; k2++)
             {
                 if( (zh[k2] <= zh[k] - zzmin) && (zh[k2+1] > zh[k] - zzmin) )
                 {
@@ -100,7 +102,7 @@ void vadv1d_prep( double dz       [kdim],
     }
 
     // determine the kcell at each point.
-    for(int k = kmin; k <= kmax; k++)
+    for(int k = mkmin; k <= mkmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
@@ -125,14 +127,16 @@ void vadv1d_prep( double dz       [kdim],
         for(int ij = 0; ij < ijdim; ij++)
         {
             if(kcell[k][ij] == 0)
-                kcell[k][ij] = kmin;
-            if(kcell[k][ij] == kmax + 1)
-                kcell[k][ij] = kmax;
+                kcell[k][ij] = mkmin;
+            if(kcell[k][ij] == mkmax + 1)
+                kcell[k][ij] = mkmax;
         }
     }
 }
 
-void vadv1d_getflux_new( double dz       [kdim],
+void vadv1d_getflux_new( int    mkmin,
+                         int    mkmax,
+                         double dz       [kdim],
                          double rhof     [kdim][ijdim],
                          double zdis0    [kdim][ijdim],
                          int    kcell    [kdim][ijdim],
@@ -153,7 +157,7 @@ void vadv1d_getflux_new( double dz       [kdim],
         }
     }
 
-    for(int k = kmin; k <= kmax; k++)
+    for(int k = mkmin; k <= mkmax; k++)
     {
         if( kcell_max[k] == k && kcell_max[k] == k )
         {
