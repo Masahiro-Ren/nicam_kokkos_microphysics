@@ -125,8 +125,8 @@ namespace DEBUG {
             for(int g = 0; g < gall; g++)
             {
                 rhogkin_v[k][g] = 0.5 * ( rhogw[k][g] * rhogw[k][g] ) /
-                                        ( C2Wfact[1][k][g] * rhog[k][g] +
-                                          C2Wfact[2][k][g] * rhog[k-1][g] );
+                                        ( C2Wfact[0][k][g] * rhog[k][g] +
+                                          C2Wfact[1][k][g] * rhog[k-1][g] );
             }
         }
 
@@ -143,8 +143,8 @@ namespace DEBUG {
             for(int g = 0; g < gall; g++)
             {
                 rhogkin[k][g] = rhogkin_h[k][g] +                            // horizontal
-                                ( W2Cfact[1][k][g] * rhogkin_v[k + 1][g] +   // vertical
-                                  W2Cfact[2][k][g] * rhogkin_v[k][g] );
+                                ( W2Cfact[0][k][g] * rhogkin_v[k + 1][g] +   // vertical
+                                  W2Cfact[1][k][g] * rhogkin_v[k][g] );
             }
         }
 

@@ -141,7 +141,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
     cnvvar_rhogkin_in(rhog, rhogvx, rhogvy, rhogvz, rhogw, C2Wfact, W2Cfact, rhogkin, rhogkin_h, rhogkin_v);
 
-    for(int k = kmin; k <= kmax; k++)
+    for(int k = kmin; k <= kmax + 1; k++)
     {
         GRD_gz_shift[k] = GRD_gz[k-1];
     }
@@ -173,8 +173,8 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
     for(int ij = 0; ij < ijdim; ij++)
     {
+        precip         [0][ij] = 0.0;
         precip         [1][ij] = 0.0;
-        precip         [2][ij] = 0.0;
         precip_rhoe    [ij] = 0.0;
         precip_lh_heat [ij] = 0.0;
         precip_rhophi  [ij] = 0.0;
@@ -344,12 +344,12 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             if( nq == I_QC )
             {
                 for(int ij = 0; ij < ijdim; ij++)
-                    precip[1][ij] = precip[1][ij] - fprec_q[kmin][ij] / dt;
+                    precip[0][ij] = precip[0][ij] - fprec_q[kmin][ij] / dt;
             }
             else if(nq == I_QR)
             {
                 for(int ij = 0; ij < ijdim; ij++)
-                    precip[1][ij] = precip[1][ij] - fprec_q[kmin][ij] / dt;
+                    precip[0][ij] = precip[0][ij] - fprec_q[kmin][ij] / dt;
 
                 for(int k = kmin; k <= kmax; k++)
                 {
@@ -369,7 +369,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             {
                 for(int ij = 0; ij < ijdim; ij++)
                 {
-                    precip[2][ij] = precip[2][ij] - fprec_q[kmin][ij] / dt;
+                    precip[1][ij] = precip[1][ij] - fprec_q[kmin][ij] / dt;
                     precip_lh_heat[ij] = precip_lh_heat[ij] + fprec_q[kmin][ij] * LHF / dt;
                 }
             }
