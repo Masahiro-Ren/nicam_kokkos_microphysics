@@ -43,7 +43,7 @@ int HYDRO_MAX           = 7;
 
 int NQW_STR = 1; // 2 in fortran
 int NQW_END = 5; // 6 in fortran
-// values below are all 1 less than fortran impl.
+// values below are all +1 in fortran impl.
 int I_QV =  0;
 int I_QC =  1;
 int I_QR =  2;
