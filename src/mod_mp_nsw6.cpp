@@ -857,12 +857,12 @@ void mp_nsw6(
             Dc    = 0.146 - 5.964E-2 * std::log( Nc[k][ij] / 2000.0 );
             Praut_berry = Rdens * 1.67E-5 * rhoqc * rhoqc / ( 5.0 + 3.66E-2 * Nc[k][ij] / ( Dc * rhoqc + EPS ) );
 
-            zerosw      = 0.5 - std::copysign(0.5, qc - 1.0E-12 );
-            Praut_kk    = 1350.0                                           
-                          * std::exp( std::log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
-                          * std::exp( std::log( Nc[k][ij] ) * (-1.79) );                     // eq.(29) in KK(2000)
+            zerosw   = 0.5 - std::copysign(0.5, qc - 1.0E-12 );
+            Praut_kk = 1350.0                                           
+                       * std::exp( std::log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
+                       * std::exp( std::log( Nc[k][ij] ) * (-1.79) );                     // eq.(29) in KK(2000)
 
-            Praut_kk    = 1350.0 * std::pow(qc, 2.47) * std::pow(Nc[k][ij], -1.79);
+            Praut_kk = 1350.0 * std::pow(qc, 2.47) * std::pow(Nc[k][ij], -1.79);
 
 
             // switch berry / k-k scheme
