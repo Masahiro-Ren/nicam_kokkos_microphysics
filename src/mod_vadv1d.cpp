@@ -26,13 +26,18 @@ void vadv1d_prep( int    mkmin,
     for(int k = mkmin + 1; k <= mkmax; k++)
         for(int ij = 0; ij < ijdim; ij++)
             wh[k][ij] = 0.5 * (wp[k-1][ij] + wp[k][ij]);
+    
+     
     // bottom boundary for wh
     // top    boundary for wh : same as inner region
     for(int ij = 0; ij < ijdim; ij++)
     {
-        wh[mkmin - 1][ij] = wp[mkmin - 1][ij];
-        wh[mkmin][ij]     = wp[mkmin][ij];
-        wh[mkmax + 1][ij] = wp[mkmax + 1][ij];
+        // wh[mkmin - 1][ij] = wp[mkmin - 1][ij];
+        // wh[mkmin][ij]     = wp[mkmin][ij];
+        // wh[mkmax + 1][ij] = wp[mkmax + 1][ij];
+        wh[mkmin  ][ij] = wp[mkmin  ][ij];
+        wh[mkmin-1][ij] = wp[mkmin-1][ij];
+        wh[mkmax+1][ij] = wp[mkmax  ][ij]; 
     }
 
     // calculation of distance of cell wall during dt
@@ -51,11 +56,14 @@ void vadv1d_prep( int    mkmin,
     // bottom and top boundary for zdis
     for(int ij = 0; ij < ijdim; ij++)
     {
-        zdis[mkmin - 1][ij] = 0.0;
-        zdis[mkmin][ij] = dt  * wh[mkmin][ij] -
-                          dt2 * wh[mkmin][ij] * ( wh[mkmin+1][ij] - wh[mkmin][ij] ) / dz[mkmin] / 2.0;
-        zdis[mkmax][ij] = dt  * wh[mkmax][ij] -
-                          dt2 * wh[mkmax][ij] * ( wh[mkmax+1][ij] - wh[mkmax][ij] ) / dz[mkmax] / 2.0;
+        // zdis[mkmin - 1][ij] = 0.0;
+        // zdis[mkmin][ij] = dt  * wh[mkmin][ij] -
+        //                   dt2 * wh[mkmin][ij] * ( wh[mkmin+1][ij] - wh[mkmin][ij] ) / dz[mkmin] / 2.0;
+        // zdis[mkmax][ij] = dt  * wh[mkmax][ij] -
+        //                   dt2 * wh[mkmax][ij] * ( wh[mkmax+1][ij] - wh[mkmax][ij] ) / dz[mkmax] / 2.0;
+       zdis[mkmin-1][ij] = 0.0;
+       zdis[mkmin  ][ij] = dt * wh[mkmin][ij] - dt2 * wh[mkmin][ij] * ( wh[mkmin+1][ij] - wh[mkmin][ij] ) / dz[mkmin] / 2.0;
+       zdis[mkmax+1][ij] = dt * wh[mkmax+1][ij] - dt2 * wh[mkmax+1][ij] * ( wh[mkmax+1][ij] - wh[mkmax][ij] ) / dz[mkmax] / 2.0;
     }
 
     // calculation of kcell
@@ -96,6 +104,7 @@ void vadv1d_prep( int    mkmin,
                 if( (zh[k2] <= zh[k] - zzmin) && (zh[k2+1] > zh[k] - zzmin) )
                 {
                     kcell_max[k] = k2;
+                    break;
                 }
             } 
         }
