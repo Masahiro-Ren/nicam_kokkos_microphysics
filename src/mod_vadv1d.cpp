@@ -33,9 +33,6 @@ void vadv1d_prep( int    mkmin,
     // top    boundary for wh : same as inner region
     for(int ij = 0; ij < ijdim; ij++)
     {
-        // wh[mkmin - 1][ij] = wp[mkmin - 1][ij];
-        // wh[mkmin][ij]     = wp[mkmin][ij];
-        // wh[mkmax + 1][ij] = wp[mkmax + 1][ij];
         wh[mkmin  ][ij] = wp[mkmin  ][ij];
         wh[mkmin-1][ij] = wp[mkmin-1][ij];
         wh[mkmax+1][ij] = wp[mkmax  ][ij]; 
@@ -57,11 +54,6 @@ void vadv1d_prep( int    mkmin,
     // bottom and top boundary for zdis
     for(int ij = 0; ij < ijdim; ij++)
     {
-        // zdis[mkmin - 1][ij] = 0.0;
-        // zdis[mkmin][ij] = dt  * wh[mkmin][ij] -
-        //                   dt2 * wh[mkmin][ij] * ( wh[mkmin+1][ij] - wh[mkmin][ij] ) / dz[mkmin] / 2.0;
-        // zdis[mkmax][ij] = dt  * wh[mkmax][ij] -
-        //                   dt2 * wh[mkmax][ij] * ( wh[mkmax+1][ij] - wh[mkmax][ij] ) / dz[mkmax] / 2.0;
        zdis[mkmin-1][ij] = 0.0;
        zdis[mkmin  ][ij] = dt * wh[mkmin][ij] - dt2 * wh[mkmin][ij] * ( wh[mkmin+1][ij] - wh[mkmin][ij] ) / dz[mkmin] / 2.0;
        zdis[mkmax+1][ij] = dt * wh[mkmax+1][ij] - dt2 * wh[mkmax+1][ij] * ( wh[mkmax+1][ij] - wh[mkmax][ij] ) / dz[mkmax] / 2.0;
@@ -169,7 +161,7 @@ void vadv1d_getflux_new( int    mkmin,
 
     for(int k = mkmin; k <= mkmax; k++)
     {
-        if( kcell_max[k] == k && kcell_max[k] == k )
+        if( kcell_min[k] == k && kcell_max[k] == k )
         {
             for(int ij = 0; ij < ijdim; ij++)
                 zdis[k][ij] = zdis0[k][ij];
@@ -180,21 +172,26 @@ void vadv1d_getflux_new( int    mkmin,
             {
                 for(int ij = 0; ij < ijdim; ij++)
                 {
-                    int kc1 = kcell[k][ij] + 1;
-                    int kc2 = kcell[k][ij] - 1;
-                    fact = dz[k2] * 0.25 
-                            * ( (std::copysign(1, k2 - kc1 + 1) + 1.0) * ( std::copysign(1, (k - 1) - k2) + 1.0) 
-                                - (std::copysign(1, k2 - k) + 1.0) * (std::copysign(1, (kc2 - 1) - k2) + 1.0) );
+                    // int kc1 = kcell[k][ij] + 1;
+                    // int kc2 = kcell[k][ij] - 1;
+                    // fact = dz[k2] * 0.25 
+                    //         * ( (std::copysign(1, k2 - kc1 + 1) + 1.0) * ( std::copysign(1, (k - 1) - k2) + 1.0) 
+                    //             - (std::copysign(1, k2 - k) + 1.0) * (std::copysign(1, (kc2 - 1) - k2) + 1.0) );
+                    fact = dz[k2] * 0.25
+                                  * (  ( std::copysign(1, k2 - (kcell[k][ij]+1)) + 1.0 ) * ( std::copysign(1, (k-1) - k2) + 1.0 )
+                                     - ( std::copysign(1, k2 - k) + 1.0 ) * ( std::copysign(1, (kcell[k][ij] - 1) - k2) + 1.0 ) );
+                    
                     frhof[k][ij] = frhof[k][ij] + rhof[k2][ij] * fact;
                     zdis[k][ij] = zdis0[k][ij] - fact;
                 }
 
-                for(int ij = 0; ij < ijdim; ij++)
-                {
-                    int kc = kcell[k][ij];
-                    frhof[k][ij] = frhof[k][ij] + rhof[kc][ij] * zdis[k][ij];
-                }
             }
+        }
+
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            int kc = kcell[k][ij];
+            frhof[k][ij] = frhof[k][ij] + rhof[kc][ij] * zdis[k][ij];
         }
     }
 
@@ -202,8 +199,9 @@ void vadv1d_getflux_new( int    mkmin,
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
-            double val_abs = std::abs(frhof[k][ij]) - CONST_EPS;
-            frhof[k][ij] = frhof[k][ij] * ( 0.5 + std::copysign(0.5, val_abs));
+            // double val_abs = std::abs(frhof[k][ij]) - CONST_EPS;
+            // frhof[k][ij] = frhof[k][ij] * ( 0.5 + std::copysign(0.5, val_abs));
+            frhof[k][ij] = frhof[k][ij] * ( 0.5 + std::copysign(0.5, std::abs(frhof[k][ij]) - CONST_EPS ) ); // small negative filter
         }
     }
 }
