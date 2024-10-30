@@ -278,9 +278,10 @@ int main(int argc, char* argv[])
             {
                 for(int ij = 0; ij < ADM_gall_in; ij++)
                 {
-                    if(std::isnan(CHECK_rhoge[l][k][ij]))
+                    if(std::isnan(rhoge[l][k][ij]))
                     {
                         std::cout << "There is nan in (" << k << ", " << ij << ")\n";
+                        break;
                     }
                 }
             }
