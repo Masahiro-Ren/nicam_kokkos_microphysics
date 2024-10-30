@@ -1,4 +1,4 @@
-# CXX = clang++
+# CXX = g++
 CXX = FCCpx
 INCLUDE_PATH = ../include
 
@@ -8,7 +8,7 @@ A64FX_FLAGS = --std=c++17 -g -O0
 DEBUG_FLAGS = --std=c++17 -g -O0 -Wall -Wextra -Wpedantic -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero,float-cast-overflow
 
 CXXFLAGS = $(A64FX_FLAGS) -I$(INCLUDE_PATH) 
-# CXXFLAGS = --std=c++17 -I$(INCLUDE_PATH)
+# CXXFLAGS = $(DEBUG_FLAGS) -I$(INCLUDE_PATH)
 
 OBJS = 	\
 	problemsize.o          \
