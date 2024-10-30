@@ -5,7 +5,7 @@ INCLUDE_PATH = ../include
 # FLAGS for a64fx
 A64FX_FLAGS = --std=c++17 -g -O0
 
-DEBUG_FLAGS = --std=c++17 -g -O0 -Wall -Wextra -Wpedantic -fsanitize=address -fno-omit-frame-pointer
+DEBUG_FLAGS = --std=c++17 -g -O0 -Wall -Wextra -Wpedantic -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero,float-cast-overflow
 
 CXXFLAGS = $(A64FX_FLAGS) -I$(INCLUDE_PATH) 
 # CXXFLAGS = --std=c++17 -I$(INCLUDE_PATH)

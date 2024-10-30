@@ -1599,7 +1599,8 @@ void Bergeron_param( double tem[kdim][ijdim],
         for(int ij = 0; ij < ijdim; ij++)
         {
             temc = std::min( std::max( tem[k][ij] - TEM00, -30.99 ), 0.0 );
-            itemc = int(-temc) + 1;
+            // itemc = int(-temc) + 1; in fortran 
+            itemc = int(-temc);
             fact = -(temc + double(itemc - 1));
             a1[k][ij] = (1.0 - fact) * a1_tab[itemc] +
                         (fact) * a1_tab[itemc + 1];

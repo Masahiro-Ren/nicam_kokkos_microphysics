@@ -23,7 +23,6 @@ namespace DEBUG {
     void PROF_val_check(const std::string& val_name, double arr2d[ADM_kall][ADM_gall_in], double CHECK_arr2d[ADM_kall][ADM_gall_in])
     {
         // std::cout << __PRETTY_FUNCTION__ << std::endl;
-        std::cout << "Checking " << val_name << " RAE " << std::endl;
 
         double err_sum = 0.0;
         double err_max = std::numeric_limits<double>::min();
@@ -50,6 +49,7 @@ namespace DEBUG {
             }
         }
 
+        std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
         std::cout << "Min = " << std::setprecision(16) << std::scientific << err_min << "; ";
         std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
@@ -58,7 +58,6 @@ namespace DEBUG {
     void PROF_val_check(const std::string& val_name, double arr3d[ADM_lall][ADM_kall][ADM_gall_in], double CHECK_arr3d[ADM_lall][ADM_kall][ADM_gall_in])
     {
         // std::cout << __PRETTY_FUNCTION__ << std::endl;
-        std::cout << "Checking " << val_name << " RAE " << std::endl;
 
         double err_sum = 0.0;
         double err_max = std::numeric_limits<double>::min();
@@ -88,6 +87,7 @@ namespace DEBUG {
             }
         }
 
+        std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
         std::cout << "Min = " << std::setprecision(16) << std::scientific << err_min << "; ";
         std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
@@ -168,8 +168,8 @@ namespace DEBUG {
     {
         /** Waiting for implementing */
         std::cout << __PRETTY_FUNCTION__ << " Reading vgrid data " << std::endl;
-        read_data_1d("data/vgrid/GRD_gz.dat", GRD_dgz);
-        read_data_1d("data/vgrid/GRD_gzh.dat", GRD_dgzh);
+        read_data_1d("data/vgrid/GRD_gz.dat", GRD_gz);
+        read_data_1d("data/vgrid/GRD_gzh.dat", GRD_gzh);
     }
 
     void cnvvar_rhogkin_in(
