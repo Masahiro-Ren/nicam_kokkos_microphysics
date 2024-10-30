@@ -258,18 +258,18 @@ int main(int argc, char* argv[])
     {
         std::cout << "Checking Reuslts \n";
 
-        read_data_3d("verify/calculated_rhog_DP.dat", CHECK_rhog);
-        read_data_3d("verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
-        read_data_3d("verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
-        read_data_3d("verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
-        read_data_3d("verify/calculated_rhoge_DP.dat", CHECK_rhoge);
-        read_data_3d("verify/calculated_rhogw_DP.dat", CHECK_rhogw);
-        read_data_3d("verify/calculated_QV1_DP.dat", CHECK_QV1);
-        read_data_3d("verify/calculated_QC2_DP.dat", CHECK_QC2);
-        read_data_3d("verify/calculated_QR3_DP.dat", CHECK_QR3);
-        read_data_3d("verify/calculated_QI4_DP.dat", CHECK_QI4);
-        read_data_3d("verify/calculated_QS5_DP.dat", CHECK_QS5);
-        read_data_3d("verify/calculated_QG6_DP.dat", CHECK_QG6);
+        read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
+        read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
+        read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
+        read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
+        read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
+        read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
+        read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
+        read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
+        read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
+        read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
+        read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
+        read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
 
         PROF_val_check("rhog",   rhog,   CHECK_rhog);
         PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);

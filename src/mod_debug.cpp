@@ -33,16 +33,17 @@ namespace DEBUG {
         {
             for(int ij = 0; ij < ADM_gall_in; ij++)
             {
-                double err;
-                if(std::abs(CHECK_arr2d[k][ij]) > CONST_EPS)
-                {
-                    err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) / CHECK_arr2d[k][ij] );
-                }
-                else
-                {
-                    err = std::abs(arr2d[k][ij]);
-                }
+                // double err;
+                // if(std::abs(CHECK_arr2d[k][ij]) > CONST_EPS)
+                // {
+                //     err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) / CHECK_arr2d[k][ij] );
+                // }
+                // else
+                // {
+                //     err = std::abs(arr2d[k][ij]);
+                // }
 
+                double err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) );
                 err_sum += err;
                 err_max = std::max(err_max, err);
                 err_min = std::min(err_min, err);
@@ -69,16 +70,17 @@ namespace DEBUG {
             {
                 for(int ij = 0; ij < ADM_gall_in; ij++)
                 {
-                    double err;
-                    if(std::abs(CHECK_arr3d[l][k][ij]) > CONST_EPS)
-                    {
-                        err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) / CHECK_arr3d[l][k][ij] );
-                    }
-                    else
-                    {
-                        err = std::abs(arr3d[l][k][ij]);
-                    }
+                    // double err;
+                    // if(std::abs(CHECK_arr3d[l][k][ij]) > CONST_EPS)
+                    // {
+                    //     err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) / CHECK_arr3d[l][k][ij] );
+                    // }
+                    // else
+                    // {
+                    //     err = std::abs(arr3d[l][k][ij]);
+                    // }
 
+                    double err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) );
                     err_sum += err;
                     err_max = std::max(err_max, err);
                     err_min = std::min(err_min, err);
