@@ -122,11 +122,11 @@ namespace DEBUG {
         GRD_dgz[ADM_kmax + 1] = GRD_dgz[ADM_kmax];
 
         // calculation of grid intervals ( cell wall )
-        for(int k = ADM_kmin; k <= ADM_kmax; k++)
+        for(int k = ADM_kmin; k <= ADM_kmax + 1; k++)
         {
-            GRD_dgzh[k] = GRD_gz[k+1] - GRD_gz[k];
+            GRD_dgzh[k] = GRD_gz[k] - GRD_gz[k-1];
         }
-        GRD_dgz[ADM_kmin - 1] = GRD_dgz[ADM_kmin];
+        GRD_dgzh[ADM_kmin - 1] = GRD_dgzh[ADM_kmin];
 
         // calculation of 1/dgz and 1/dgzh
         for(int k = 0; k < ADM_kall; k++)
@@ -194,9 +194,9 @@ namespace DEBUG {
         {
             for(int g = 0; g < gall; g++)
             {
-                rhogkin[k][g] = 0.5 * ( rhogvx[k][g] * rhogvx[k][g] +
-                                        rhogvy[k][g] * rhogvy[k][g] +
-                                        rhogvz[k][g] * rhogvz[k][g] ) / rhog[k][g];
+                rhogkin_h[k][g] = 0.5 * ( rhogvx[k][g] * rhogvx[k][g] +
+                                          rhogvy[k][g] * rhogvy[k][g] +
+                                          rhogvz[k][g] * rhogvz[k][g] ) / rhog[k][g];
             }
         }
 
@@ -207,7 +207,7 @@ namespace DEBUG {
         }
 
         // --- vertical kinetic energy
-        for(int k = kmin; k <= kmax; k++)
+        for(int k = kmin + 1; k <= kmax; k++)
         {
             for(int g = 0; g < gall; g++)
             {
