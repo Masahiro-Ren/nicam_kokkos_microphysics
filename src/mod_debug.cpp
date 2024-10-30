@@ -26,8 +26,8 @@ namespace DEBUG {
         std::cout << "Checking " << val_name << " RAE " << std::endl;
 
         double err_sum = 0.0;
-        double err_max = -1.0;
-        double err_min = std::numeric_limits<double>::infinity();
+        double err_max = std::numeric_limits<double>::min();
+        double err_min = std::numeric_limits<double>::max();
 
         for(int k = 0; k < ADM_kall; k++)
         {
@@ -61,8 +61,8 @@ namespace DEBUG {
         std::cout << "Checking " << val_name << " RAE " << std::endl;
 
         double err_sum = 0.0;
-        double err_max = -1.0;
-        double err_min = std::numeric_limits<double>::infinity();
+        double err_max = std::numeric_limits<double>::min();
+        double err_min = std::numeric_limits<double>::max();
 
         for(int l = 0; l < ADM_lall; l++)
         {
