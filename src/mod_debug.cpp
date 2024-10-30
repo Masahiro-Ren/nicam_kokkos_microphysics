@@ -1,4 +1,5 @@
 #include "mod_debug.h"
+#include "limits"
 
 using namespace PROBLEM_SIZE;
 using namespace DATA_IO;
@@ -15,13 +16,79 @@ namespace DEBUG {
 
     void ADM_Proc_stop()
     {
+        std::cerr << "Process is stopped unpeacefully." << std::endl;
         exit(1);
     }
 
-    void PROF_val_check()
+    void PROF_val_check(const std::string& val_name, double arr2d[ADM_kall][ADM_gall_in], double CHECK_arr2d[ADM_kall][ADM_gall_in])
     {
-        /** Waiting for implementing */
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
+        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "Checking " << val_name << " Relative Absolute Error " << std::endl;
+
+        double err_sum = 0.0;
+        double err_max = -1.0;
+        double err_min = std::numeric_limits<double>::infinity();
+
+        for(int k = 0; k < ADM_kall; k++)
+        {
+            for(int ij = 0; ij < ADM_gall_in; ij++)
+            {
+                double err;
+                if(std::abs(CHECK_arr2d[k][ij]) > CONST_EPS)
+                {
+                    err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) / CHECK_arr2d[k][ij] );
+                }
+                else
+                {
+                    err = arr2d[k][ij];
+                }
+
+                err_sum += err;
+                err_max = std::max(err_max, err);
+                err_min = std::min(err_min, err);
+            }
+        }
+
+        std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
+        std::cout << "Min = " << std::setprecision(16) << std::scientific << err_min << "; ";
+        std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
+    }
+
+    void PROF_val_check(const std::string& val_name, double arr3d[ADM_lall][ADM_kall][ADM_gall_in], double CHECK_arr3d[ADM_lall][ADM_kall][ADM_gall_in])
+    {
+        // std::cout << __PRETTY_FUNCTION__ << std::endl;
+        std::cout << "Checking " << val_name << " Relative Absolute Error " << std::endl;
+
+        double err_sum = 0.0;
+        double err_max = -1.0;
+        double err_min = std::numeric_limits<double>::infinity();
+
+        for(int l = 0; l < ADM_lall; l++)
+        {
+            for(int k = 0; k < ADM_kall; k++)
+            {
+                for(int ij = 0; ij < ADM_gall_in; ij++)
+                {
+                    double err;
+                    if(std::abs(CHECK_arr3d[l][k][ij]) > CONST_EPS)
+                    {
+                        err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) / CHECK_arr3d[l][k][ij] );
+                    }
+                    else
+                    {
+                        err = arr3d[l][k][ij];
+                    }
+
+                    err_sum += err;
+                    err_max = std::max(err_max, err);
+                    err_min = std::min(err_min, err);
+                }
+            }
+        }
+
+        std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
+        std::cout << "Min = " << std::setprecision(16) << std::scientific << err_min << "; ";
+        std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
     }
 
     void GRD_Setup()

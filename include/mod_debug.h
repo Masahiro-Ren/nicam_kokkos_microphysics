@@ -18,7 +18,9 @@ extern int sat_ite_min;
 
 void ADM_Proc_stop();
 
-void PROF_val_check();
+void PROF_val_check(const std::string& val_name, double arr3d[ADM_lall][ADM_kall][ADM_gall_in], double CHECK_arr3d[ADM_lall][ADM_kall][ADM_gall_in]);
+
+void PROF_val_check(const std::string& val_name, double arr2d[ADM_kall][ADM_gall_in], double CHECK_arr2d[ADM_kall][ADM_gall_in]);
 
 void GRD_Setup();
 
