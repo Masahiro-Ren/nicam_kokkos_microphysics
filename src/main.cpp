@@ -271,6 +271,21 @@ int main(int argc, char* argv[])
         read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
         read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
 
+        // check nan
+        for(int l = 0; l < ADM_lall; l++)
+        {
+            for(int k = 0; k < ADM_kall; k++)
+            {
+                for(int ij = 0; ij < ADM_gall_in; ij++)
+                {
+                    if(std::isnan(CHECK_rhoge[l][k][ij]))
+                    {
+                        std::cout << "There is nan in (" << k << ", " << ij << ")\n";
+                    }
+                }
+            }
+        }
+
         PROF_val_check("rhog",   rhog,   CHECK_rhog);
         PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
         PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
