@@ -114,28 +114,46 @@ namespace DEBUG {
         // GRD_Input_vgrid(vgrid_fname);
         GRD_Input_vgrid();
 
-        for(int k = 0; k <= ADM_kmax; k++)
+        // calculation of grid intervals ( cell center )
+        for(int k = ADM_kmin - 1; k <= ADM_kmax; k++)
         {
             GRD_dgz[k] = GRD_gzh[k+1] - GRD_gzh[k];
         }
         GRD_dgz[ADM_kmax + 1] = GRD_dgz[ADM_kmax];
 
-        for(int k = 0; k <= ADM_kmax; k++)
+        // calculation of grid intervals ( cell wall )
+        for(int k = ADM_kmin; k <= ADM_kmax; k++)
         {
             GRD_dgzh[k] = GRD_gz[k+1] - GRD_gz[k];
         }
         GRD_dgz[ADM_kmin - 1] = GRD_dgz[ADM_kmin];
 
+        // calculation of 1/dgz and 1/dgzh
         for(int k = 0; k < ADM_kall; k++)
         {
             GRD_rdgz[k] = 1.0 / GRD_dgz[k];
             GRD_rdgzh[k] = 1.0 / GRD_dgzh[k];
         }
 
+        //---< vertical interpolation factor >---
+
+        // vertical interpolation factor
         for(int k = ADM_kmin; k <= ADM_kmax + 1; k++)
         {
             GRD_afact[k] = ( GRD_gzh[k] - GRD_gz[k-1] ) /
                             ( GRD_gz[k] - GRD_gz[k-1] );
+        }
+        GRD_afact[ADM_kmin-1] = 1.0;
+
+        for(int k = 0; k < ADM_kall; k++)
+        {
+            GRD_bfact[k] = 1.0 - GRD_afact[k];
+        }
+
+        for(int k = ADM_kmin; k <= ADM_kmax; k++)
+        {
+            GRD_cfact[k] =   ( GRD_gz[k] - GRD_gzh[k] )
+                           / ( GRD_gzh[k+1] - GRD_gzh[k] );
         }
         GRD_cfact[ADM_kmin - 1] = 1.0;
         GRD_cfact[ADM_kmax + 1] = 0.0;
