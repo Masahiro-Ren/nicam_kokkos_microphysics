@@ -40,7 +40,7 @@ namespace DEBUG {
                 }
                 else
                 {
-                    err = arr2d[k][ij];
+                    err = std::abs(arr2d[k][ij]);
                 }
 
                 err_sum += err;
@@ -76,7 +76,7 @@ namespace DEBUG {
                     }
                     else
                     {
-                        err = arr3d[l][k][ij];
+                        err = std::abs(arr3d[l][k][ij]);
                     }
 
                     err_sum += err;
