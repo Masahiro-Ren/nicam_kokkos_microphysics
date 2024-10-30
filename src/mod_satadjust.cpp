@@ -347,7 +347,7 @@ void satadjust_liq( double rho    [kdim][ijdim],
     bool converged;
 
     // In Fortran: ite_temp(2:95, 1:16641)
-    int ite_temp[kdim][ijdim] = {0};
+    int ite_temp[kdim][ijdim] = {{0}};
 
     THRMDYN_qd(q, qd);
 
