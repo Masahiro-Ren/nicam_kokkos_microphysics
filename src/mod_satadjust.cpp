@@ -293,7 +293,7 @@ void satadjust_all( double rho    [kdim][ijdim],
                     dEmoist_dT = tem[k][ij] * dCVtot_dT
                                  + CVtot
                                  + dqsat_dT * LHV
-                                 + dqi_dT   * LHF;
+                                 - dqi_dT   * LHF;
                     
                     dtemp = ( Emoist_new - Emoist[k][ij] ) / dEmoist_dT;
 

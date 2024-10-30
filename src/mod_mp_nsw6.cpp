@@ -366,6 +366,7 @@ void mp_nsw6_init()
 
     if(CONST_Vti != UNDEF)
     {
+        CONST_Vti = std::abs(CONST_Vti);
         sw_constVti = 1.0;
     }
     else
