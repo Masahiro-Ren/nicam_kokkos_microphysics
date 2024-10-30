@@ -7,7 +7,7 @@ namespace THRMDYN{
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                qd[k][ij] = 0.0;
+                qd[k][ij] = 1.0;
             }
         }
 
@@ -65,7 +65,7 @@ namespace THRMDYN{
             for(int ij = 0; ij < ijdim; ij++)
             {
                 cv[k][ij] = 0.0;
-                qd[k][ij] = 0.0;
+                qd[k][ij] = 1.0;
             }
         }
 

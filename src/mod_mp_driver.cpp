@@ -173,33 +173,33 @@ void mp_driver( int l_region,
 		{
 			for(int ij = 0; ij < ijdim; ij++)
 			{
-				precip_sum[k][ij] = 0.0;
-				ISO1_precip_sum[k][ij] = 0.0;
-				ISO2_precip_sum[k][ij] = 0.0;
+				precip     [k][ij] = 0.0;
+				ISO1_precip[k][ij] = 0.0;
+				ISO2_precip[k][ij] = 0.0;
 			}
 		}
 		for(int nq = 0; nq < nqmax; nq++)
 		{
 			for(int ij = 0; ij < ijdim; ij++)
 			{
-				precip_trc_sum[nq][ij] = 0.0;
+				precip_trc[nq][ij] = 0.0;
 			}
 		}
 		for(int k = 0; k < kdim; k++)
 		{
 			for(int ij = 0; ij < ijdim; ij++)
 			{
-				GDCLW_sum[k][ij] = 0.0;
-				GDCFRC_sum[k][ij] = 0.0;
-				GPREC_sum[k][ij] = 0.0;
+				GDCLW [k][ij] = 0.0;
+				GDCFRC[k][ij] = 0.0;
+				GPREC [k][ij] = 0.0;
 			}
 		}
 		for(int ij = 0; ij < ijdim; ij++)
 		{
-			precip_rhoe_sum[ij] = 0.0;
-			precip_lh_heat_sum[ij] = 0.0;
-			precip_rhophi_sum [ij] = 0.0;
-			precip_rhokin_sum [ij] = 0.0;
+			precip_rhoe   [ij] = 0.0;
+			precip_lh_heat[ij] = 0.0;
+			precip_rhophi [ij] = 0.0;
+			precip_rhokin [ij] = 0.0;
 		}
 
 		if(MP_TYPE == "NONE")
