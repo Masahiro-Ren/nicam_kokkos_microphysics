@@ -23,7 +23,7 @@ namespace DEBUG {
     void PROF_val_check(const std::string& val_name, double arr2d[ADM_kall][ADM_gall_in], double CHECK_arr2d[ADM_kall][ADM_gall_in])
     {
         // std::cout << __PRETTY_FUNCTION__ << std::endl;
-        std::cout << "Checking " << val_name << " Relative Absolute Error " << std::endl;
+        std::cout << "Checking " << val_name << " RAE " << std::endl;
 
         double err_sum = 0.0;
         double err_max = -1.0;
@@ -57,7 +57,7 @@ namespace DEBUG {
     void PROF_val_check(const std::string& val_name, double arr3d[ADM_lall][ADM_kall][ADM_gall_in], double CHECK_arr3d[ADM_lall][ADM_kall][ADM_gall_in])
     {
         // std::cout << __PRETTY_FUNCTION__ << std::endl;
-        std::cout << "Checking " << val_name << " Relative Absolute Error " << std::endl;
+        std::cout << "Checking " << val_name << " RAE " << std::endl;
 
         double err_sum = 0.0;
         double err_max = -1.0;

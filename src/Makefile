@@ -3,7 +3,7 @@ CXX = FCCpx
 INCLUDE_PATH = ../include
 
 # FLAGS for a64fx
-A64FX_FLAGS = --std=c++17 -Kfast
+A64FX_FLAGS = --std=c++17 -g -O0
 
 DEBUG_FLAGS = --std=c++17 -g -O0 -Wall -Wextra -Wpedantic -fsanitize=address -fno-omit-frame-pointer
 
