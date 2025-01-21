@@ -7,6 +7,12 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <Kokkos_Core.hpp>
+
+using Kokkos::View;
+using Kokkos::RangePolicy;
+using Kokkos::Schedule;
+using Kokkos::OpenMP
 
 template <typename T>
 using Vec1d = std::vector<T>;

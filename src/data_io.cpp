@@ -11,7 +11,7 @@ char BUF_3D2[SIZE_BUF_3D2];
 char BUF_4D[SIZE_BUF_4D];
 char BUF_4D2[SIZE_BUF_4D2];
 
-void read_data_1d(const std::string& filename, double arr1d[ADM_kall])
+void read_data_1d(const std::string& filename, View<double*> arr1d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -29,8 +29,10 @@ void read_data_1d(const std::string& filename, double arr1d[ADM_kall])
 
     double* cast_array = reinterpret_cast<double*>(BUF_1D);
 
-    for(int i = 0; i < ADM_kall; i++)
-        arr1d[i] = cast_array[i];
+    auto RANGE_1D = RangePolicy<Schedule<Kokkos::Static>, OpenMP>(0, ADM_kall)
+    Kokkos::parallel_for("read_data_1d", RANGE_1D, KOKKOS_LAMBDA(const size_t i){
+        arr1d(i) = cast_array[i];
+    });
 }
 
 void read_data_2d(const std::string& filename, double arr2d[ADM_lall][ADM_gall_in])
