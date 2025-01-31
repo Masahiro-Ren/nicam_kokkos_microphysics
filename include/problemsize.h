@@ -11,14 +11,19 @@
 
 using Kokkos::View;
 using Kokkos::RangePolicy;
+using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
-using Kokkos::OpenMP
+#ifdef OPENMP
+    using EXE_SPACE = Kokkos::OpenMP;
+#else
+    using EXE_SPACE = Kokkos::Serial;
+#endif
 
-template <typename T>
-using Vec1d = std::vector<T>;
+// template <typename T>
+// using Vec1d = std::vector<T>;
 
-template <typename T>
-using Vec2d = std::vector<std::vector<T>>;
+// template <typename T>
+// using Vec2d = std::vector<std::vector<T>>;
 
 namespace PROBLEM_SIZE 
 {
@@ -58,8 +63,8 @@ constexpr double CONST_PI     = 3.141592653589793; //< pi
 constexpr double CONST_EPS    = 2.220446E-16; //< small number
 
 constexpr double CONST_UNDEF  = -9.9999E+30; 
-constexpr double CONST_GRAV   =   9.79764;   
-constexpr double CONST_STB    =   5.670373E-8;
+constexpr double CONST_GRAV   =  9.79764;   
+constexpr double CONST_STB    =  5.670373E-8;
 
 constexpr double CONST_Rdry   =  287.04;
 constexpr double CONST_CPdry  = 1004.64;

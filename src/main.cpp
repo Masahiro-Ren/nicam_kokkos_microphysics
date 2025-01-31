@@ -10,63 +10,6 @@ using namespace DEBUG;
 using namespace SATADJUST;
 using namespace MP_DRIVER;
 
-// declare all variables
-double rhog  [ADM_lall][ADM_kall][ADM_gall_in];
-double rhogvx[ADM_lall][ADM_kall][ADM_gall_in];
-double rhogvy[ADM_lall][ADM_kall][ADM_gall_in];
-double rhogvz[ADM_lall][ADM_kall][ADM_gall_in];
-double rhogw [ADM_lall][ADM_kall][ADM_gall_in];
-double rhoge [ADM_lall][ADM_kall][ADM_gall_in];
-double vx    [ADM_lall][ADM_kall][ADM_gall_in];
-double vy    [ADM_lall][ADM_kall][ADM_gall_in];
-double vz    [ADM_lall][ADM_kall][ADM_gall_in];
-double w     [ADM_lall][ADM_kall][ADM_gall_in];
-double unccn [ADM_lall][ADM_kall][ADM_gall_in];
-double rho   [ADM_lall][ADM_kall][ADM_gall_in];
-double pre   [ADM_lall][ADM_kall][ADM_gall_in];
-double tem   [ADM_lall][ADM_kall][ADM_gall_in];
-
-double rhogq_Lswp [ADM_lall][TRC_VMAX][ADM_kall][ADM_gall_in];
-double q_Lswp     [ADM_lall][TRC_VMAX][ADM_kall][ADM_gall_in];
-
-double precip_mp  [2][ADM_lall][ADM_KNONE][ADM_gall_in];
-double precip1_mp [2][ADM_lall][ADM_KNONE][ADM_gall_in];
-double precip2_mp [2][ADM_lall][ADM_KNONE][ADM_gall_in];
-
-double rhoein_precip_mp [ADM_lall][ADM_KNONE][ADM_gall_in];
-double lh_precip_mp     [ADM_lall][ADM_KNONE][ADM_gall_in];
-double rhophi_precip_mp [ADM_lall][ADM_KNONE][ADM_gall_in];
-double rhokin_precip_mp [ADM_lall][ADM_KNONE][ADM_gall_in];
-
-double frhoge_af [ADM_lall][ADM_kall][ADM_gall_in];
-double frhogqv_af[ADM_lall][ADM_kall][ADM_gall_in];
-double frhoge_rad[ADM_lall][ADM_kall][ADM_gall_in];
-double qke       [ADM_lall][ADM_kall][ADM_gall_in];
-double gsgam2    [ADM_lall][ADM_kall][ADM_gall_in];
-double gsgam2h   [ADM_lall][ADM_kall][ADM_gall_in];
-double gam2      [ADM_lall][ADM_kall][ADM_gall_in];
-double gam2h     [ADM_lall][ADM_kall][ADM_gall_in];
-
-double ix [ADM_lall][ADM_gall_in];
-double iy [ADM_lall][ADM_gall_in];
-double iz [ADM_lall][ADM_gall_in];
-double jx [ADM_lall][ADM_gall_in];
-double jy [ADM_lall][ADM_gall_in];
-double jz [ADM_lall][ADM_gall_in];
-
-double z           [ADM_lall][ADM_kall][ADM_gall_in];
-double zh          [ADM_lall][ADM_kall][ADM_gall_in];
-double GPREC       [ADM_lall][ADM_kall][ADM_gall_in];
-double CBMFX       [ADM_lall][ADM_kall][ADM_gall_in];
-double qd          [ADM_lall][ADM_kall][ADM_gall_in];
-double rceff       [ADM_lall][ADM_kall][ADM_gall_in];
-double rceff_solid [ADM_lall][ADM_kall][ADM_gall_in];
-double rceff_cld   [ADM_lall][ADM_kall][ADM_gall_in];
-
-double rctop [ADM_lall][ADM_KNONE][ADM_gall_in];
-double rwtop [ADM_lall][ADM_KNONE][ADM_gall_in];
-double tctop [ADM_lall][ADM_KNONE][ADM_gall_in];
-
 double GDCLW  [ADM_lall][ADM_kall][ADM_gall_in];
 double GDCFRC [ADM_lall][ADM_kall][ADM_gall_in];
 
@@ -88,6 +31,64 @@ double CHECK_QG6   [ADM_lall][ADM_kall][ADM_gall_in];
 
 int main(int argc, char* argv[])
 {
+Kokkos::initialize(argc, argv);
+{
+    // declare all variables
+    View<double***> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
+
+    View<double****> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View<double****> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+
+    View<double****> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double****> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double****> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+
+    View<double***> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double***> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double***> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double***> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+
+    View<double***> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
+
+    View<double**> ix ("ix", ADM_lall, ADM_gall_in);
+    View<double**> iy ("iy", ADM_lall, ADM_gall_in);
+    View<double**> iz ("iz", ADM_lall, ADM_gall_in);
+    View<double**> jx ("jx", ADM_lall, ADM_gall_in);
+    View<double**> jy ("jy", ADM_lall, ADM_gall_in);
+    View<double**> jz ("jz", ADM_lall, ADM_gall_in);
+
+    View<double***> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
+
+    View<double***> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double***> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View<double***> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
 
     /**
      * Display Simulation Configuerations
@@ -150,141 +151,142 @@ int main(int argc, char* argv[])
     read_data_3d("data/GPREC.dat", GPREC);
     read_data_3d("data/CBMFX.dat", CBMFX);
 
-    /**
-     * Vertical grid setup
-     */
-    GRD_Setup();
-    /**
-     * Saturation set_up
-     */
-    SATURATION_Setup();
-    /**
-     * microphysics initialization
-     */
-    mp_init(MP_TYPE);
+    // /**
+    //  * Vertical grid setup
+    //  */
+    // GRD_Setup();
+    // /**
+    //  * Saturation set_up
+    //  */
+    // SATURATION_Setup();
+    // /**
+    //  * microphysics initialization
+    //  */
+    // mp_init(MP_TYPE);
 
-    int l = SET_l;
+    // int l = SET_l;
 
-    std::cout << "============= Finish Initialize =============== \n";
+    // std::cout << "============= Finish Initialize =============== \n";
 
-    /**
-     * Start Simulation
-    */
-    std::cout << "============= Start Kernel =============== \n";
+    // /**
+    //  * Start Simulation
+    // */
+    // std::cout << "============= Start Kernel =============== \n";
 
-    /**
-     * create temp arrays to stroe :
-     *      precip_mp(:,ADM_KNONE,l,:)
-     *      precip1_mp(:,ADM_KNONE,l,:)
-     *      precip2_mp(:,ADM_KNONE,l,:)
-     */
-    double precip_mp_tmp [2][ADM_gall_in];
-    double precip1_mp_tmp[2][ADM_gall_in];
-    double precip2_mp_tmp[2][ADM_gall_in];
+    // /**
+    //  * create temp arrays to stroe :
+    //  *      precip_mp(:,ADM_KNONE,l,:)
+    //  *      precip1_mp(:,ADM_KNONE,l,:)
+    //  *      precip2_mp(:,ADM_KNONE,l,:)
+    //  */
+    // double precip_mp_tmp [2][ADM_gall_in];
+    // double precip1_mp_tmp[2][ADM_gall_in];
+    // double precip2_mp_tmp[2][ADM_gall_in];
 
-    for(int k = 0; k < 2; k++)
-    {
-        for(int ij = 0; ij < ADM_gall_in; ij++)
-        {
-            precip_mp_tmp [k][ij] = precip_mp [k][0][0][ij];
-            precip1_mp_tmp[k][ij] = precip1_mp[k][0][0][ij];
-            precip2_mp_tmp[k][ij] = precip2_mp[k][0][0][ij];
-        }
-    }
-    // Copy end
+    // for(int k = 0; k < 2; k++)
+    // {
+    //     for(int ij = 0; ij < ADM_gall_in; ij++)
+    //     {
+    //         precip_mp_tmp [k][ij] = precip_mp [k][0][0][ij];
+    //         precip1_mp_tmp[k][ij] = precip1_mp[k][0][0][ij];
+    //         precip2_mp_tmp[k][ij] = precip2_mp[k][0][0][ij];
+    //     }
+    // }
+    // // Copy end
 
-    for(int i = 0; i < SET_iteration; i++)
-    {
-        // Call mp_driver
-        mp_driver(
-                  l,
-                  rhog            [0],
-                  rhogvx          [0],
-                  rhogvy          [0],
-                  rhogvz          [0],
-                  rhogw           [0],
-                  rhoge           [0],
-                  rhogq_Lswp      [0],
-                  vx              [0],
-                  vy              [0],
-                  vz              [0],
-                  w               [0],
-                  unccn           [0],
-                  rho             [0],
-                  tem             [0],
-                  pre             [0],
-                  q_Lswp          [0],
-                  qd              [0],
-                  precip_mp_tmp,
-                  precip1_mp_tmp,
-                  precip2_mp_tmp,
-                  rhoein_precip_mp[0][0],
-                  lh_precip_mp    [0][0],
-                  rhophi_precip_mp[0][0],
-                  rhokin_precip_mp[0][0],
-                  rceff           [0],
-                  rceff_solid     [0],
-                  rceff_cld       [0],
-                  rctop           [0],
-                  rwtop           [0],
-                  tctop           [0],
-                  frhoge_af       [0],
-                  frhogqv_af      [0],
-                  frhoge_rad      [0],
-                  qke             [0],
-                  gsgam2          [0],
-                  gsgam2h         [0],
-                  gam2            [0],
-                  gam2h           [0],
-                  ix              [0],
-                  iy              [0],
-                  iz              [0],
-                  jx              [0],
-                  jy              [0],
-                  jz              [0],
-                  z               [0],
-                  zh              [0],
-                  TIME_DTL,
-                  TIME_CTIME,
-                  GDCLW           [0],
-                  GDCFRC          [0],
-                  GPREC           [0],
-                  CBMFX           [0]
-                  );
-    }
-    std::cout << "============= Finish Kernel =============== \n";
+    // for(int i = 0; i < SET_iteration; i++)
+    // {
+    //     // Call mp_driver
+    //     mp_driver(
+    //               l,
+    //               rhog            [0],
+    //               rhogvx          [0],
+    //               rhogvy          [0],
+    //               rhogvz          [0],
+    //               rhogw           [0],
+    //               rhoge           [0],
+    //               rhogq_Lswp      [0],
+    //               vx              [0],
+    //               vy              [0],
+    //               vz              [0],
+    //               w               [0],
+    //               unccn           [0],
+    //               rho             [0],
+    //               tem             [0],
+    //               pre             [0],
+    //               q_Lswp          [0],
+    //               qd              [0],
+    //               precip_mp_tmp,
+    //               precip1_mp_tmp,
+    //               precip2_mp_tmp,
+    //               rhoein_precip_mp[0][0],
+    //               lh_precip_mp    [0][0],
+    //               rhophi_precip_mp[0][0],
+    //               rhokin_precip_mp[0][0],
+    //               rceff           [0],
+    //               rceff_solid     [0],
+    //               rceff_cld       [0],
+    //               rctop           [0],
+    //               rwtop           [0],
+    //               tctop           [0],
+    //               frhoge_af       [0],
+    //               frhogqv_af      [0],
+    //               frhoge_rad      [0],
+    //               qke             [0],
+    //               gsgam2          [0],
+    //               gsgam2h         [0],
+    //               gam2            [0],
+    //               gam2h           [0],
+    //               ix              [0],
+    //               iy              [0],
+    //               iz              [0],
+    //               jx              [0],
+    //               jy              [0],
+    //               jz              [0],
+    //               z               [0],
+    //               zh              [0],
+    //               TIME_DTL,
+    //               TIME_CTIME,
+    //               GDCLW           [0],
+    //               GDCFRC          [0],
+    //               GPREC           [0],
+    //               CBMFX           [0]
+    //               );
+    // }
+    // std::cout << "============= Finish Kernel =============== \n";
 
-    if (SET_check)
-    {
-        std::cout << "Checking Reuslts \n";
+    // if (SET_check)
+    // {
+    //     std::cout << "Checking Reuslts \n";
 
-        read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
-        read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
-        read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
-        read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
-        read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
-        read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
-        read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
-        read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
-        read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
-        read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
-        read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
-        read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
+    //     read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
+    //     read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
+    //     read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
+    //     read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
+    //     read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
+    //     read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
+    //     read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
+    //     read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
+    //     read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
+    //     read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
+    //     read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
+    //     read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
 
-        PROF_val_check("rhog",   rhog,   CHECK_rhog);
-        PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
-        PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
-        PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
-        PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
-        PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
-        PROF_val_check("QV", rhogq_Lswp[0][I_QV], CHECK_QV1[0]);
-        PROF_val_check("QC", rhogq_Lswp[0][I_QC], CHECK_QC2[0]);
-        PROF_val_check("QR", rhogq_Lswp[0][I_QR], CHECK_QR3[0]);
-        PROF_val_check("QI", rhogq_Lswp[0][I_QI], CHECK_QI4[0]);
-        PROF_val_check("QS", rhogq_Lswp[0][I_QS], CHECK_QS5[0]);
-        PROF_val_check("QG", rhogq_Lswp[0][I_QG], CHECK_QG6[0]);
-    }
+    //     PROF_val_check("rhog",   rhog,   CHECK_rhog);
+    //     PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
+    //     PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
+    //     PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
+    //     PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
+    //     PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
+    //     PROF_val_check("QV", rhogq_Lswp[0][I_QV], CHECK_QV1[0]);
+    //     PROF_val_check("QC", rhogq_Lswp[0][I_QC], CHECK_QC2[0]);
+    //     PROF_val_check("QR", rhogq_Lswp[0][I_QR], CHECK_QR3[0]);
+    //     PROF_val_check("QI", rhogq_Lswp[0][I_QI], CHECK_QI4[0]);
+    //     PROF_val_check("QS", rhogq_Lswp[0][I_QS], CHECK_QS5[0]);
+    //     PROF_val_check("QG", rhogq_Lswp[0][I_QG], CHECK_QG6[0]);
+    // }
 
     std::cout << "============= All process finished =============== \n";
-    return 0;
+}
+Kokkos::finalize();
 }
