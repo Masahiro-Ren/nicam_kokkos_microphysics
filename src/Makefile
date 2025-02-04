@@ -19,10 +19,18 @@ KOKKOS_DEVICES = "OpenMP"
 DEPFLAGS = -M
 
 # OBJ = $(notdir $(SRC:.cpp=.o))
-OBJ = 	problemsize.o	\
-		data_io.o		\
-		mod_debug.o		\
-		main.o
+OBJ = \
+	problemsize.o          \
+	data_io.o              \
+	mod_debug.o            \
+	mod_vadv1d.o           \
+	mod_thrmdyn.o          \
+	mod_satadjust.o        \
+	mod_precip_transport.o \
+	mod_mp_nsw6.o          \
+	mod_mp_driver.o        \
+	main.o
+
 LIB =
 
 include $(KOKKOS_PATH)/Makefile.kokkosfx

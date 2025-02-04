@@ -10,6 +10,7 @@
 #include <Kokkos_Core.hpp>
 
 using Kokkos::View;
+using Kokkos::subview;
 using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;

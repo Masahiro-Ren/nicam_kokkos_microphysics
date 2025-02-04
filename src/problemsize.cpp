@@ -3,6 +3,7 @@
 namespace PROBLEM_SIZE
 {
 
+// grd, gmtr, vmtr
 double GRD_gz   [ADM_kall];
 double GRD_gzh  [ADM_kall];
 double GRD_dgz  [ADM_kall];

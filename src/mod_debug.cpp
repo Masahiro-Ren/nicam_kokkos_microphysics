@@ -131,7 +131,7 @@ namespace DEBUG {
         // calculation of 1/dgz and 1/dgzh
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_rdgz[k] = 1.0 / GRD_dgz[k];
+            GRD_rdgz[k] = 1.0 / GRD_dgz  [k];
             GRD_rdgzh[k] = 1.0 / GRD_dgzh[k];
         }
 

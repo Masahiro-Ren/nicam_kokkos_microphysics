@@ -10,8 +10,6 @@ using namespace DEBUG;
 using namespace SATADJUST;
 using namespace MP_DRIVER;
 
-double GDCLW  [ADM_lall][ADM_kall][ADM_gall_in];
-double GDCFRC [ADM_lall][ADM_kall][ADM_gall_in];
 
 /**
  * For result checking
@@ -90,6 +88,8 @@ Kokkos::initialize(argc, argv);
     View<double***> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
     View<double***> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
 
+    View<double***> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
+    View<double***> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
     /**
      * Display Simulation Configuerations
     */
@@ -151,108 +151,149 @@ Kokkos::initialize(argc, argv);
     read_data_3d("data/GPREC.dat", GPREC);
     read_data_3d("data/CBMFX.dat", CBMFX);
 
-    // /**
-    //  * Vertical grid setup
-    //  */
-    // GRD_Setup();
+    /**
+     * Vertical grid setup
+     */
+    GRD_Setup();
     // /**
     //  * Saturation set_up
     //  */
-    // SATURATION_Setup();
+    SATURATION_Setup();
     // /**
     //  * microphysics initialization
     //  */
-    // mp_init(MP_TYPE);
+    mp_init(MP_TYPE);
 
-    // int l = SET_l;
+    int l = SET_l;
 
-    // std::cout << "============= Finish Initialize =============== \n";
+    std::cout << "============= Finish Initialize =============== \n";
 
     // /**
     //  * Start Simulation
     // */
-    // std::cout << "============= Start Kernel =============== \n";
+    std::cout << "============= Start Kernel =============== \n";
 
     // /**
-    //  * create temp arrays to stroe :
-    //  *      precip_mp(:,ADM_KNONE,l,:)
-    //  *      precip1_mp(:,ADM_KNONE,l,:)
-    //  *      precip2_mp(:,ADM_KNONE,l,:)
+    //  * create sub views:
     //  */
-    // double precip_mp_tmp [2][ADM_gall_in];
-    // double precip1_mp_tmp[2][ADM_gall_in];
-    // double precip2_mp_tmp[2][ADM_gall_in];
+    auto sub_rhog   = subview(rhog  , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rhogvx = subview(rhogvx, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rhogvy = subview(rhogvy, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rhogvz = subview(rhogvz, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rhogw  = subview(rhogw , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rhoge  = subview(rhoge , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_vx     = subview(vx    , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_vy     = subview(vy    , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_vz     = subview(vz    , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_w      = subview(w     , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_unccn  = subview(unccn , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rho    = subview(rho   , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_pre    = subview(pre   , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_tem    = subview(tem   , 0, Kokkos::ALL(), Kokkos::ALL());
 
-    // for(int k = 0; k < 2; k++)
-    // {
-    //     for(int ij = 0; ij < ADM_gall_in; ij++)
-    //     {
-    //         precip_mp_tmp [k][ij] = precip_mp [k][0][0][ij];
-    //         precip1_mp_tmp[k][ij] = precip1_mp[k][0][0][ij];
-    //         precip2_mp_tmp[k][ij] = precip2_mp[k][0][0][ij];
-    //     }
-    // }
-    // // Copy end
+    auto sub_rhogq_Lswp = subview(rhogq_Lswp, 0, Kokkos::ALL(), Kokkos::ALL(), Kokkos::ALL());
+    auto sub_q_Lswp     = subview(q_Lswp    , 0, Kokkos::ALL(), Kokkos::ALL(), Kokkos::ALL());
 
-    // for(int i = 0; i < SET_iteration; i++)
-    // {
-    //     // Call mp_driver
-    //     mp_driver(
-    //               l,
-    //               rhog            [0],
-    //               rhogvx          [0],
-    //               rhogvy          [0],
-    //               rhogvz          [0],
-    //               rhogw           [0],
-    //               rhoge           [0],
-    //               rhogq_Lswp      [0],
-    //               vx              [0],
-    //               vy              [0],
-    //               vz              [0],
-    //               w               [0],
-    //               unccn           [0],
-    //               rho             [0],
-    //               tem             [0],
-    //               pre             [0],
-    //               q_Lswp          [0],
-    //               qd              [0],
-    //               precip_mp_tmp,
-    //               precip1_mp_tmp,
-    //               precip2_mp_tmp,
-    //               rhoein_precip_mp[0][0],
-    //               lh_precip_mp    [0][0],
-    //               rhophi_precip_mp[0][0],
-    //               rhokin_precip_mp[0][0],
-    //               rceff           [0],
-    //               rceff_solid     [0],
-    //               rceff_cld       [0],
-    //               rctop           [0],
-    //               rwtop           [0],
-    //               tctop           [0],
-    //               frhoge_af       [0],
-    //               frhogqv_af      [0],
-    //               frhoge_rad      [0],
-    //               qke             [0],
-    //               gsgam2          [0],
-    //               gsgam2h         [0],
-    //               gam2            [0],
-    //               gam2h           [0],
-    //               ix              [0],
-    //               iy              [0],
-    //               iz              [0],
-    //               jx              [0],
-    //               jy              [0],
-    //               jz              [0],
-    //               z               [0],
-    //               zh              [0],
-    //               TIME_DTL,
-    //               TIME_CTIME,
-    //               GDCLW           [0],
-    //               GDCFRC          [0],
-    //               GPREC           [0],
-    //               CBMFX           [0]
-    //               );
-    // }
+    auto sub_precip_mp  = subview(precip_mp , Kokkos::ALL(), 0, 0, Kokkos::ALL());
+    auto sub_precip1_mp = subview(precip1_mp, Kokkos::ALL(), 0, 0, Kokkos::ALL());
+    auto sub_precip2_mp = subview(precip2_mp, Kokkos::ALL(), 0, 0, Kokkos::ALL());
+
+    auto sub_rhoein_precip_mp = subview(rhoein_precip_mp, 0, 0, Kokkos::ALL());
+    auto sub_lh_precip_mp     = subview(lh_precip_mp    , 0, 0, Kokkos::ALL());
+    auto sub_rhophi_precip_mp = subview(rhophi_precip_mp, 0, 0, Kokkos::ALL());
+    auto sub_rhokin_precip_mp = subview(rhokin_precip_mp, 0, 0, Kokkos::ALL());
+
+    auto sub_frhoge_af  = subview(frhoge_af , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_frhogqv_af = subview(frhogqv_af, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_frhoge_rad = subview(frhoge_rad, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_qke        = subview(qke       , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_gsgam2     = subview(gsgam2    , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_gsgam2h    = subview(gsgam2h   , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_gam2       = subview(gam2      , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_gam2h      = subview(gam2h     , 0, Kokkos::ALL(), Kokkos::ALL());
+
+    auto sub_ix = subview(ix, 0, Kokkos::ALL());
+    auto sub_iy = subview(iy, 0, Kokkos::ALL());
+    auto sub_iz = subview(iz, 0, Kokkos::ALL());
+    auto sub_jx = subview(jx, 0, Kokkos::ALL());
+    auto sub_jy = subview(jy, 0, Kokkos::ALL());
+    auto sub_jz = subview(jz, 0, Kokkos::ALL());
+
+    auto sub_z           = subview(z           , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_zh          = subview(zh          , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_GPREC       = subview(GPREC       , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_CBMFX       = subview(CBMFX       , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_qd          = subview(qd          , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rceff       = subview(rceff       , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rceff_solid = subview(rceff_solid , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rceff_cld   = subview(rceff_cld   , 0, Kokkos::ALL(), Kokkos::ALL());
+
+    auto sub_rctop = subview(rctop, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_rwtop = subview(rwtop, 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_tctop = subview(tctop, 0, Kokkos::ALL(), Kokkos::ALL());
+
+    auto sub_GDCLW  = subview(GDCLW , 0, Kokkos::ALL(), Kokkos::ALL());
+    auto sub_GDCFRC = subview(GDCFRC, 0, Kokkos::ALL(), Kokkos::ALL());
+
+    for(int i = 0; i < SET_iteration; i++)
+    {
+        // Call mp_driver
+        mp_driver(
+                  l,
+                  sub_rhog             ,
+                  sub_rhogvx           ,
+                  sub_rhogvy           ,
+                  sub_rhogvz           ,
+                  sub_rhogw            ,
+                  sub_rhoge            ,
+                  sub_rhogq_Lswp       ,
+                  sub_vx               ,
+                  sub_vy               ,
+                  sub_vz               ,
+                  sub_w                ,
+                  sub_unccn            ,
+                  sub_rho              ,
+                  sub_tem              ,
+                  sub_pre              ,
+                  sub_q_Lswp           ,
+                  sub_qd               ,
+                  sub_precip_mp        ,  
+                  sub_precip1_mp       ,
+                  sub_precip2_mp       ,
+                  sub_rhoein_precip_mp ,
+                  sub_lh_precip_mp     ,
+                  sub_rhophi_precip_mp ,
+                  sub_rhokin_precip_mp ,
+                  sub_rceff            ,
+                  sub_rceff_solid      ,
+                  sub_rceff_cld        ,
+                  sub_rctop            ,
+                  sub_rwtop            ,
+                  sub_tctop            ,
+                  sub_frhoge_af        ,
+                  sub_frhogqv_af       ,
+                  sub_frhoge_rad       ,
+                  sub_qke              ,
+                  sub_gsgam2           ,
+                  sub_gsgam2h          ,
+                  sub_gam2             ,
+                  sub_gam2h            ,
+                  sub_ix               ,
+                  sub_iy               ,
+                  sub_iz               ,
+                  sub_jx               ,
+                  sub_jy               ,
+                  sub_jz               ,
+                  sub_z                ,
+                  sub_zh               ,
+                  TIME_DTL,
+                  TIME_CTIME,
+                  sub_GDCLW            ,
+                  sub_GDCFRC           ,
+                  sub_GPREC            ,
+                  sub_CBMFX           
+                  );
+    }
     // std::cout << "============= Finish Kernel =============== \n";
 
     // if (SET_check)
