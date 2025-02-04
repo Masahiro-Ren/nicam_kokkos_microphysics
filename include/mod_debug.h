@@ -38,6 +38,18 @@ void cnvvar_rhogkin_in(
     double rhogkin_h[kdim][ijdim],
     double rhogkin_v[kdim][ijdim] );
 
+void cnvvar_rhogkin_in(
+    View<double**>&  rhog     ,
+    View<double**>&  rhogvx   ,
+    View<double**>&  rhogvy   ,
+    View<double**>&  rhogvz   ,
+    View<double**>&  rhogw    ,
+    View<double***>& C2Wfact  ,
+    View<double***>& W2Cfact  ,
+    View<double**>&  rhogkin  ,
+    View<double**>&  rhogkin_h,
+    View<double**>&  rhogkin_v );
+
 double MISC_gammafunc(double xx);
 
 }

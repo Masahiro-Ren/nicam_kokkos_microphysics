@@ -243,6 +243,67 @@ namespace DEBUG {
 
     }
 
+    void cnvvar_rhogkin_in(
+        View<double**>&  rhog     ,
+        View<double**>&  rhogvx   ,
+        View<double**>&  rhogvy   ,
+        View<double**>&  rhogvz   ,
+        View<double**>&  rhogw    ,
+        View<double***>& C2Wfact  ,
+        View<double***>& W2Cfact  ,
+        View<double**>&  rhogkin  ,
+        View<double**>&  rhogkin_h,
+        View<double**>&  rhogkin_v )
+    {
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+        size_t gmin = 0;
+        size_t gall = ijdim;
+
+        // --- horizontal kinetic energy
+        Kokkos::parallel_for("horizontal kinetic energy", 
+                MDRangePolicy<Kokkos::Rank<2>>({kmin, gmin},{kmax+1, gall}), 
+                KOKKOS_LAMBDA(const size_t k, const size_t g){
+                    rhogkin_h(k,g) = 0.5 * ( rhogvx(k,g) * rhogvx(k,g) +
+                                             rhogvy(k,g) * rhogvy(k,g) +
+                                             rhogvz(k,g) * rhogvz(k,g) ) / rhog(k,g);
+                });
+
+        Kokkos::parallel_for(RangePolicy<>(0,gall), KOKKOS_LAMBDA(const size_t g){
+            rhogkin_h(kmin - 1,g) = 0.0;
+            rhogkin_h(kmax + 1,g) = 0.0;
+        });
+
+        // // --- vertical kinetic energy
+        Kokkos::parallel_for("horizontal kinetic energy", 
+                MDRangePolicy<Kokkos::Rank<2>>({kmin+1, gmin},{kmax+1, gall}), 
+                KOKKOS_LAMBDA(const size_t k, const size_t g){
+                    rhogkin_v(k,g) = 0.5 * ( rhogw(k,g) * rhogw(k,g) ) /
+                                            ( C2Wfact(0,k,g) * rhog(k,g) +
+                                              C2Wfact(1,k,g) * rhog(k-1,g) );
+                });
+
+        Kokkos::parallel_for(RangePolicy<>(0,gall), KOKKOS_LAMBDA(const size_t g){
+            rhogkin_v(kmin - 1,g) = 0.0;
+            rhogkin_v(kmin,g)     = 0.0;
+            rhogkin_v(kmax + 1,g) = 0.0;
+        });
+
+        // // -- total kinetic energy
+        Kokkos::parallel_for("horizontal kinetic energy", 
+                MDRangePolicy<Kokkos::Rank<2>>({kmin, gmin},{kmax+1, gall}), 
+                KOKKOS_LAMBDA(const size_t k, const size_t g){
+                    rhogkin(k,g) = rhogkin_h(k,g) +                            // horizontal
+                                   ( W2Cfact(0,k,g) * rhogkin_v(k + 1,g) +   // vertical
+                                     W2Cfact(1,k,g) * rhogkin_v(k,g) );
+                });
+
+        Kokkos::parallel_for(RangePolicy<>(0,gall), KOKKOS_LAMBDA(const size_t g){
+            rhogkin(kmin - 1,g) = 0.0;
+            rhogkin(kmax + 1,g) = 0.0;
+        });
+    }
+
     double MISC_gammafunc(double xx)
     {
         double f;

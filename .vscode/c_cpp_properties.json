@@ -5,7 +5,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/include",
-                "C:/WorkSpace/Kokkos/kokkos-4.5/include"
+                "C:/WorkSpace/Kokkos/install/include"
             ],
             "defines": [
                 "_DEBUG",

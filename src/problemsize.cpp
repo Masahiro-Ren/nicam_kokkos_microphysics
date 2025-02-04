@@ -42,8 +42,8 @@ int NTAU                = 7;
 int NPRES               = 7;
 int HYDRO_MAX           = 7;
 
-int NQW_STR = 1; // 2 in fortran
-int NQW_END = 5; // 6 in fortran
+size_t NQW_STR = 1; // 2 in fortran
+size_t NQW_END = 5; // 6 in fortran
 // values below are all +1 in fortran impl.
 int I_QV =  0;
 int I_QC =  1;
@@ -65,19 +65,32 @@ std::vector<std::string> TRC_name{ "QV",
                                    "QS",
                                    "QG"  };
 
-std::vector<double> CVW{    CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry, };
+// std::vector<double> CVW{    CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry, };
 
-std::vector<double> CPW{    CONST_CPdry,
-                            CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry,
-                            CONST_CVdry, };
+// std::vector<double> CPW{    CONST_CPdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry,
+//                             CONST_CVdry, };
+double CVW[] = {CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry };
+
+double CPW[] = {CONST_CPdry,
+                CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry,
+                CONST_CVdry };
 
 int SET_iteration = 1;
 bool SET_check = true;

@@ -29,30 +29,31 @@ using Kokkos::Schedule;
 namespace PROBLEM_SIZE 
 {
 
-constexpr int H_SHORT = 32;
-constexpr int H_LONG = 1024;
-constexpr int IO_FID_LOG = 6;
-constexpr int ADM_prc_all = 1;
+constexpr size_t IDX_ZERO = 0;
+constexpr size_t H_SHORT = 32;
+constexpr size_t H_LONG = 1024;
+constexpr size_t IO_FID_LOG = 6;
+constexpr size_t ADM_prc_all = 1;
 
-constexpr int IO_FREAD = 0;
-constexpr int ADM_KNONE = 1;
+constexpr size_t IO_FREAD = 0;
+constexpr size_t ADM_KNONE = 1;
 
-constexpr int ADM_gall_in_orig = 16641; // horizontal grid number (for physics)
-constexpr int ADM_gall_in      = 16641; // horizontal grid number (for physics)
-constexpr int ADM_kall     = 96;   // vertical   grid number
-constexpr int ADM_vlayer   = 94;
-constexpr int ADM_kmin     = 1 ; // 2 in fortran
-constexpr int ADM_kmax     = 94; // 95 in fortran
-constexpr int ADM_lall     = 1 ;
-constexpr int TRC_VMAX     = 6 ;
+constexpr size_t ADM_gall_in_orig = 16641; // horizontal grid number (for physics)
+constexpr size_t ADM_gall_in      = 16641; // horizontal grid number (for physics)
+constexpr size_t ADM_kall     = 96;   // vertical   grid number
+constexpr size_t ADM_vlayer   = 94;
+constexpr size_t ADM_kmin     = 1 ; // 2 in fortran
+constexpr size_t ADM_kmax     = 94; // 95 in fortran
+constexpr size_t ADM_lall     = 1 ;
+constexpr size_t TRC_VMAX     = 6 ;
 
-constexpr int ijdim        = ADM_gall_in;
-constexpr int kdim         = ADM_kall;
+constexpr size_t ijdim        = ADM_gall_in;
+constexpr size_t kdim         = ADM_kall;
 
-constexpr int kmin         = 1 ; // 2 in fortran
-constexpr int kmax         = 94; // 95 in fortran
-constexpr int knone        = 1 ;
-constexpr int nqmax        = 6 ;
+constexpr size_t kmin         = 1 ; // 2 in fortran
+constexpr size_t kmax         = 94; // 95 in fortran
+constexpr size_t knone        = 1 ;
+constexpr size_t nqmax        = 6 ;
 
 constexpr double TIME_DTL     = 6.0 ;// [sec]
 constexpr double TIME_CTIME   = 0.0 ;
@@ -156,8 +157,8 @@ extern int NTAU           ;
 extern int NPRES          ;
 extern int HYDRO_MAX      ;
 
-extern int NQW_STR; 
-extern int NQW_END; 
+extern size_t NQW_STR; 
+extern size_t NQW_END; 
 extern int I_QV ;
 extern int I_QC ;
 extern int I_QR ;
@@ -173,8 +174,10 @@ extern int I_NG ;
 
 extern std::vector<std::string> TRC_name;
 
-extern std::vector<double> CVW;
-extern std::vector<double> CPW;
+// extern std::vector<double> CVW;
+// extern std::vector<double> CPW;
+extern double CVW[];
+extern double CPW[];
 
 extern int SET_iteration;
 extern bool SET_check;
