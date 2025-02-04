@@ -25,6 +25,8 @@ void SATURATION_Setrange(double Tw, double Ti);
  * psat => saturation vapor pressure [Pa]
  */
 void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim]);
+//Kokkos ver.
+void SATURATION_psat_liq(View<double**>& tem, View<double**>& psat);
 
 /**
  * > calc saturation vapor pressure from Clausius-Clapeyron equation (2D) 
@@ -32,6 +34,8 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim]);
  * psat => saturation vapor pressure [Pa]
  */
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim]);
+//Kokkos ver.
+void SATURATION_psat_ice(View<double**>& tem, View<double**>& psat);
 
 void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double rhoge  [kdim][ijdim],
@@ -54,4 +58,17 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     double qsum   [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] );
+
+// Kokkos private procedures
+void satadjust_all( View<double**>&  rho    ,
+                    View<double**>&  Emoist ,
+                    View<double**>&  qsum   ,
+                    View<double**>&  tem    ,
+                    View<double***>& q       );
+
+void satadjust_liq( View<double**>&  rho    ,
+                    View<double**>&  Emoist ,
+                    View<double**>&  qsum   ,
+                    View<double**>&  tem    ,
+                    View<double***>& q       );
 }

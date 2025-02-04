@@ -73,6 +73,23 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
     }
 }
 
+// Kokkos ver.
+void SATURATION_psat_liq(View<double**>& tem, View<double**>& psat)
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    double RTEM00 = 1.0 / CONST_TEM00;
+    double PSAT0 = CONST_PSAT0;
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}),
+                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                            double rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+
+                            psat(k,ij) = PSAT0 * std::pow((tem(k,ij) * RTEM00), CPovR_liq) * 
+                                          std::exp(LovR_liq * (RTEM00 - rtem));
+                         });
+}
+
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
@@ -92,6 +109,23 @@ void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
                                   std::exp(LovR_ice * (RTEM00 - rtem));
         }
     }
+}
+
+//Kokkos ver.
+void SATURATION_psat_ice(View<double**>& tem, View<double**>& psat)
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    double RTEM00 = 1.0 / CONST_TEM00;
+    double PSAT0 = CONST_PSAT0;
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}),
+                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                            double rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+
+                            psat(k,ij) = PSAT0 * std::pow((tem(k,ij) * RTEM00), CPovR_ice) * 
+                                                 std::exp(LovR_ice * (RTEM00 - rtem));
+                         });
 }
 
 void SATURATION_adjustment( double rhog   [kdim][ijdim],
@@ -449,6 +483,133 @@ void satadjust_liq( double rho    [kdim][ijdim],
             if(sat_ite_min > ite_temp[k][ij] || sat_ite_min < 0) sat_ite_min = ite_temp[k][ij];
         }
     }
+
+}
+
+// Kokkos private procedures
+void satadjust_all( View<double**>&  rho    ,
+                    View<double**>&  Emoist ,
+                    View<double**>&  qsum   ,
+                    View<double**>&  tem    ,
+                    View<double***>& q       )
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    View<double**> qd("qd", kdim, ijdim);
+
+    // double rtem, alpha, psatl, psati, psat, qsatl, qsati,qsat;
+    // double CVtot, Emoist_new, dtemp, lim1, lim2;
+    // double dalpha_dT, dqsatl_dT, dqsati_dT, dqsat_dT, dqc_dT, dqi_dT, dCVtot_dT, dEmoist_dT;
+
+    double RTEM00 = 1.0 / CONST_TEM00;
+    double PSAT0  = CONST_PSAT0;
+    double Rvap   = CONST_Rvap;
+    double CVdry  = CONST_CVdry;
+    double EPS    = CONST_EPS;
+
+    double dtemp_criteria = std::pow(10.0, (-(RP_PREC + 1)/2));
+
+    const int itelim = 100;
+    // bool converged;
+
+    THRMDYN_qd(q, qd);
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}),
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        double alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP ) / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
+        double alpha = std::min( std::max(alpha, 0.0), 1.0 );
+
+        double rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+
+        double psatl = PSAT0 * std::pow((tem(k,ij) * RTEM00), CPovR_liq) * std::exp(LovR_liq * (RTEM00 - rtem));
+        double psati = PSAT0 * std::pow((tem(k,ij) * RTEM00), CPovR_ice) * std::exp(LovR_ice * (RTEM00 - rtem));
+        double psat  = psatl * alpha + psati * (1.0 - alpha);
+
+        double qsat = psat / ( rho(k,ij) * Rvap * tem(k,ij) );
+
+        if(qsum(k,ij) - qsat > EPS)
+        {
+            bool converged = false;
+            int ite;
+            for(ite = 0; ite < itelim; ite++)
+            {
+                alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP ) / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
+                alpha = std::min( std::max(alpha, 0.0), 1.0 );
+
+                rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+
+                psatl = PSAT0 * std::pow((tem(k,ij) * RTEM00), CPovR_liq) * std::exp(LovR_liq * (RTEM00 - rtem));
+                psati = PSAT0 * std::pow((tem(k,ij) * RTEM00), CPovR_ice) * std::exp(LovR_ice * (RTEM00 - rtem));
+                psat  = psatl * alpha + psati * (1.0 - alpha);
+
+                double qsatl = psatl / ( rho(k,ij) * Rvap * tem(k,ij) );
+                double qsati = psati / ( rho(k,ij) * Rvap * tem(k,ij) );
+                qsat  = psat  / ( rho(k,ij) * Rvap * tem(k,ij) );
+
+                // Sepration
+                q(I_QV,k,ij) = qsat;
+                q(I_QC,k,ij) = ( qsum(k,ij) - qsat ) * alpha;
+                q(I_QI,k,ij) = ( qsum(k,ij) - qsat ) * (1.0 - alpha);
+
+                double CVtot = qd(k,ij) * CVdry;
+                for(int nq = NQW_STR; nq <= NQW_END; nq++)
+                    CVtot = CVtot + q(nq,k,ij) * CVW[nq];
+                
+                double Emoist_new = tem(k,ij) * CVtot + q(I_QV,k,ij) * LHV - q(I_QI,k,ij) * LHF;
+
+                // dx/dT
+                double lim1 = 0.5 + std::copysign(0.5, SATURATION_ULIMIT_TEMP - tem(k,ij));
+                double lim2 = 0.5 + std::copysign(0.5, tem(k,ij) - SATURATION_LLIMIT_TEMP);
+                double dalpha_dT = lim1 * lim2 / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
+
+                double dqsatl_dT = ( LovR_liq / (std::pow(tem(k,ij), 2)) + CVovR_liq / tem(k,ij) ) * qsatl;
+                double dqsati_dT = ( LovR_ice / (std::pow(tem(k,ij), 2)) + CVovR_ice / tem(k,ij) ) * qsati;
+                double dqsat_dT  = qsatl * dalpha_dT + dqsatl_dT * alpha -
+                            qsati * dalpha_dT + dqsati_dT * (1.0 - alpha);
+                
+                double dqc_dT =  ( qsum(k,ij) - qsat ) * dalpha_dT - dqsat_dT * alpha;
+                double dqi_dT = -( qsum(k,ij) - qsat ) * dalpha_dT - dqsat_dT * (1.0 - alpha);
+
+                double  dCVtot_dT = dqsat_dT * CVW[I_QV]
+                                    + dqc_dT * CVW[I_QC]
+                                    + dqi_dT * CVW[I_QI];
+
+                double dEmoist_dT = tem(k,ij) * dCVtot_dT
+                                    + CVtot
+                                    + dqsat_dT * LHV
+                                    - dqi_dT   * LHF;
+                
+                double dtemp = ( Emoist_new - Emoist(k,ij) ) / dEmoist_dT;
+
+                tem(k,ij) = tem(k,ij) - dtemp;
+
+                if(std::abs(dtemp) < dtemp_criteria)
+                {
+                    converged = true;
+                    break;
+                }
+
+                if( tem(k,ij) * 0.0 != 0.0 ) break;
+
+                if(!converged)
+                {
+                    std::cerr << rho(k,ij) << "\t" << tem(k,ij) << "\t" << q(I_QV,k,ij) << "\t" << q(I_QC,k,ij) << "\t" << q(I_QI,k,ij) << std::endl;
+                    std::cerr << "xxx [satadjust_all] not converged! dtemp = " << dtemp << " ij= " << ij << " k= " << k << " ite= " << ite << std::endl;
+                    ADM_Proc_stop();
+                }
+            }
+        }
+    });
+
+
+}
+
+void satadjust_liq( View<double**>&  rho    ,
+                    View<double**>&  Emoist ,
+                    View<double**>&  qsum   ,
+                    View<double**>&  tem    ,
+                    View<double***>& q       )
+{
 
 }
 
