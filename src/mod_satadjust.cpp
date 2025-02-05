@@ -235,6 +235,97 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
 
 }
 
+/**
+ * Kokkos ver.
+ */
+void SATURATION_adjustment( View<double**>&  rhog   ,
+                            View<double**>&  rhoge  ,
+                            View<double***>& rhogq  ,
+                            View<double**>&  tem    ,
+                            View<double***>& q      ,
+                            View<double**>&  qd     ,
+                            View<double**>&  gsgam2 ,
+                            bool   ice_adjust )
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    View<double**> ein_mosit("ein_mosit", kdim, ijdim);
+    View<double**> qsum     ("qsum     ", kdim, ijdim);
+    View<double**> CVtot    ("CVtot    ", kdim, ijdim);
+    View<double**> rho      ("rho      ", kdim, ijdim);
+
+    // ein_moist = U1(rho,qsum,T1) : "unsaturated temperature"
+    if(I_QI > 0 && ice_adjust)
+    {
+        Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kmin,ijdim}), 
+        KOKKOS_LAMBDA(const size_t k, const size_t ij){
+            ein_mosit(k,ij) = rhoge(k,ij) / rhog(k,ij) 
+                              + q(I_QV,k,ij) * LHV 
+                              - q(I_QI,k,ij) * LHF;
+            qsum(k,ij) =  q(I_QV,k,ij) 
+                        + q(I_QC,k,ij)
+                        + q(I_QI,k,ij);
+
+            q(I_QV,k,ij) = qsum(k,ij);
+            q(I_QC,k,ij) = 0.0;
+            q(I_QI,k,ij) = 0.0;  
+        });
+    }
+    else
+    {
+
+        Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kmin,ijdim}), 
+        KOKKOS_LAMBDA(const size_t k, const size_t ij){
+            ein_mosit(k,ij) = rhoge(k,ij) / rhog(k,ij) 
+                                + q(I_QV,k,ij) * LHV;
+
+            qsum(k,ij) =  q(I_QV,k,ij) 
+                        + q(I_QC,k,ij);
+
+            q(I_QV,k,ij) = qsum(k,ij);
+            q(I_QC,k,ij) = 0.0;
+        });
+    }
+
+    THRMDYN_cv(qd, q, CVtot);
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kmin,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        rho(k,ij) = rhog(k,ij) /  gsgam2(k,ij);
+        tem(k,ij) = ( ein_mosit(k,ij) - q(I_QV,k,ij) * LHV ) / CVtot(k,ij);
+    });
+
+    if(I_QI > 0 && ice_adjust)
+    {
+        satadjust_all(rho, ein_mosit, qsum, tem, q);
+    }
+    else
+    {
+        satadjust_liq(rho, ein_mosit, qsum, tem, q);
+    }
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kmin,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        rhogq(I_QV,k,ij) = rhog(k,ij) * q(I_QV,k,ij);
+        rhogq(I_QC,k,ij) = rhog(k,ij) * q(I_QC,k,ij); 
+    });
+
+    if(I_QI > 0 && ice_adjust)
+    {
+        Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kmin,ijdim}), 
+        KOKKOS_LAMBDA(const size_t k, const size_t ij){
+            rhogq(I_QI,k,ij) = rhog(k,ij) * q(I_QI,k,ij);
+        });
+    }
+
+    THRMDYN_cv(qd, q, CVtot);
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kmin,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        rhoge(k,ij) = rhog(k,ij) * tem(k,ij) * CVtot(k,ij);
+    });
+}
+
 void satadjust_all( double rho    [kdim][ijdim],
                     double Emoist [kdim][ijdim],
                     double qsum   [kdim][ijdim],
@@ -531,6 +622,7 @@ void satadjust_all( View<double**>&  rho    ,
         {
             bool converged = false;
             int ite;
+            double dtemp;
             for(ite = 0; ite < itelim; ite++)
             {
                 alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP ) / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
@@ -579,7 +671,7 @@ void satadjust_all( View<double**>&  rho    ,
                                     + dqsat_dT * LHV
                                     - dqi_dT   * LHF;
                 
-                double dtemp = ( Emoist_new - Emoist(k,ij) ) / dEmoist_dT;
+                dtemp = ( Emoist_new - Emoist(k,ij) ) / dEmoist_dT;
 
                 tem(k,ij) = tem(k,ij) - dtemp;
 
@@ -590,13 +682,13 @@ void satadjust_all( View<double**>&  rho    ,
                 }
 
                 if( tem(k,ij) * 0.0 != 0.0 ) break;
+            }
 
-                if(!converged)
-                {
-                    std::cerr << rho(k,ij) << "\t" << tem(k,ij) << "\t" << q(I_QV,k,ij) << "\t" << q(I_QC,k,ij) << "\t" << q(I_QI,k,ij) << std::endl;
-                    std::cerr << "xxx [satadjust_all] not converged! dtemp = " << dtemp << " ij= " << ij << " k= " << k << " ite= " << ite << std::endl;
-                    ADM_Proc_stop();
-                }
+            if(!converged)
+            {
+                std::cerr << rho(k,ij) << "\t" << tem(k,ij) << "\t" << q(I_QV,k,ij) << "\t" << q(I_QC,k,ij) << "\t" << q(I_QI,k,ij) << std::endl;
+                std::cerr << "xxx [satadjust_all] not converged! dtemp = " << dtemp << " ij= " << ij << " k= " << k << " ite= " << ite << std::endl;
+                ADM_Proc_stop();
             }
         }
     });
@@ -610,7 +702,113 @@ void satadjust_liq( View<double**>&  rho    ,
                     View<double**>&  tem    ,
                     View<double***>& q       )
 {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
 
+    View<double**> qd("qd", kdim, ijdim);
+
+    // double rtem, psat, qsat;
+    double CVtot, Emosit_new, dtemp;
+    double dqsat_dT, dCVtot_dT, dEmosit_dT;
+    
+    double RTEM00 = 1.0 / CONST_TEM00;
+    double PSAT0  = CONST_PSAT0;
+    double Rvap   = CONST_Rvap;
+    double CVdry  = CONST_CVdry;
+    double EPS    = CONST_EPS;
+
+    double dtemp_criteria = std::pow(10.0, (-(RP_PREC + 1)/2));
+
+    const int itelim = 100;
+    bool converged;
+
+    // In Fortran: ite_temp(2:95, 1:16641)
+    View<int**> ite_temp("ite_temp", kdim, ijdim);
+
+    THRMDYN_qd(q, qd);
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}),
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        double rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+
+        double psat = PSAT0 * ( std::pow(tem(k,ij) * RTEM00, CPovR_liq) ) * std::exp(LovR_liq * (RTEM00 - rtem));
+
+        double qsat = psat / ( rho(k,ij) * Rvap * tem(k,ij) ); 
+
+        if( qsum(k,ij) - qsat > EPS )
+        {
+            bool converged = false;
+            int ite;
+            double dtemp;
+
+            for(ite = 0; ite < itelim; ite++)
+            {
+                rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+
+                psat = PSAT0 * ( std::pow(tem(k,ij) * RTEM00, CPovR_liq) ) * std::exp(LovR_liq * (RTEM00 - rtem));
+
+                qsat = psat / ( rho(k,ij) * Rvap * tem(k,ij) );
+
+                // Sepration
+                q(I_QV,k,ij) = qsat;
+                q(I_QC,k,ij) = qsum(k,ij) - qsat;
+
+                double CVtot = qd(k,ij) * CVdry;
+                for(int nq = NQW_STR; nq <= NQW_END; nq++)
+                    CVtot = CVtot + q(nq,k,ij) * CVW[nq];
+                
+                double Emosit_new = tem(k,ij) * CVtot + q(I_QV,k,ij) * LHV;
+
+                // dx/dT
+                double dqsat_dT = ( LovR_liq / (std::pow(tem(k,ij), 2)) + CVovR_liq / tem(k,ij) ) * qsat;
+
+                double dCVtot_dT = dqsat_dT * ( CVW[I_QV] - CVW[I_QC] );
+
+                double dEmosit_dT = tem(k,ij) * dCVtot_dT
+                                    + CVtot
+                                    + dqsat_dT * LHV;
+                
+                dtemp = ( Emosit_new - Emoist(k,ij) ) / dEmosit_dT;
+
+                tem(k,ij) = tem(k,ij) - dtemp;
+
+                if(std::abs(dtemp) < dtemp_criteria)
+                {
+                    converged = true;
+                    break;
+                }
+
+                if(tem(k,ij) * 0.0 != 0.0) break;
+            }
+
+            ite_temp(k,ij) = ite;
+
+            if(!converged)
+            {
+                std::cerr << rho(k,ij) << "\t" << tem(k,ij) << "\t" << q(I_QV,k,ij) << "\t" << q(I_QC,k,ij) << "\t" << q(I_QI,k,ij) << std::endl;
+                std::cerr << "xxx [satadjust_all] not converged! dtemp = " << dtemp << " ij= " << ij << " k= " << k << " ite= " << ite << std::endl;
+                ADM_Proc_stop();
+            }
+        }
+    });
+
+    Kokkos::parallel_reduce("sat_ite_summax", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij, int& local_sum, int& local_max){
+        local_sum += ite_temp(k,ij);
+        if(local_max < ite_temp(k,ij)) local_max = ite_temp(k,ij);
+    }, sat_ite_sum, Kokkos::Max<int>(sat_ite_max));
+
+    Kokkos::parallel_reduce("sat_ite_count", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij, int& update){
+        if(ite_temp(k,ij) != 0)
+            update += 1;
+        else
+            ite_temp(k,ij) = itelim;
+    }, sat_ite_count);
+
+    Kokkos::parallel_reduce("sat_ite_min", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij, int& local_min){
+        if(local_min > ite_temp(k,ij)) local_min = ite_temp(k,ij);
+    }, Kokkos::Min<int>(sat_ite_min));
 }
 
 }

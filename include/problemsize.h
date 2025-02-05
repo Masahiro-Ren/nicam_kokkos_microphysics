@@ -8,12 +8,14 @@
 #include <algorithm>
 #include <iomanip>
 #include <Kokkos_Core.hpp>
+// #include <Kokkos_StdAlgorithms.hpp>
 
 using Kokkos::View;
 using Kokkos::subview;
 using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
+// namespace KE = Kokkos::Experimental;
 #ifdef OPENMP
     using EXE_SPACE = Kokkos::OpenMP;
 #else

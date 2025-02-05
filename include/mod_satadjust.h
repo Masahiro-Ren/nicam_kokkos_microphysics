@@ -46,6 +46,18 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double gsgam2 [kdim][ijdim],
                             bool   ice_adjust );
 
+/**
+ * Kokkos ver.
+ */
+void SATURATION_adjustment( View<double**>&  rhog   ,
+                            View<double**>&  rhoge  ,
+                            View<double***>& rhogq  ,
+                            View<double**>&  tem    ,
+                            View<double***>& q      ,
+                            View<double**>&  qd     ,
+                            View<double**>&  gsgam2 ,
+                            bool   ice_adjust );
+
 // private procedures
 void satadjust_all( double rho    [kdim][ijdim],
                     double Emoist [kdim][ijdim],
