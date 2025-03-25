@@ -38,6 +38,9 @@ void cnvvar_rhogkin_in(
     double rhogkin_h[kdim][ijdim],
     double rhogkin_v[kdim][ijdim] );
 
+/**
+ * Kokkos ver.
+ */
 void cnvvar_rhogkin_in(
     View<double**>&  rhog     ,
     View<double**>&  rhogvx   ,

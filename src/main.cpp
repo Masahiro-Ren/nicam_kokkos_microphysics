@@ -294,7 +294,7 @@ Kokkos::initialize(argc, argv);
                   sub_CBMFX           
                   );
     }
-    // std::cout << "============= Finish Kernel =============== \n";
+    std::cout << "============= Finish Kernel =============== \n";
 
     // if (SET_check)
     // {
