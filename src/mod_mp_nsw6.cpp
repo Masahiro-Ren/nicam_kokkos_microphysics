@@ -239,6 +239,23 @@ void Bergeron_param( double tem[kdim][ijdim],
                      double a2 [kdim][ijdim],
                      double ma2[kdim][ijdim]);
 
+/**
+ * Kokkos ver.
+ */
+void negative_filter( View<double**>&  rhog,
+                      View<double**>&  rhoge, 
+                      View<double***>& rhogq,
+                      View<double**>&  rho,   
+                      View<double**>&  tem,   
+                      View<double**>&  pre,   
+                      View<double***>& q,     
+                      View<double**>&  gsgam2);
+
+void Bergeron_param( View<double**> tem,
+                     View<double**> a1 ,
+                     View<double**> a2 ,
+                     View<double**> ma2);
+
 namespace MP_NSW6{
 
 void mp_nsw6_init()
@@ -1613,3 +1630,125 @@ void Bergeron_param( double tem[kdim][ijdim],
     } 
 }
 
+/**
+ * ================================= Kokkos ver. ==============================================
+ */
+void negative_filter( View<double**>&  rhog,
+                      View<double**>&  rhoge, 
+                      View<double***>& rhogq,
+                      View<double**>&  rho,   
+                      View<double**>&  tem,   
+                      View<double**>&  pre,   
+                      View<double***>& q,     
+                      View<double**>&  gsgam2)
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    View<double**> qd ("qd", kdim, ijdim);
+    View<double**> cva("cva", kdim, ijdim);
+    double Rdry = CONST_Rdry;
+    double Rvap = CONST_Rvap; 
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
+                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                            double diffq = 0.0;
+                            for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
+                            {
+                                // total hydrometeor (before correction)
+                                diffq += rhogq(nq,k,ij);
+                                // remove negative value of hydrometeors (mass)
+                                rhogq(nq,k,ij) = std::max(rhogq(nq,k,ij), 0.0);
+                            }
+
+                            for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
+                            {
+                                // difference between before and after correction
+                                diffq -= rhogq(nq,k,ij);
+                            }
+
+                            // Compensate for the lack of hydrometeors by the water vapor
+                            rhogq(I_QV,k,ij) += diffq; 
+                         });
+    
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
+                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                            double diffq = rhogq(I_QV,k,ij);
+                            // remove negative value of water vapor (mass)
+                            rhogq(I_QV,k,ij) = std::max(rhogq(I_QV,k,ij), 0.0);
+
+                            diffq -= rhogq(I_QV,k,ij);
+
+                            // Apply correction to total density
+                            rhog(k,ij) = rhog(k,ij) * (1.0 - diffq);
+                            rho (k,ij) = rhog(k,ij) / gsgam2(k,ij);
+                         });
+    
+    for(int nq = NQW_STR; nq <= NQW_END; nq++)
+    {
+        Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
+                            KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                                //--- update mass concentration
+                                q(nq,k,ij) = rhogq(nq,k,ij) / rhog(k,ij);
+                            });
+    }
+
+    /**
+     * q  [IN]
+     * qd [OUT]
+     */
+    THRMDYN_qd(q, qd);
+    /**
+     * qd  [IN]
+     * q   [IN]
+     * cva [OUT]
+     */
+    THRMDYN_cv(qd, q, cva);
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
+                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                            rhoge(k,ij) = tem(k,ij) * rhog(k,ij) * cva(k,ij);
+                            pre  (k,ij) = rho(k,ij) * ( qd(k,ij) * Rdry + q(I_QV,k,ij) * Rvap ) * tem(k,ij);
+                         });
+}
+
+void Bergeron_param( View<double**> tem,
+                     View<double**> a1 ,
+                     View<double**> a2 ,
+                     View<double**> ma2)
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+    // int itemc;
+    // double temc;
+    // double fact;
+    double a1_tab[32] = {0.0001E-7, 0.7939E-7, 0.7841E-6, 0.3369E-5, 0.4336E-5,
+                         0.5285E-5, 0.3728E-5, 0.1852E-5, 0.2991E-6, 0.4248E-6,
+                         0.7434E-6, 0.1812E-5, 0.4394E-5, 0.9145E-5, 0.1725E-4,
+                         0.3348E-4, 0.1725E-4, 0.9175E-5, 0.4412E-5, 0.2252E-5,
+                         0.9115E-6, 0.4876E-6, 0.3473E-6, 0.4758E-6, 0.6306E-6,
+                         0.8573E-6, 0.7868E-6, 0.7192E-6, 0.6513E-6, 0.5956E-6,
+                         0.5333E-6, 0.4834E-6};
+
+    double a2_tab[32] = { 0.0100, 0.4006, 0.4831, 0.5320, 0.5307,
+                          0.5319, 0.5249, 0.4888, 0.3849, 0.4047,
+                          0.4318, 0.4771, 0.5183, 0.5463, 0.5651,
+                          0.5813, 0.5655, 0.5478, 0.5203, 0.4906,
+                          0.4447, 0.4126, 0.3960, 0.4149, 0.4320,
+                          0.4506, 0.4483, 0.4460, 0.4433, 0.4413,
+                          0.4382, 0.4361 };
+
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
+                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
+                            double temc = std::min( std::max( tem(k,ij) - TEM00, -30.99 ), 0.0 );
+                            // itemc = int(-temc) + 1; in fortran 
+                            int itemc = int(-temc);
+                            double fact = -(temc + double(itemc - 1));
+                            a1(k,ij) = (1.0 - fact) * a1_tab[itemc] +
+                                        (fact) * a1_tab[itemc + 1];
+                            a2(k,ij) = (1.0 - fact) * a2_tab[itemc] +
+                                        (fact) * a2_tab[itemc + 1];
+                            ma2(k,ij) = 1.0 - a2(k,ij);
+
+                            a1(k,ij) = a1(k,ij) * std::pow(1.0E-3, ma2(k,ij));
+                         });
+}
