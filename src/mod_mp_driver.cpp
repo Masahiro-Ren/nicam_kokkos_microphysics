@@ -386,6 +386,212 @@ void mp_driver( int l_region,
 				)
 {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+	View<double**> precip_trc("precip_trc", nqmax, ijdim);
+
+	View<double**> precip_sum		 ("precip_sum", 2, ijdim);
+	View<double**> ISO1_precip_sum   ("ISO1_precip_sum", 2, ijdim);
+	View<double**> ISO2_precip_sum   ("ISO2_precip_sum", 2, ijdim);
+	View<double*>  precip_rhoe_sum   ("precip_rhoe_sum   ", ijdim);
+	View<double*>  precip_lh_heat_sum("precip_lh_heat_sum", ijdim);
+	View<double*>  precip_rhophi_sum ("precip_rhophi_sum ", ijdim);
+	View<double*>  precip_rhokin_sum ("precip_rhokin_sum ", ijdim);
+	View<double**> precip_trc_sum	 ("precip_trc_sum", nqmax, ijdim);
+	View<double**> GDCLW_sum		 ("GDCLW_sum", kdim, ijdim);
+	View<double**> GDCFRC_sum		 ("GDCFRC_sum", kdim, ijdim);
+	View<double**> GPREC_sum		 ("GPREC_sum", kdim, ijdim);
+
+	View<double**> re_rain           ("re_rain   ", kdim, ijdim); // Effective Radius
+	View<double**> re_ice            ("re_ice    ", kdim, ijdim); // Effective Radius
+	View<double**> re_snow           ("re_snow   ", kdim, ijdim); // Effective Radius
+	View<double**> re_graupel        ("re_graupel", kdim, ijdim); // Effective Radius
+	View<double**> rctop_cld         ("rctop_cld", 1, ijdim);    // Effective Radius of Cloud Top
+	View<double**> rwtop_cld         ("rwtop_cld", 1, ijdim);    // Effective Radius of Warm-Cloud Top
+	View<double**> tctop_cld         ("tctop_cld", 1, ijdim);    // Cloud Top Temperature
+
+	View<double**> qke				 ("qke", kdim, ijdim);
+
+	double fraction_mp = 1.0 / double(MP_DIV_NUM); // 1 / MP_DIV_NUM
+	double dt_mp = dt * fraction_mp;
+
+	Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{2,ijdim}), 
+	KOKKOS_LAMBDA(const size_t k, const size_t ij){
+		precip_sum     (k,ij) = 0.0;
+		ISO1_precip_sum(k,ij) = 0.0;
+		ISO2_precip_sum(k,ij) = 0.0;	
+	});
+
+	Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{nqmax,ijdim}), 
+	KOKKOS_LAMBDA(const size_t nq, const size_t ij){
+		precip_trc_sum(nq,ij) = 0.0;
+	});
+
+	Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+	KOKKOS_LAMBDA(const size_t k, const size_t ij){
+		GDCLW_sum (k,ij) = 0.0;
+		GDCFRC_sum(k,ij) = 0.0;
+		GPREC_sum (k,ij) = 0.0;
+	});
+
+	Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
+		precip_rhoe_sum   (ij) = 0.0;
+		precip_lh_heat_sum(ij) = 0.0;
+		precip_rhophi_sum (ij) = 0.0;
+		precip_rhokin_sum (ij) = 0.0;
+	});
+
+	if(MP_TYPE != "NDW6")
+	{
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+		KOKKOS_LAMBDA(const size_t k, const size_t ij){
+			re_rain(k,ij)    = CONST_UNDEF;
+			re_ice(k,ij)     = CONST_UNDEF;
+			re_snow(k,ij)    = CONST_UNDEF;
+			re_graupel(k,ij) = CONST_UNDEF;	
+		});
+	}
+
+	for(int m = 0; m < MP_DIV_NUM; m++)
+	{
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{2,ijdim}), 
+		KOKKOS_LAMBDA(const size_t k, const size_t ij){
+			precip     (k,ij) = 0.0;
+			ISO1_precip(k,ij) = 0.0;
+			ISO2_precip(k,ij) = 0.0;
+		});
+
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{nqmax,ijdim}), 
+		KOKKOS_LAMBDA(const size_t nq, const size_t ij){
+			precip_trc(nq,ij) = 0.0;
+		});
+
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+		KOKKOS_LAMBDA(const size_t k, const size_t ij){
+			GDCLW (k,ij) = 0.0;
+			GDCFRC(k,ij) = 0.0;
+			GPREC (k,ij) = 0.0;
+		});
+
+		Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
+			precip_rhoe   (ij) = 0.0;
+			precip_lh_heat(ij) = 0.0;
+			precip_rhophi (ij) = 0.0;
+			precip_rhokin (ij) = 0.0;
+		});
+
+		if(MP_TYPE == "NONE")
+		{
+			Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+			KOKKOS_LAMBDA(const size_t k, const size_t ij){
+				re_liquid(k,ij) = 10.0E-6;
+				re_solid (k,ij) = 20.0E-6;
+			});
+		}
+		else if(MP_TYPE == "NSW6")
+		{
+			mp_nsw6(l_region,
+					rhog,
+					rhogvx,
+					rhogvy,
+					rhogvz,
+					rhogw,
+					rhoge,
+					rhogq,
+					vx,
+					vy,
+					vz,
+					w,
+					unccn,
+					rho,
+					tem,
+					pre,
+					q,
+					qd,
+					precip,
+					precip_rhoe,
+					precip_lh_heat,
+					precip_rhophi,
+					precip_rhokin,
+					GPREC,
+					re_liquid,
+					rctop,
+					rwtop,
+					tctop,
+					re_cld,
+					rctop_cld,
+					rwtop_cld,
+					tctop_cld,
+					gsgam2,
+					gsgam2h,
+					gam2,
+					gam2h,
+					ix,
+					iy,
+					iz,
+					jx,
+					jy,
+					jz,
+					z,
+					dt_mp);
+			
+			Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+			KOKKOS_LAMBDA(const size_t k, const size_t ij){
+				re_solid (k,ij) = 20.0E-6;
+			});
+		}
+
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{2,ijdim}), 
+		KOKKOS_LAMBDA(const size_t k, const size_t ij){
+			precip_sum(k,ij)      += precip(k,ij);
+			ISO1_precip_sum(k,ij) += ISO1_precip(k,ij);
+			ISO2_precip_sum(k,ij) += ISO2_precip(k,ij);
+		});
+
+		Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
+			precip_rhoe_sum(ij)    += precip_rhoe(ij);
+			precip_lh_heat_sum(ij) += precip_lh_heat(ij);
+			precip_rhophi_sum (ij) += precip_rhophi(ij);
+			precip_rhokin_sum (ij) += precip_rhokin(ij);
+		});
+
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{nqmax,ijdim}), 
+		KOKKOS_LAMBDA(const size_t nq, const size_t ij){
+			precip_trc_sum(nq,ij) += precip_trc(nq,ij);
+		});
+
+		Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+		KOKKOS_LAMBDA(const size_t k, const size_t ij){
+			GDCLW_sum (k,ij) += GDCLW (k,ij);
+			GDCFRC_sum(k,ij) += GDCFRC(k,ij);
+			GPREC_sum (k,ij) += GPREC (k,ij);	
+		});
+	}
+
+	Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{2,ijdim}), 
+	KOKKOS_LAMBDA(const size_t k, const size_t ij){
+		precip(k,ij)      = precip_sum(k,ij) * fraction_mp;
+		ISO1_precip(k,ij) = ISO1_precip_sum(k,ij) * fraction_mp;
+		ISO2_precip(k,ij) = ISO2_precip_sum(k,ij) * fraction_mp;
+	});
+
+	Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
+		precip_rhoe(ij)    = precip_rhoe_sum(ij) * fraction_mp;
+		precip_lh_heat(ij) = precip_lh_heat_sum(ij) * fraction_mp;
+		precip_rhophi (ij) = precip_rhophi_sum (ij) * fraction_mp;
+		precip_rhokin (ij) = precip_rhokin_sum (ij) * fraction_mp;
+	});
+
+	Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{nqmax,ijdim}), 
+	KOKKOS_LAMBDA(const size_t nq, const size_t ij){
+		precip_trc(nq,ij) += precip_trc_sum(nq,ij) * fraction_mp;
+	});
+
+	Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+	KOKKOS_LAMBDA(const size_t k, const size_t ij){
+		GDCLW (k,ij) = GDCLW_sum (k,ij) * fraction_mp;
+		GDCFRC(k,ij) = GDCFRC_sum(k,ij) * fraction_mp;
+		GPREC (k,ij) = GPREC_sum (k,ij) * fraction_mp;
+	});
 }
 
 }

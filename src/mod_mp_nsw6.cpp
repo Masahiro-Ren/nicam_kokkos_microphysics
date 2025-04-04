@@ -1490,9 +1490,65 @@ void mp_nsw6(
     // End of nsw6
 }
 
+/**
+ * Kokkos Ver.
+ */
+void mp_nsw6(
+            int l_region,
+            const View<double**>&  rhog          ,
+            const View<double**>&  rhogvx        ,
+            const View<double**>&  rhogvy        ,
+            const View<double**>&  rhogvz        ,
+            const View<double**>&  rhogw         ,
+            const View<double**>&  rhoge         ,
+            const View<double***>& rhogq         ,
+            const View<double**>&  vx            ,
+            const View<double**>&  vy            ,
+            const View<double**>&  vz            ,
+            const View<double**>&  w             ,
+            const View<double**>&  UNCCN         ,
+            const View<double**>&  rho           ,
+            const View<double**>&  tem           ,
+            const View<double**>&  pre           ,
+            const View<double***>& q             ,
+            const View<double**>&  qd            ,
+            const View<double**>&  precip        ,
+            const View<double*>&   precip_rhoe   ,
+            const View<double*>&   precip_lh_heat,
+            const View<double*>&   precip_rhophi ,
+            const View<double*>&   precip_rhokin ,
+            const View<double**>&  gprec         ,
+            const View<double**>&  rceff         ,
+            const View<double**>&  rctop         ,
+            const View<double**>&  rwtop         ,
+            const View<double**>&  tctop         ,
+            const View<double**>&  rceff_cld     ,
+            const View<double**>&  rctop_cld     ,
+            const View<double**>&  rwtop_cld     ,
+            const View<double**>&  tctop_cld     ,
+            const View<double**>&  gsgam2        ,
+            const View<double**>&  gsgam2h       ,
+            const View<double**>&  gam2          ,
+            const View<double**>&  gam2h         ,
+            const View<double*>&   ix			   ,
+            const View<double*>&   iy			   ,
+            const View<double*>&   iz			   ,
+            const View<double*>&   jx			   ,
+            const View<double*>&   jy			   ,
+            const View<double*>&   jz			   ,
+            const View<double**>&  z			   ,
+            double dt
+            )
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
 }
 
+}
 
+/**
+ * ============================ Out of the namespace =======================
+ */
 void negative_filter( double rhog  [kdim][ijdim],
                       double rhoge [kdim][ijdim],
                       double rhogq [nqmax][kdim][ijdim],
