@@ -385,47 +385,36 @@ void vadv1d_getflux_new( int    mkmin,
     {
         if( kcell_min(k) == k && kcell_max(k) == k )
         {
-            for(int ij = 0; ij < ijdim; ij++)
+            Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
                 zdis(k,ij) = zdis0(k,ij);
+            });
         }
         else
         {
             for(int k2 = kcell_min(k); k2 <= kcell_max(k); k2++)
             {
-                for(int ij = 0; ij < ijdim; ij++)
-                {
-                    // int kc1 = kcell[k][ij] + 1;
-                    // int kc2 = kcell[k][ij] - 1;
-                    // fact = dz[k2] * 0.25 
-                    //         * ( (std::copysign(1, k2 - kc1 + 1) + 1.0) * ( std::copysign(1, (k - 1) - k2) + 1.0) 
-                    //             - (std::copysign(1, k2 - k) + 1.0) * (std::copysign(1, (kc2 - 1) - k2) + 1.0) );
+                Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
                     double fact = dz(k2) * 0.25
                                          * (  ( std::copysign(1, k2 - (kcell(k,ij)+1)) + 1.0 ) * ( std::copysign(1, (k-1) - k2) + 1.0 )
                                             - ( std::copysign(1, k2 - k) + 1.0 ) * ( std::copysign(1, (kcell(k,ij) - 1) - k2) + 1.0 ) );
                     
                     frhof(k,ij) = frhof(k,ij) + rhof(k2,ij) * fact;
                     zdis(k,ij) = zdis0(k,ij) - fact;
-                }
+                });
 
             }
         }
 
-        for(int ij = 0; ij < ijdim; ij++)
-        {
+        Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
             int kc = kcell(k,ij);
             frhof(k,ij) = frhof(k,ij) + rhof(kc,ij) * zdis(k,ij);
-        }
+        });
     }
 
-    for(int k = 0; k < kdim; k++)
-    {
-        for(int ij = 0; ij < ijdim; ij++)
-        {
-            // double val_abs = std::abs(frhof[k][ij]) - CONST_EPS;
-            // frhof[k][ij] = frhof[k][ij] * ( 0.5 + std::copysign(0.5, val_abs));
-            frhof(k,ij) = frhof(k,ij) * ( 0.5 + std::copysign(0.5, std::abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
-        }
-    }
+    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        frhof(k,ij) = frhof(k,ij) * ( 0.5 + std::copysign(0.5, std::abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
+    });
 }
 
 }
