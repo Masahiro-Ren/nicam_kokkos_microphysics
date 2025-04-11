@@ -108,6 +108,13 @@ Kokkos::initialize(argc, argv);
     View<double***> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
     
     /**
+     * Display Execution Configurations
+     */
+    Kokkos::print_configuration(std::cout);
+    std::cout << "Number of threads: "
+                  << Kokkos::DefaultExecutionSpace::concurrency()
+                  << std::endl;
+    /**
      * Display Simulation Configuerations
     */
     std::cout << "[KERNEL] physicskernel_microphysics \n";
