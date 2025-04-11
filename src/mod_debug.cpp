@@ -337,36 +337,20 @@ namespace DEBUG {
 
     void PROF_val_check(const std::string& val_name, const View<double****>& arr4d, const size_t idx_arr2d, const View<double***>& CHECK_arr3d)
     {
-        // double err_sum;
-        // double err_max;
-        // double err_min;
-
-        // Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<2>>({0,0},{ADM_kall,ADM_gall_in}),
-        // KOKKOS_LAMBDA(const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
-        //     double err = std::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
-        //     local_sum += err;
-        //     local_min = std::min(local_min, err);
-        //     local_max = std::max(local_max, err);
-        // }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
-
         auto sub_arr2d = subview(arr4d, 0, idx_arr2d, Kokkos::ALL(), Kokkos::ALL());
         auto sub_check_arr2d = subview(CHECK_arr3d, 0, Kokkos::ALL(), Kokkos::ALL());
 
-        double err_sum = 0.0;
-        double err_max = std::numeric_limits<double>::min();
-        double err_min = std::numeric_limits<double>::max();
+        double err_sum;
+        double err_max;
+        double err_min;
 
-        for(int k = 0; k < ADM_kall; k++)
-        {
-            for(int ij = 0; ij < ADM_gall_in; ij++)
-            {
-                double err = std::abs( ( sub_arr2d(k,ij) - sub_check_arr2d(k,ij) ) );
-                err_sum += err;
-                err_max = std::max(err_max, err);
-                err_min = std::min(err_min, err);
-            }
-        }
-
+        Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<2>>({0,0},{ADM_kall,ADM_gall_in}),
+        KOKKOS_LAMBDA(const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
+            double err = std::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
+            local_sum += err;
+            local_min = std::min(local_min, err);
+            local_max = std::max(local_max, err);
+        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
 
         std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
@@ -376,34 +360,17 @@ namespace DEBUG {
 
     void PROF_val_check(const std::string& val_name, const View<double***>& arr3d, const View<double***>& CHECK_arr3d)
     {
-        // double err_sum;
-        // double err_max;
-        // double err_min;
+        double err_sum;
+        double err_max;
+        double err_min;
 
-        // Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ADM_lall,ADM_kall,ADM_gall_in}),
-        // KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
-        //     double err = std::abs(arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
-        //     local_sum += err;
-        //     local_min = std::min(local_min, err);
-        //     local_max = std::max(local_max, err);
-        // }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
-        double err_sum = 0.0;
-        double err_max = std::numeric_limits<double>::min();
-        double err_min = std::numeric_limits<double>::max();
-
-        for(int l = 0; l < ADM_lall; l++)
-        {
-            for(int k = 0; k < ADM_kall; k++)
-            {
-                for(int ij = 0; ij < ADM_gall_in; ij++)
-                {
-                    double err = std::abs( ( arr3d(l,k,ij) - CHECK_arr3d(l,k,ij) ) );
-                    err_sum += err;
-                    err_max = std::max(err_max, err);
-                    err_min = std::min(err_min, err);
-                }
-            }
-        }
+        Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ADM_lall,ADM_kall,ADM_gall_in}),
+        KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
+            double err = std::abs(arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
+            local_sum += err;
+            local_min = std::min(local_min, err);
+            local_max = std::max(local_max, err);
+        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
 
         std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
