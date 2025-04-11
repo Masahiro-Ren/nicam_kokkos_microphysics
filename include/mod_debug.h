@@ -42,17 +42,20 @@ void cnvvar_rhogkin_in(
  * Kokkos ver.
  */
 void cnvvar_rhogkin_in(
-    View<double**>&  rhog     ,
-    View<double**>&  rhogvx   ,
-    View<double**>&  rhogvy   ,
-    View<double**>&  rhogvz   ,
-    View<double**>&  rhogw    ,
-    View<double***>& C2Wfact  ,
-    View<double***>& W2Cfact  ,
-    View<double**>&  rhogkin  ,
-    View<double**>&  rhogkin_h,
-    View<double**>&  rhogkin_v );
+    const View<double**>&  rhog     ,
+    const View<double**>&  rhogvx   ,
+    const View<double**>&  rhogvy   ,
+    const View<double**>&  rhogvz   ,
+    const View<double**>&  rhogw    ,
+    const View<double***>& C2Wfact  ,
+    const View<double***>& W2Cfact  ,
+    const View<double**>&  rhogkin  ,
+    const View<double**>&  rhogkin_h,
+    const View<double**>&  rhogkin_v );
 
 double MISC_gammafunc(double xx);
 
+void PROF_val_check(const std::string& val_name, const View<double**>& arr2d, const View<double**>& CHECK_arr2d);
+
+void PROF_val_check(const std::string& val_name, const View<double***>& arr3d, const View<double***>& CHECK_arr3d);
 }

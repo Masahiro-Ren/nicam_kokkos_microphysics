@@ -14,18 +14,18 @@ using namespace MP_DRIVER;
 /**
  * For result checking
  */
-double CHECK_rhog  [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_rhogvx[ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_rhogvy[ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_rhogvz[ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_rhogw [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_rhoge [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_QV1   [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_QC2   [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_QR3   [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_QI4   [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_QS5   [ADM_lall][ADM_kall][ADM_gall_in];
-double CHECK_QG6   [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_rhog  [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_rhogvx[ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_rhogvy[ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_rhogvz[ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_rhogw [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_rhoge [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_QV1   [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_QC2   [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_QR3   [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_QI4   [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_QS5   [ADM_lall][ADM_kall][ADM_gall_in];
+// double CHECK_QG6   [ADM_lall][ADM_kall][ADM_gall_in];
 
 int main(int argc, char* argv[])
 {
@@ -90,6 +90,23 @@ Kokkos::initialize(argc, argv);
 
     View<double***> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
     View<double***> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
+
+    /**
+     * For result checking
+     */
+    View<double***> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View<double***> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
+    
     /**
      * Display Simulation Configuerations
     */
@@ -296,36 +313,36 @@ Kokkos::initialize(argc, argv);
     }
     std::cout << "============= Finish Kernel =============== \n";
 
-    // if (SET_check)
-    // {
-    //     std::cout << "Checking Reuslts \n";
+    if (SET_check)
+    {
+        std::cout << "Checking Reuslts \n";
 
-    //     read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
-    //     read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
-    //     read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
-    //     read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
-    //     read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
-    //     read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
-    //     read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
-    //     read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
-    //     read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
-    //     read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
-    //     read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
-    //     read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
+        read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
+        read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
+        read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
+        read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
+        read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
+        read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
+        // read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
+        // read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
+        // read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
+        // read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
+        // read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
+        // read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
 
-    //     PROF_val_check("rhog",   rhog,   CHECK_rhog);
-    //     PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
-    //     PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
-    //     PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
-    //     PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
-    //     PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
-    //     PROF_val_check("QV", rhogq_Lswp[0][I_QV], CHECK_QV1[0]);
-    //     PROF_val_check("QC", rhogq_Lswp[0][I_QC], CHECK_QC2[0]);
-    //     PROF_val_check("QR", rhogq_Lswp[0][I_QR], CHECK_QR3[0]);
-    //     PROF_val_check("QI", rhogq_Lswp[0][I_QI], CHECK_QI4[0]);
-    //     PROF_val_check("QS", rhogq_Lswp[0][I_QS], CHECK_QS5[0]);
-    //     PROF_val_check("QG", rhogq_Lswp[0][I_QG], CHECK_QG6[0]);
-    // }
+        PROF_val_check("rhog",   rhog,   CHECK_rhog);
+        PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
+        PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
+        PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
+        PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
+        PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
+        // PROF_val_check("QV", rhogq_Lswp[0][I_QV], CHECK_QV1[0]);
+        // PROF_val_check("QC", rhogq_Lswp[0][I_QC], CHECK_QC2[0]);
+        // PROF_val_check("QR", rhogq_Lswp[0][I_QR], CHECK_QR3[0]);
+        // PROF_val_check("QI", rhogq_Lswp[0][I_QI], CHECK_QI4[0]);
+        // PROF_val_check("QS", rhogq_Lswp[0][I_QS], CHECK_QS5[0]);
+        // PROF_val_check("QG", rhogq_Lswp[0][I_QG], CHECK_QG6[0]);
+    }
 
     std::cout << "============= All process finished =============== \n";
 }

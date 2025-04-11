@@ -13,7 +13,7 @@ CXXFLAGS = -Ofast -mcpu=a64fx -fvectorize -ffj-zfill=100 -ffj-prefetch-sequentia
 LINK = ${CXX}
 LDFLAGS = -Nclang -fopenmp ${CXXFLAGS}
 EXE = phy.exe
-KOKKOS_DEVICES = "OpenMP"
+KOKKOS_DEVICES = "OpenMP,Serial"
 # KOKKOS_ARCH = "A64FX"
 
 DEPFLAGS = -M

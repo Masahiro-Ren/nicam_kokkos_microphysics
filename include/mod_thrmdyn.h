@@ -21,13 +21,13 @@ namespace THRMDYN {
     /**
      * Kokkos ver.
      */
-    void THRMDYN_qd(View<double***>& q, View<double**>& qd);
+    void THRMDYN_qd(const View<double***>& q, const View<double**>& qd);
 
-    void THRMDYN_cv(View<double**>& qd, View<double***>& q, View<double**>& cv);
+    void THRMDYN_cv(const View<double**>& qd, const View<double***>& q, const View<double**>& cv);
 
-    void THRMDYN_tempre( View<double**>&  ein, 
-                         View<double**>&  rho,
-                         View<double***>& q  ,
-                         View<double**>&  tem,
-                         View<double**>&  pre );
+    void THRMDYN_tempre( const View<double**>&  ein, 
+                         const View<double**>&  rho,
+                         const View<double***>& q  ,
+                         const View<double**>&  tem,
+                         const View<double**>&  pre );
 }

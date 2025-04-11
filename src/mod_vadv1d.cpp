@@ -206,7 +206,6 @@ void vadv1d_getflux_new( int    mkmin,
     }
 }
 
-}
 
 // void find_max_min(double* arr, size_t len, double& max_val, double& min_val)
 // {
@@ -245,50 +244,55 @@ void vadv1d_prep( int    mkmin,
     // double zzmax, zzmin;
 
     // vetical velocity at the half level
-    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({mkmin+1,IDX_ZERO},{mkmax+1,ijdim}), 
-    KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        wh(k,ij) = 0.5 * (wp(k-1,ij) + wp(k,ij));
-    });
+    for(size_t k = mkmin + 1; k <= mkmax; k++)
+        for(size_t ij = 0; ij < ijdim; ij++)
+            wh(k,ij) = 0.5 * (wp(k-1,ij) + wp(k,ij));
 
     // bottom boundary for wh
     // top    boundary for wh : same as inner region
-    Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
+    for(size_t ij = 0; ij < ijdim; ij++)
+    {
         wh(mkmin  ,ij) = wp(mkmin  ,ij);
         wh(mkmin-1,ij) = wp(mkmin-1,ij);
         wh(mkmax+1,ij) = wp(mkmax  ,ij); 
-    });
+    }
 
     // calculation of distance of cell wall during dt
-    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({mkmin+1,IDX_ZERO},{mkmax+1,ijdim}), 
-    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+    for(size_t k = mkmin + 1; k <= mkmax; k++)
+    {
+        for(size_t ij = 0; ij < ijdim; ij++)
+        {
             zdis(k,ij) = dt  * wh(k,ij) -
                          dt2 * wh(k,ij) * ( wh(k+1,ij) - wh(k-1,ij) ) / ( dz(k-1) + dz(k) ) / 2.0 +
                          dt3 * wh(k,ij) * ( std::pow( ( wh(k+1,ij) - wh(k-1,ij) ) / ( dz(k-1) + dz(k) ), 2) +
                                             wh(k,ij) * ( ( ( wh(k+1,ij) - wh(k,ij) ) / dz(k) - 
                                                            ( wh(k,ij) - wh(k-1,ij) ) / dz(k-1) ) / (dz(k-1) + dz(k)) * 2.0 ) ) / 6.0; 
-    });
+        }
+    }
 
     // bottom and top boundary for zdis
-    Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
+    for(size_t ij = 0; ij < ijdim; ij++)
+    {
        zdis(mkmin-1,ij) = 0.0;
        zdis(mkmin  ,ij) = dt * wh(mkmin,ij) - dt2 * wh(mkmin,ij) * ( wh(mkmin+1,ij) - wh(mkmin,ij) ) / dz(mkmin) / 2.0;
        zdis(mkmax+1,ij) = dt * wh(mkmax+1,ij) - dt2 * wh(mkmax+1,ij) * ( wh(mkmax+1,ij) - wh(mkmax,ij) ) / dz(mkmax) / 2.0;
-    });
+    }
 
     // calculation of kcell
     // top boundary: rigid [kcell(:,kmax+1) = kmax+1]
-    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}),
-    KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        kcell(k,ij) = k;
-    });
-
-    Kokkos::parallel_for(RangePolicy<>(0,kdim), KOKKOS_LAMBDA(const size_t k){
-        kcell_min(k) = k;
-        kcell_max(k) = k;
-    });
+    for(size_t k = 0; k < kdim; k++)
+    {
+        for(size_t ij = 0; ij < ijdim; ij++)
+        {
+            kcell(k,ij) = k;
+            kcell_min(k) = k;
+            kcell_max(k) = k;
+        }
+    }
 
     // setup limiter of max and min of kcell
-    Kokkos::parallel_for(RangePolicy<Kokkos::Serial>(mkmin,mkmax+1), KOKKOS_LAMBDA(const size_t k){
+    for(size_t k = mkmin; k <= mkmax; k++)
+    {
         double zzmax = std::numeric_limits<double>::min();
         double zzmin = std::numeric_limits<double>::min();
 
@@ -301,7 +305,7 @@ void vadv1d_prep( int    mkmin,
 
         if(zzmax > 0.0)
         {
-            for(int k2 = k; k2 >= mkmin; k2--)
+            for(size_t k2 = k; k2 >= mkmin; k2--)
             {
                 if( (zh(k2) <= zh(k) - zzmax) && (zh(k2+1) > zh(k) - zzmax) )
                 {
@@ -313,7 +317,7 @@ void vadv1d_prep( int    mkmin,
 
         if(zzmin < 0.0)
         {
-            for(int k2 = k; k2 <= mkmax; k2++)
+            for(size_t k2 = k; k2 <= mkmax; k2++)
             {
                 if( (zh(k2) <= zh(k) - zzmin) && (zh(k2+1) > zh(k) - zzmin) )
                 {
@@ -322,33 +326,39 @@ void vadv1d_prep( int    mkmin,
                 }
             } 
         }
-    });
+    }
 
     // determine the kcell at each point.
-    Kokkos::parallel_for(MDRangePolicy<Kokkos::Serial, Kokkos::Rank<2>>({mkmin,IDX_ZERO},{mkmax+1,ijdim}), 
-    KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        if(kcell_min(k) == k && kcell_max(k) == k)
+    for(size_t k = mkmin; k <= mkmax; k++)
+    {
+        for(size_t ij = 0; ij < ijdim; ij++)
         {
-            kcell(k,ij) = k;
-        }
-        else
-        {
-            kcell(k,ij) = 0;
-            for(int k2 = kcell_min(k); k2 <= kcell_max(k); k2++)
+            if(kcell_min(k) == k && kcell_max(k) == k)
             {
-                int tmp = int(k2 * std::copysign(1.0, (zh(k)-zdis(k,ij))-zh(k2)) * std::copysign(1.0, zh(k2+1) - (zh(k) - zdis(k,ij))) );
-                kcell(k,ij) = std::max(kcell(k,ij), tmp);
+                kcell(k,ij) = k;
+            }
+            else
+            {
+                kcell(k,ij) = 0;
+                for(size_t k2 = kcell_min(k); k2 <= kcell_max(k); k2++)
+                {
+                    int tmp = int(k2 * std::copysign(1.0, (zh(k)-zdis(k,ij))-zh(k2)) * std::copysign(1.0, zh(k2+1) - (zh(k) - zdis(k,ij))) );
+                    kcell(k,ij) = std::max(kcell(k,ij), tmp);
+                }
             }
         }
-    });
+    }
 
-    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}),
-    KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        if(kcell(k,ij) == 0)
-            kcell(k,ij) = mkmin;
-        if(kcell(k,ij) == mkmax + 1)
-            kcell(k,ij) = mkmax;
-    });
+    for(size_t k = 0; k < kdim; k++)
+    {
+        for(size_t ij = 0; ij < ijdim; ij++)
+        {
+            if(kcell(k,ij) == 0)
+                kcell(k,ij) = mkmin;
+            if(kcell(k,ij) == mkmax + 1)
+                kcell(k,ij) = mkmax;
+        }
+    }
 }
 
 void vadv1d_getflux_new( int    mkmin,
@@ -371,7 +381,8 @@ void vadv1d_getflux_new( int    mkmin,
         frhof(k,ij) = 0.0;
     });
 
-    Kokkos::parallel_for(RangePolicy<Kokkos::Serial>(mkmin,mkmax+1), KOKKOS_LAMBDA(const size_t k){
+    for(int k = mkmin; k <= mkmax; k++)
+    {
         if( kcell_min(k) == k && kcell_max(k) == k )
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -404,10 +415,17 @@ void vadv1d_getflux_new( int    mkmin,
             int kc = kcell(k,ij);
             frhof(k,ij) = frhof(k,ij) + rhof(kc,ij) * zdis(k,ij);
         }
-    });
+    }
 
-    Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}),
-    KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        frhof(k,ij) = frhof(k,ij) * ( 0.5 + std::copysign(0.5, std::abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
-    });
+    for(int k = 0; k < kdim; k++)
+    {
+        for(int ij = 0; ij < ijdim; ij++)
+        {
+            // double val_abs = std::abs(frhof[k][ij]) - CONST_EPS;
+            // frhof[k][ij] = frhof[k][ij] * ( 0.5 + std::copysign(0.5, val_abs));
+            frhof(k,ij) = frhof(k,ij) * ( 0.5 + std::copysign(0.5, std::abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
+        }
+    }
+}
+
 }

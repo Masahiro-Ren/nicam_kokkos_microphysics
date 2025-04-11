@@ -244,16 +244,16 @@ namespace DEBUG {
     }
 
     void cnvvar_rhogkin_in(
-        View<double**>&  rhog     ,
-        View<double**>&  rhogvx   ,
-        View<double**>&  rhogvy   ,
-        View<double**>&  rhogvz   ,
-        View<double**>&  rhogw    ,
-        View<double***>& C2Wfact  ,
-        View<double***>& W2Cfact  ,
-        View<double**>&  rhogkin  ,
-        View<double**>&  rhogkin_h,
-        View<double**>&  rhogkin_v )
+        const View<double**>&  rhog     ,
+        const View<double**>&  rhogvx   ,
+        const View<double**>&  rhogvy   ,
+        const View<double**>&  rhogvz   ,
+        const View<double**>&  rhogw    ,
+        const View<double***>& C2Wfact  ,
+        const View<double***>& W2Cfact  ,
+        const View<double**>&  rhogkin  ,
+        const View<double**>&  rhogkin_h,
+        const View<double**>&  rhogkin_v )
     {
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 
@@ -333,5 +333,62 @@ namespace DEBUG {
         f = std::exp(-tmp + std::log(2.5066282746310005 * ser / x));
 
         return f;
+    }
+
+    void PROF_val_check(const std::string& val_name, const View<double**>& arr2d, const View<double**>& CHECK_arr2d)
+    {
+        double err_sum;
+        double err_max;
+        double err_min;
+
+        Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<2>>({0,0},{ADM_kall,ADM_gall_in}),
+        KOKKOS_LAMBDA(const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
+            double err = std::abs(arr2d(k,ij) - CHECK_arr2d(k,ij));
+            local_sum += err;
+            local_min = std::min(local_min, err);
+            local_max = std::max(local_max, err);
+        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
+
+        std::cout << "Checking [" << val_name << "] ";
+        std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
+        std::cout << "Min = " << std::setprecision(16) << std::scientific << err_min << "; ";
+        std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
+    }
+
+    void PROF_val_check(const std::string& val_name, const View<double***>& arr3d, const View<double***>& CHECK_arr3d)
+    {
+        // double err_sum;
+        // double err_max;
+        // double err_min;
+
+        // Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ADM_lall,ADM_kall,ADM_gall_in}),
+        // KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
+        //     double err = std::abs(arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
+        //     local_sum += err;
+        //     local_min = std::min(local_min, err);
+        //     local_max = std::max(local_max, err);
+        // }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
+        double err_sum = 0.0;
+        double err_max = std::numeric_limits<double>::min();
+        double err_min = std::numeric_limits<double>::max();
+
+        for(int l = 0; l < ADM_lall; l++)
+        {
+            for(int k = 0; k < ADM_kall; k++)
+            {
+                for(int ij = 0; ij < ADM_gall_in; ij++)
+                {
+                    double err = std::abs( ( arr3d(l,k,ij) - CHECK_arr3d(l,k,ij) ) );
+                    err_sum += err;
+                    err_max = std::max(err_max, err);
+                    err_min = std::min(err_min, err);
+                }
+            }
+        }
+
+        std::cout << "Checking [" << val_name << "] ";
+        std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
+        std::cout << "Min = " << std::setprecision(16) << std::scientific << err_min << "; ";
+        std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
     }
 }
