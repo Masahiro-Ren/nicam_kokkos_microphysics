@@ -9,11 +9,15 @@ default: build
 	echo "Start Build"
 
 CXX = FCCpx
-CXXFLAGS = -Ofast -mcpu=a64fx -fvectorize -ffj-zfill=100 -ffj-prefetch-sequential=soft -ffj-prefetch-line=8 -ffj-prefetch-line-L2=16 -ffj-lst=t -I$(INCLUDE_PATH)
+CXXFLAGS = -Ofast -mcpu=a64fx -fvectorize \
+		   -ffj-zfill=100 -ffj-prefetch-sequential=soft \
+		   -ffj-prefetch-line=8 -ffj-prefetch-line-L2=16 \
+		   -ffj-lst=t -I$(INCLUDE_PATH) \
+		   -DUSEOPENMP
 LINK = ${CXX}
 LDFLAGS = -Nclang -fopenmp ${CXXFLAGS}
 EXE = phy.exe
-KOKKOS_DEVICES = "OpenMP"
+KOKKOS_DEVICES = "OpenMP,Serial"
 # CXXFLAGS += -DKOKKOS_ENABLE_PRAGMA_IVDEP=ON \
 # 			-DKOKKOS_ENABLE_PRAGMA_VECTOR=ON \
 # 			-DKOKKOS_ENABLE_PRAGMA_LOOPCOUNT=ON \

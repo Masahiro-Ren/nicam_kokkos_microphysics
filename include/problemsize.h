@@ -17,7 +17,7 @@ using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
 // namespace KE = Kokkos::Experimental;
-#ifdef OPENMP
+#ifdef USEOPENMP
     using EXE_SPACE = Kokkos::OpenMP;
 #else
     using EXE_SPACE = Kokkos::Serial;
@@ -184,5 +184,7 @@ extern double CPW[];
 
 extern int SET_iteration;
 extern bool SET_check;
+
+constexpr int wk_nmax = 49;
 
 }
