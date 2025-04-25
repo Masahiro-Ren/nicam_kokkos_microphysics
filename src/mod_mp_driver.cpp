@@ -489,7 +489,7 @@ void mp_driver( int l_region,
 		}
 		else if(MP_TYPE == "NSW6")
 		{
-			mp_nsw6(l_region,
+			mp_nsw6_new mp_nsw6(l_region,
 					rhog,
 					rhogvx,
 					rhogvy,
@@ -533,6 +533,9 @@ void mp_driver( int l_region,
 					jz,
 					z,
 					dt_mp);
+				
+			mp_nsw6.compute();
+			
 			
 			Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
 			KOKKOS_LAMBDA(const size_t k, const size_t ij){
