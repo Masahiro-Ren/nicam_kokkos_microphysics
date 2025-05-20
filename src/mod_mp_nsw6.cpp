@@ -466,7 +466,9 @@ void mp_nsw6(
             double dt
             )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     // working
     double drhogqv[kdim][ijdim];
@@ -2519,7 +2521,9 @@ void mp_nsw6(
             double dt
             )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
     // working
     View<double**> drhogqv("drhogqv", kdim, ijdim);
     View<double**> drhogqc("drhogqc", kdim, ijdim);
@@ -3524,7 +3528,9 @@ void negative_filter( double rhog  [kdim][ijdim],
                       double q     [nqmax][kdim][ijdim],
                       double gsgam2[kdim][ijdim]  )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double qd[kdim][ijdim];
     double cva[kdim][ijdim];
@@ -3612,7 +3618,9 @@ void Bergeron_param( double tem[kdim][ijdim],
                      double a2 [kdim][ijdim],
                      double ma2[kdim][ijdim])
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     int itemc;
     double temc;
@@ -3664,7 +3672,9 @@ void negative_filter( const View<double**>&  rhog,
                       const View<double***>& q,     
                       const View<double**>&  gsgam2)
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     View<double**> qd ("qd", kdim, ijdim);
     View<double**> cva("cva", kdim, ijdim);
@@ -3738,7 +3748,9 @@ void Bergeron_param( const View<double**> tem,
                      const View<double**> a2 ,
                      const View<double**> ma2)
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     // int itemc;
     // double temc;

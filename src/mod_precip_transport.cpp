@@ -41,7 +41,9 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                             double **precip_trc = nullptr      // precip[nqmax][ijdim]
                             )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double rhogkin   [kdim][ijdim];
     double rhogkin_h [kdim][ijdim];
@@ -607,7 +609,9 @@ void precip_transport_new(  const View<double**>&  rhog               ,
                             double **precip_trc      // precip[nqmax][ijdim]
                             )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     View<double**> rhogkin   ("rhogkin  ", kdim, ijdim);
     View<double**> rhogkin_h ("rhogkin_h", kdim, ijdim);

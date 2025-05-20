@@ -78,7 +78,9 @@ void mp_driver( int l_region,
 				double CBMFX		 [kdim][ijdim]
 				)
 {
+#ifdef DEBUG
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
 	double precip_trc        [nqmax][ijdim];
 
@@ -385,7 +387,9 @@ void mp_driver( int l_region,
 				const View<double**>&  CBMFX		 
 				)
 {
+#ifdef DEBUG
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
 	View<double**> precip_trc("precip_trc", nqmax, ijdim);
 

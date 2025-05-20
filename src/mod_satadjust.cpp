@@ -25,7 +25,9 @@ double LovR_ice;
 
 void SATURATION_Setup()
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     if(EIN_TYPE == "EXACT")
     {
@@ -54,7 +56,9 @@ void SATURATION_Setrange(double Tw, double Ti)
 
 void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double rtem;
 
@@ -76,7 +80,9 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 // Kokkos ver.
 void SATURATION_psat_liq(const View<double**>& tem, const View<double**>& psat)
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double RTEM00 = 1.0 / CONST_TEM00;
     double PSAT0 = CONST_PSAT0;
@@ -92,7 +98,9 @@ void SATURATION_psat_liq(const View<double**>& tem, const View<double**>& psat)
 
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double rtem;
 
@@ -114,7 +122,9 @@ void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
 //Kokkos ver.
 void SATURATION_psat_ice(const View<double**>& tem, const View<double**>& psat)
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double RTEM00 = 1.0 / CONST_TEM00;
     double PSAT0 = CONST_PSAT0;
@@ -137,7 +147,9 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double gsgam2 [kdim][ijdim],
                             bool   ice_adjust )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double ein_mosit[kdim][ijdim];
     double qsum     [kdim][ijdim];
@@ -247,7 +259,9 @@ void SATURATION_adjustment( const View<double**>&  rhog   ,
                             const View<double**>&  gsgam2 ,
                             bool   ice_adjust )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     View<double**> ein_mosit("ein_mosit", kdim, ijdim);
     View<double**> qsum     ("qsum     ", kdim, ijdim);
@@ -332,7 +346,9 @@ void satadjust_all( double rho    [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double qd[kdim][ijdim];
 
@@ -452,7 +468,9 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double qd[kdim][ijdim];
 
@@ -584,7 +602,9 @@ void satadjust_all( const View<double**>&  rho    ,
                     const View<double**>&  tem    ,
                     const View<double***>& q       )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     View<double**> qd("qd", kdim, ijdim);
 
@@ -702,7 +722,9 @@ void satadjust_liq( const View<double**>&  rho    ,
                     const View<double**>&  tem    ,
                     const View<double***>& q       )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     View<double**> qd("qd", kdim, ijdim);
 

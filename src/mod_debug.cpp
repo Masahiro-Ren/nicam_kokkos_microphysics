@@ -184,8 +184,9 @@ namespace DEBUG {
         double rhogkin_h[kdim][ijdim],
         double rhogkin_v[kdim][ijdim] )
     {
-        /** TO DO */
+#ifdef DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
         size_t gall = ijdim;
 
@@ -255,7 +256,9 @@ namespace DEBUG {
         const View<double**>&  rhogkin_h,
         const View<double**>&  rhogkin_v )
     {
+#ifdef DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
         size_t gmin = 0;
         size_t gall = ijdim;
