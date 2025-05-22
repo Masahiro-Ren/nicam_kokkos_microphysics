@@ -16,12 +16,12 @@ using Kokkos::subview;
 using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
-// namespace KE = Kokkos::Experimental;
 #ifdef USEOPENMP
     using EXE_SPACE = Kokkos::OpenMP;
 #else
     using EXE_SPACE = Kokkos::Serial;
 #endif
+// using EXE_SPACE = Kokkos::OpenMP;
 
 // template <typename T>
 // using Vec1d = std::vector<T>;

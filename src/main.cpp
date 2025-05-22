@@ -112,7 +112,7 @@ Kokkos::initialize(argc, argv);
      */
     Kokkos::print_configuration(std::cout);
     std::cout << "Number of threads: "
-                  << Kokkos::DefaultExecutionSpace::concurrency()
+                  << Kokkos::DefaultExecutionSpace().concurrency()
                   << std::endl;
     /**
      * Display Simulation Configuerations
