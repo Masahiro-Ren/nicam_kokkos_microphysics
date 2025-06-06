@@ -54,6 +54,7 @@ void read_data_2d(const std::string& filename, double arr2d[ADM_lall][ADM_gall_i
     for(int j = 0; j < ADM_lall; j++)
     {
 
+        #pragma omp parallel for schedule(static)
         for(int i = 0; i < ADM_gall_in; i++)
         {
             arr2d[j][i] = cast_array[j * ADM_gall_in + i];
@@ -83,6 +84,7 @@ void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_kall][
 
     for(int k = 0; k < ADM_lall; k++)
     {
+        #pragma omp parallel for schedule(static)
         for(int j = 0; j < ADM_kall; j++)
         {
             for(int i = 0; i < ADM_gall_in; i++)
@@ -117,6 +119,7 @@ void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_KNONE]
     {
         for(int j = 0; j < ADM_KNONE; j++)
         {
+            #pragma omp parallel for schedule(static)
             for(int i = 0; i < ADM_gall_in; i++)
             {
                 arr3d[k][j][i] = cast_array[ k * IJ + j * ADM_gall_in + i ];
@@ -150,6 +153,7 @@ void read_data_4d(const std::string& filename, double arr4d[ADM_lall][TRC_VMAX][
     {
         for(int k = 0; k < TRC_VMAX; k++)
         {
+            #pragma omp parallel for schedule(static)
             for(int j = 0; j < ADM_kall; j++)
             {
                 for(int i = 0; i < ADM_gall_in; i++)
@@ -188,6 +192,7 @@ void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNO
         {
             for(int j = 0; j < ADM_KNONE; j++)
             {
+                #pragma omp parallel for schedule(static)
                 for(int i = 0; i < ADM_gall_in; i++)
                 {
                     arr4d[l][k][j][i] = cast_array[l * IJK + k * IJ + j * ADM_gall_in + i];
