@@ -3,6 +3,9 @@
 namespace THRMDYN{
     void THRMDYN_qd(double q[nqmax][kdim][ijdim], double qd[kdim][ijdim])
     {
+    #pragma omp parallel default(none) shared(ijdim,kdim,NQW_STR,NQW_END,qd,q)
+    {
+        #pragma omp for
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -13,6 +16,7 @@ namespace THRMDYN{
 
         for(int nq = NQW_STR; nq <= NQW_END; nq++)
         {
+            #pragma omp for
             for(int k = 0; k < kdim; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -21,12 +25,16 @@ namespace THRMDYN{
                 }
             }
         }
+    } // end of omp region
     }
 
     void THRMDYN_cv(double qd[kdim][ijdim], double q[nqmax][kdim][ijdim], double cv[kdim][ijdim])
     {
         double CVdry = CONST_CVdry;
 
+    #pragma omp parallel default(none) shared(ijdim,kdim,NQW_STR,NQW_END,cv,qd,q,CVW,CVdry)
+    {
+        #pragma omp for
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -37,6 +45,7 @@ namespace THRMDYN{
 
         for(int nq = NQW_STR; nq <= NQW_END; nq++)
         {
+            #pragma omp for
             for(int k = 0; k < kdim; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -45,7 +54,7 @@ namespace THRMDYN{
                 }
             }
         }
-
+    } // end omp region
     }
 
     void THRMDYN_tempre( double ein[kdim][ijdim], 
