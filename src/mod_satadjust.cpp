@@ -61,6 +61,9 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
     double RTEM00 = 1.0 / CONST_TEM00;
     double PSAT0 = CONST_PSAT0;
 
+#pragma omp parallel default(none) private(rtem) shared(ijdim,kdim,psat,tem,CPovR_liq,LovR_liq,RTEM00,PSAT0,TEM_MIN)
+{
+    #pragma omp for
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -71,6 +74,7 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
                                   std::exp(LovR_liq * (RTEM00 - rtem));
         }
     }
+} // end omp region
 }
 
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
@@ -82,6 +86,9 @@ void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
     double RTEM00 = 1.0 / CONST_TEM00;
     double PSAT0 = CONST_PSAT0;
 
+#pragma omp parallel default(none) private(rtem) shared(ijdim,kdim,psat,tem,CPovR_ice,LovR_ice,RTEM00,PSAT0,TEM_MIN)
+{
+    #pragma omp for
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -92,6 +99,7 @@ void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
                                   std::exp(LovR_ice * (RTEM00 - rtem));
         }
     }
+} // end omp region
 }
 
 void SATURATION_adjustment( double rhog   [kdim][ijdim],
@@ -105,7 +113,7 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 
-    double ein_mosit[kdim][ijdim];
+    double ein_moist[kdim][ijdim];
     double qsum     [kdim][ijdim];
     double CVtot    [kdim][ijdim];
     double rho      [kdim][ijdim];
@@ -113,11 +121,12 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
     // ein_moist = U1(rho,qsum,T1) : "unsaturated temperature"
     if(I_QI > 0 && ice_adjust)
     {
+        #pragma omp parallel for default(none) shared(ijdim,kdim,ein_moist,qsum,rhoge,rhog,q,LHV,LHF,I_QV,I_QC,I_QI)
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                ein_mosit[k][ij] = rhoge[k][ij] / rhog[k][ij] 
+                ein_moist[k][ij] = rhoge[k][ij] / rhog[k][ij] 
                                     + q[I_QV][k][ij] * LHV 
                                     - q[I_QI][k][ij] * LHF;
                 qsum[k][ij] = q[I_QV][k][ij] 
@@ -132,11 +141,12 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
     }
     else
     {
+        #pragma omp parallel for default(none) shared(ijdim,kdim,ein_moist,qsum,rhoge,rhog,q,LHV,I_QV,I_QC)
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                ein_mosit[k][ij] = rhoge[k][ij] / rhog[k][ij] 
+                ein_moist[k][ij] = rhoge[k][ij] / rhog[k][ij] 
                                     + q[I_QV][k][ij] * LHV;
 
                 qsum[k][ij] = q[I_QV][k][ij] 
@@ -150,25 +160,27 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
 
     THRMDYN_cv(qd, q, CVtot);
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,rho,tem,ein_moist,q,rhog,gsgam2,CVtot,I_QV,LHV)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
             rho[k][ij] = rhog[k][ij] /  gsgam2[k][ij];
-            tem[k][ij] = ( ein_mosit[k][ij] - q[I_QV][k][ij] * LHV ) / CVtot[k][ij];
+            tem[k][ij] = ( ein_moist[k][ij] - q[I_QV][k][ij] * LHV ) / CVtot[k][ij];
         }
     }
 
     if(I_QI > 0 && ice_adjust)
     {
-        satadjust_all(rho, ein_mosit, qsum, tem, q);
+        satadjust_all(rho, ein_moist, qsum, tem, q);
     }
     else
     {
-        satadjust_liq(rho, ein_mosit, qsum, tem, q);
+        satadjust_liq(rho, ein_moist, qsum, tem, q);
     }
 
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,rhogq,rhog,q,I_QV,I_QC)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -180,6 +192,7 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
 
     if(I_QI > 0 && ice_adjust)
     {
+        #pragma omp parallel for default(none) shared(ijdim,kdim,rhogq,rhog,q,I_QI)
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -191,6 +204,7 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
 
     THRMDYN_cv(qd, q, CVtot);
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,rhoge,rhog,tem,CVtot)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -228,6 +242,15 @@ void satadjust_all( double rho    [kdim][ijdim],
 
     THRMDYN_qd(q, qd);
 
+#pragma omp parallel default(none) \
+private(converged,rtem,lim1,lim2,\
+        alpha,psatl,psati,psat,qsatl,qsati,qsat,CVtot,Emoist_new,dtemp,\
+        dalpha_dT,dqsatl_dT,dqsati_dT,dqsat_dT,dqc_dT,dqi_dT,dCVtot_dT,dEmoist_dT) \
+shared(ijdim,kmin,kmax,tem,q,qd,rho,Emoist,qsum,CPovR_liq,CVovR_liq,LovR_liq,CPovR_ice,\
+       CVovR_ice,LovR_ice,NQW_STR,NQW_END,I_QV,I_QC,I_QI,CVW,LHV,LHF,RTEM00,PSAT0,Rvap,CVdry,EPS,\
+       SATURATION_ULIMIT_TEMP,SATURATION_LLIMIT_TEMP,dtemp_criteria,TEM_MIN,std::cerr)
+{
+    #pragma omp for
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -318,6 +341,7 @@ void satadjust_all( double rho    [kdim][ijdim],
             }
         }
     }
+} // end omp region
 
 }
 
@@ -332,8 +356,8 @@ void satadjust_liq( double rho    [kdim][ijdim],
     double qd[kdim][ijdim];
 
     double rtem, psat, qsat;
-    double CVtot, Emosit_new, dtemp;
-    double dqsat_dT, dCVtot_dT, dEmosit_dT;
+    double CVtot, Emoist_new, dtemp;
+    double dqsat_dT, dCVtot_dT, dEmoist_dT;
     
     double RTEM00 = 1.0 / CONST_TEM00;
     double PSAT0  = CONST_PSAT0;
@@ -351,6 +375,13 @@ void satadjust_liq( double rho    [kdim][ijdim],
 
     THRMDYN_qd(q, qd);
 
+#pragma omp parallel default(none) \
+private(converged,rtem,psat,qsat,CVtot,Emoist_new,dtemp,dqsat_dT,dCVtot_dT,dEmoist_dT) \
+shared(ijdim,kmin,kmax,tem,q,qd,rho,Emoist,qsum,CPovR_liq,CVovR_liq,LovR_liq,\
+       NQW_STR,NQW_END,I_QV,I_QC,CVW,LHV,RTEM00,PSAT0,Rvap,CVdry,EPS,\
+       SATURATION_ULIMIT_TEMP,SATURATION_LLIMIT_TEMP,dtemp_criteria,TEM_MIN,ite_temp,std::cerr)
+{
+    #pragma omp for
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -383,18 +414,18 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     for(int nq = NQW_STR; nq <= NQW_END; nq++)
                         CVtot = CVtot + q[nq][k][ij] * CVW[nq];
                     
-                    Emosit_new = tem[k][ij] * CVtot + q[I_QV][k][ij] * LHV;
+                    Emoist_new = tem[k][ij] * CVtot + q[I_QV][k][ij] * LHV;
 
                     // dx/dT
                     dqsat_dT = ( LovR_liq / (std::pow(tem[k][ij], 2)) + CVovR_liq / tem[k][ij] ) * qsat;
 
                     dCVtot_dT = dqsat_dT * ( CVW[I_QV] - CVW[I_QC] );
 
-                    dEmosit_dT = tem[k][ij] * dCVtot_dT
+                    dEmoist_dT = tem[k][ij] * dCVtot_dT
                                  + CVtot
                                  + dqsat_dT * LHV;
                     
-                    dtemp = ( Emosit_new - Emoist[k][ij] ) / dEmosit_dT;
+                    dtemp = ( Emoist_new - Emoist[k][ij] ) / dEmoist_dT;
 
                     tem[k][ij] = tem[k][ij] - dtemp;
 
@@ -411,7 +442,7 @@ void satadjust_liq( double rho    [kdim][ijdim],
 
                 if(!converged)
                 {
-                    std::cerr << rho[k][ij] << "\t" << tem[k][ij] << "\t" << q[I_QV][k][ij] << "\t" << q[I_QC][k][ij] << "\t" << q[I_QI][k][ij] << std::endl;
+                    std::cerr << rho[k][ij] << "\t" << tem[k][ij] << "\t" << q[I_QV][k][ij] << "\t" << q[I_QC][k][ij] << std::endl;
                     std::cerr << "xxx [satadjust_all] not converged! dtemp = " << dtemp << " ij= " << ij << " k= " << k << " ite= " << ite << std::endl;
                     ADM_Proc_stop();
                 }
@@ -419,6 +450,7 @@ void satadjust_liq( double rho    [kdim][ijdim],
 
         }
     }
+} // end omp region
 
     // find sum, max in one time
     for(int k = kmin; k <= kmax; k++)
