@@ -69,6 +69,9 @@ namespace THRMDYN{
         double Rdry = CONST_Rdry;
         double Rvap = CONST_Rvap;
 
+    #pragma omp parallel default(none) shared(ijdim,kdim,NQW_STR,NQW_END,tem,pre,ein,rho,q,cv,qd,CVW,CVdry,Rdry,Rvap,I_QV)
+    {
+        #pragma omp for
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -80,6 +83,7 @@ namespace THRMDYN{
 
         for(int nq = NQW_STR; nq <= NQW_END; nq++)
         {
+            #pragma omp for
             for(int k = 0; k < kdim; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -90,6 +94,7 @@ namespace THRMDYN{
             }
         }
 
+        #pragma omp for
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -99,5 +104,7 @@ namespace THRMDYN{
                 pre[k][ij] = rho[k][ij] * tem[k][ij] * ( qd[k][ij] * Rdry + q[I_QV][k][ij] * Rvap );
             }
         }
+    } // end omp region
+
     }
 };
