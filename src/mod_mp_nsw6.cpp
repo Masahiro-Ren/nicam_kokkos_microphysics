@@ -575,6 +575,7 @@ void mp_nsw6(
 
     if(OPT_INDIR) // aerosol indirect effect
     {
+        #pragma omp parallel for default(none) shared(ijdim,kdim,Nc,UNCCN,Nc_def) collapse(2)
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -585,6 +586,7 @@ void mp_nsw6(
     }
     else
     {
+        #pragma omp parallel for default(none) shared(ijdim,kdim,Nc,Nc_def) collapse(2)
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -598,6 +600,7 @@ void mp_nsw6(
     SATURATION_psat_liq(tem, psatl);
     SATURATION_psat_ice(tem, psati);
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,qsatl,qsati,psatl,psati,rho,tem,Rvap) collapse(2)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1307,6 +1310,10 @@ void mp_nsw6(
 
 
     // update rhogq
+    #pragma omp parallel for default(none) \
+    shared(ijdim,kmin,kmax,rhogq,drhogqv,drhogqc,drhogqr,drhogqi,drhogqs,drhogqg,\
+           I_QV,I_QC,I_QR,I_QI,I_QS,I_QG) \
+    collapse(2)
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1321,6 +1328,9 @@ void mp_nsw6(
     }
 
     // update rhoge
+    #pragma omp parallel for default(none) \
+    shared(ijdim,kmin,kmax,rhoge,drhogqv,drhogqi,drhogqs,drhogqg,LHV,LHF) \
+    collapse(2)
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1331,6 +1341,10 @@ void mp_nsw6(
                                         + LHF * drhogqg[k][ij];
         }
     }
+
+    #pragma omp parallel for default(none) \
+    private(sw) \
+    shared(ijdim,kmin,kmax,rceff,tctop,rctop,rwtop,rceff_cld,tctop_cld,rctop_cld,rwtop_cld,UNDEF)
     for(int ij = 0; ij < ijdim; ij++)
     {
          rceff    [kmin-1][ij] = 0.0;
@@ -1351,6 +1365,7 @@ void mp_nsw6(
     
 
     //---< preciptation（降水量） >---
+    #pragma omp parallel for default(none) shared(nqmax,ijdim,kmin,kmax,Vt) collapse(2)
     for(int nq = 0; nq < nqmax; nq++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1360,8 +1375,10 @@ void mp_nsw6(
         }
     }
     //--- update mass concentration（質量濃度）
+    // #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,NQW_STR,NQW_END,q,rhogq,rhog) collapse(3) <=== Fujitsu compiler seg. fault here
     for(int nq = NQW_STR; nq <= NQW_END; nq++)
     {
+        #pragma omp parallel for default(none) shared(nq,ijdim,kmin,kmax,q,rhogq,rhog) collapse(2)
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -1374,6 +1391,9 @@ void mp_nsw6(
     THRMDYN_qd(q, qd);
     THRMDYN_cv(qd, q, cva);
 
+    #pragma omp parallel for default(none) \
+    shared(ijdim,kdim,tem,rhoge,rhog,cva,rgs,rgsh,gam2,gam2h,gsgam2,gsgam2h) \
+    collapse(2)
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1432,6 +1452,9 @@ void mp_nsw6(
                           dt,
                           nullptr); // precip_trc**
     
+    #pragma omp parallel for default(none) \
+    shared(ijdim,kdim,ml_Pconv,ml_Pconw,ml_Pconi,q,I_QV,I_QC,I_QI) \
+    collapse(2)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1458,6 +1481,9 @@ void mp_nsw6(
         SATURATION_adjustment(rhog, rhoge, rhogq, tem , q, qd, gsgam2, ice_adjust);
     }
 
+    #pragma omp parallel for default(none) \
+    shared(ijdim,kdim,ml_Pconv,ml_Pconw,ml_Pconi,q,I_QV,I_QC,I_QI) \
+    collapse(2)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1492,6 +1518,9 @@ void negative_filter( double rhog  [kdim][ijdim],
     double Rdry = CONST_Rdry;
     double Rvap = CONST_Rvap;
 
+#pragma omp parallel default(none) shared(ijdim,kmin,kmax,NQW_STR,NQW_END,rhogq,rhog,q,rho,gsgam2,I_QV)
+{
+    #pragma omp for
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1517,6 +1546,7 @@ void negative_filter( double rhog  [kdim][ijdim],
     }
 
 
+    #pragma omp for
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1533,6 +1563,7 @@ void negative_filter( double rhog  [kdim][ijdim],
         }
     }
 
+    #pragma omp for
     for(int nq = NQW_STR; nq <= NQW_END; nq++)
     {
         for(int k = kmin; k <= kmax; k++)
@@ -1544,6 +1575,7 @@ void negative_filter( double rhog  [kdim][ijdim],
             }
         }
     }
+} // end omp region
 
     /**
      * q  [IN]
@@ -1557,6 +1589,7 @@ void negative_filter( double rhog  [kdim][ijdim],
      */
     THRMDYN_cv(qd, q, cva);
 
+    #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,rhoge,pre,rho,tem,rhog,qd,q,cva,I_QV,Rdry,Rvap)
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -1594,6 +1627,7 @@ void Bergeron_param( double tem[kdim][ijdim],
                           0.4506, 0.4483, 0.4460, 0.4433, 0.4413,
                           0.4382, 0.4361 };
 
+    #pragma omp parallel for default(none) private(temc,itemc,fact) shared(ijdim,kmin,kmax,a1,a2,ma2,tem,a1_tab,a2_tab)
     for(int k = kmin; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
