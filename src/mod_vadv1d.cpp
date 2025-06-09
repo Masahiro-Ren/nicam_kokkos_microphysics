@@ -151,8 +151,11 @@ void vadv1d_getflux_new( int    mkmin,
     double zdis[kdim][ijdim];
     double fact;
 
+#pragma omp parallel default(none) private(fact) shared(frhof,kcell_min,kcell_max,zdis,zdis0,dz,rhof,kcell,kdim,mkmin,mkmax,ijdim,CONST_EPS)
+{
     for(int k = 0; k < kdim; k++)
     {
+        #pragma omp for nowait
         for(int ij = 0; ij < ijdim; ij++)
         {
             frhof[k][ij] = 0.0;
@@ -163,6 +166,7 @@ void vadv1d_getflux_new( int    mkmin,
     {
         if( kcell_min[k] == k && kcell_max[k] == k )
         {
+            #pragma omp for nowait
             for(int ij = 0; ij < ijdim; ij++)
                 zdis[k][ij] = zdis0[k][ij];
         }
@@ -170,6 +174,7 @@ void vadv1d_getflux_new( int    mkmin,
         {
             for(int k2 = kcell_min[k]; k2 <= kcell_max[k]; k2++)
             {
+                #pragma omp for nowait
                 for(int ij = 0; ij < ijdim; ij++)
                 {
                     // int kc1 = kcell[k][ij] + 1;
@@ -188,6 +193,7 @@ void vadv1d_getflux_new( int    mkmin,
             }
         }
 
+        #pragma omp for nowait
         for(int ij = 0; ij < ijdim; ij++)
         {
             int kc = kcell[k][ij];
@@ -197,6 +203,7 @@ void vadv1d_getflux_new( int    mkmin,
 
     for(int k = 0; k < kdim; k++)
     {
+        #pragma omp for nowait
         for(int ij = 0; ij < ijdim; ij++)
         {
             // double val_abs = std::abs(frhof[k][ij]) - CONST_EPS;
@@ -204,6 +211,9 @@ void vadv1d_getflux_new( int    mkmin,
             frhof[k][ij] = frhof[k][ij] * ( 0.5 + std::copysign(0.5, std::abs(frhof[k][ij]) - CONST_EPS ) ); // small negative filter
         }
     }
+
+} // end omp region
+
 }
 
 }
