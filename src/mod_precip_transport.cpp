@@ -108,6 +108,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
     double GRAV = CONST_GRAV;
 
 
+    #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,C2Wfact,GRD_afact,GRD_bfact,gsgam2,gsgam2h)
     for(int k = kmin; k <= kmax + 1; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -117,12 +118,14 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         }
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kmin,C2Wfact)
     for(int ij = 0; ij < ijdim; ij++)
     {
         C2Wfact[0][kmin-1][ij] = 0.0;
         C2Wfact[1][kmin-1][ij] = 0.0;
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,W2Cfact,GRD_cfact,GRD_dfact,gsgam2,gsgam2h)
     for(int k = kmin - 1; k <= kmax; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -132,6 +135,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         }
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kmax,W2Cfact)
     for(int ij = 0; ij < ijdim; ij++)
     {
         W2Cfact[0][kmax+1][ij] = 0.0; 
@@ -146,6 +150,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         GRD_gz_shift[k] = GRD_gz[k-1];
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,nqmax,drhoq)
     for(int nq = 0; nq < nqmax; nq++)
     {
         for(int k = 0; k < kdim; k++)
@@ -157,6 +162,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         }
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,drhoe,drhophi,drhokin_h,drhokin_v,drhogu,drhogv,drhogw)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -171,6 +177,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         }
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,precip,precip_rhoe,precip_lh_heat,precip_rhophi,precip_rhokin)
     for(int ij = 0; ij < ijdim; ij++)
     {
         precip         [0][ij] = 0.0;
@@ -188,6 +195,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         vadv1d_prep(kmin, kmax, GRD_dgz, GRD_gzh, Vterm[nq], zdis0, kcell, kcell_max, kcell_min, dt);
 
         // mass
+        #pragma omp parallel for default(none) shared(nq,ijdim,kdim,rhoq,rhogq,rgs)
         for(int k = 0; k < kdim; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -198,6 +206,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
         vadv1d_getflux_new(kmin, kmax, GRD_dgz, rhoq, zdis0, kcell, kcell_max, kcell_min, fprec_q);
 
+        #pragma omp parallel for default(none) shared(nq,ijdim,kmin,kmax,drhoq,fprec_q,GRD_rdgz)
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -214,6 +223,9 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             //--- horizontal kinetic energy
             //--- momentum u
             //--- momentum v
+            #pragma omp parallel for default(none) \
+            shared(nq,ijdim,kdim,rhoeq,rhophiq,rhokin_h,rhouq,rhovq,rhogq,q,rgs,\
+                   tem,z,rhogkin_h,vx,vy,vz,ix,iy,iz,jx,jy,jz,CVW,GRAV)
             for(int k = 0; k < kdim; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -240,6 +252,11 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
             vadv1d_getflux_new(kmin, kmax, GRD_dgz, rhovq, zdis0, kcell, kcell_max, kcell_min, fprec_rhov);
 
+            #pragma omp parallel default(none) \
+            shared(ijdim,kmin,kmax,drhoe,drhophi,drhokin_h,drhogu,drhogv,GRD_rdgz,\
+                   fprec_rhoe,fprec_rhophi,fprec_rhokin_h,fprec_rhou,fprec_rhov)
+            {
+            #pragma omp for nowait
             for(int k = kmin; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -248,6 +265,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            #pragma omp for nowait
             for(int k = kmin; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -256,6 +274,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            #pragma omp for nowait
             for(int k = kmin; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -264,6 +283,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            #pragma omp for nowait
             for(int k = kmin; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -272,6 +292,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            #pragma omp for
             for(int k = kmin; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -280,8 +301,13 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            } // end omp region
+
             // half level
 
+            #pragma omp parallel default(none) shared(ijdim,kmin,kmax,Vtermh,Vterm,nq)
+            {
+            #pragma omp for nowait
             for(int k = kmin + 1; k <= kmax - 1; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -290,6 +316,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            #pragma omp for
             for(int ij = 0; ij < ijdim; ij++)
             {
                 Vtermh[kmin-1][ij] = 0.0;
@@ -297,9 +324,13 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 Vtermh[kmax  ][ij] = 0.0;
                 Vtermh[kmax+1][ij] = 0.0;
             }
+            } // end omp region
 
             vadv1d_prep(kmin + 1, kmax, GRD_dgzh, GRD_gz_shift, Vtermh, zdis0h, kcellh, kcellh_max, kcellh_min, dt);
 
+            #pragma omp parallel default(none) shared(nq,ijdim,kmin,kmax,qh,q,rgsh)
+            {
+            #pragma omp for nowait
             for(int k = kmin + 1; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -308,16 +339,20 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                 }
             }
 
+            #pragma omp for
             for(int ij = 0; ij < ijdim; ij++)
             {
                 qh[kmin-1][ij] = 0.0;
                 qh[kmin  ][ij] = 0.0;
                 qh[kmax+1][ij] = 0.0;
             }
+            } // end omp region
+
             //--- vertical kinetic energy
             //--- moment w
             //--- half level
 
+            #pragma omp parallel for default(none) shared(nq,ijdim,kmin,kmax,rhokin_v,rhowq,qh,rhogkin_v,rhogw)
             for(int k = kmin + 1; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -331,6 +366,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
             vadv1d_getflux_new(kmin + 1, kmax, GRD_dgzh, rhowq, zdis0h, kcellh, kcell_max, kcellh_min, fprec_rhow);
 
+            #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,drhokin_v,drhogw,fprec_rhokin_v,fprec_rhow,GRD_rdgzh)
             for(int k = kmin + 1; k <= kmax; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -343,14 +379,19 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             // precipitation on the ground
             if( nq == I_QC )
             {
+                #pragma omp parallel for default(none) shared(ijdim,kmin,precip,fprec_q,dt)
                 for(int ij = 0; ij < ijdim; ij++)
                     precip[0][ij] = precip[0][ij] - fprec_q[kmin][ij] / dt;
             }
             else if(nq == I_QR)
             {
+                #pragma omp parallel for default(none) shared(ijdim,kmin,precip,fprec_q,dt)
                 for(int ij = 0; ij < ijdim; ij++)
                     precip[0][ij] = precip[0][ij] - fprec_q[kmin][ij] / dt;
 
+                #pragma omp parallel default(none) shared(ijdim,kmin,kmax,frain,fprec_q,dt)
+                {
+                #pragma omp for nowait
                 for(int k = kmin; k <= kmax; k++)
                 {
                     for(int ij = 0; ij < ijdim; ij++)
@@ -359,14 +400,17 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                     }
                 }
 
+                #pragma omp for
                 for(int ij = 0; ij < ijdim; ij++)
                 {
                     frain[kmin-1][ij] = 0.0;
                     frain[kmax+1][ij] = 0.0;
                 }
+                } // end omp region
             }
             else if( nq == I_QI || nq == I_QS || nq == I_QG )
             {
+                #pragma omp parallel for default(none) shared(ijdim,kmin,precip,fprec_q,dt,precip_lh_heat,LHF)
                 for(int ij = 0; ij < ijdim; ij++)
                 {
                     precip[1][ij] = precip[1][ij] - fprec_q[kmin][ij] / dt;
@@ -376,10 +420,14 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
             if(precip_trc != nullptr)
             {
+                #pragma omp parallel for default(none) shared(nq,ijdim,kmin,precip_trc,fprec_q,dt)
                 for(int ij = 0; ij < ijdim; ij++)
                     precip_trc[nq][ij] = precip_trc[nq][ij] - fprec_q[kmin][ij] / dt;
             }
 
+            #pragma omp parallel for default(none) \
+            shared(ijdim,kmin,precip_rhoe,precip_rhophi,precip_rhokin, \
+                   fprec_rhoe,fprec_rhophi,fprec_rhokin_h,fprec_rhokin_v,dt)
             for(int ij = 0; ij < ijdim; ij++)
             {
                 precip_rhoe  [ij] = precip_rhoe[ij] - fprec_rhoe[kmin][ij] / dt;
@@ -393,6 +441,9 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
     // Change in internal energy comes from precipitation and dissipation of kinetic energy due to drag force.
     // See Ooyama(2001) (3.13)
+    #pragma omp parallel for default(none) \
+    shared(ijdim,kdim,rhoge,rhogkin_h,rhogkin_v,rhogvx,rhogvy,rhogvz,rhogw,\
+           drhoe,drhophi,drhokin_h,drhokin_v,drhogu,drhogv,drhogw,ix,iy,iz,jx,jy,jz)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
@@ -411,6 +462,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
     {
         if( nq >= NQW_STR && nq <= NQW_END )
         {
+            #pragma omp parallel for default(none) shared(nq,ijdim,kdim,rhogq,rhog,rhoge,drhoq,z,GRAV)
             for(int k = 0; k < kdim; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -423,6 +475,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         }
         else
         {
+            #pragma omp parallel for default(none) shared(nq,ijdim,kdim,rhogq,drhoq)
             for(int k = 0; k < kdim; k++)
             {
                 for(int ij = 0; ij < ijdim; ij++)
@@ -435,6 +488,9 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
 
     if( PRCIP_TRN_ECORRECT == "KIN2EIN" )
     {
+        #pragma omp parallel default(none) shared(ijdim,kmin,kmax,tmp2,rhogkin_h,rhogkin_v,W2Cfact)
+        {
+        #pragma omp for
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -444,14 +500,17 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
         }
 
+        #pragma omp for
         for(int ij = 0; ij < ijdim; ij++)
         {
             tmp2[kmin-1][ij] = 0.0;
             tmp2[kmax+1][ij] = 0.0;
         }
+        } // end omp region
 
         cnvvar_rhogkin_in(rhog, rhogvx, rhogvy, rhogvz, rhogw, C2Wfact, W2Cfact, tmp, tmp_h, tmp_v);
 
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,rhoge,tmp2,tmp)
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -462,6 +521,9 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
     }
     else if(PRCIP_TRN_ECORRECT == "KIN2KIN")
     {
+        #pragma omp parallel for default(none) \
+        shared(ijdim,kmin,kmax,kin_h0,vx_t,vy_t,vz_t,kin_h,\
+               rhogkin_h,rhogvx,rhogvy,rhogvz,rhog)
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -477,6 +539,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
         }
 
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,vx_t,vy_t,vz_t,kin_h0,kin_h)
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -490,6 +553,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
         }
 
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,rhogvx,rhogvy,rhogvz,vx_t,vy_t,vz_t,rhog)
         for(int k = kmin; k <= kmax; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -500,6 +564,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
         }
 
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,rhogh,rhog,C2Wfact)
         for(int k = kmin; k <= kmax + 1; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -509,16 +574,19 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
         }
 
+        // WARN kin_h0 before kin_v0 now?
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,kin_v0,w_t,kin_v,rhogkin_v,rhogw,rhogh)
         for(int k = kmin; k <= kmax + 1; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                kin_h0[k][ij] = rhogkin_v[k][ij] / rhogh[k][ij];
+                kin_v0[k][ij] = rhogkin_v[k][ij] / rhogh[k][ij];
                 w_t   [k][ij] = rhogw[k][ij] / rhogh[k][ij];
                 kin_v [k][ij] = 0.5 * std::pow(w_t[k][ij], 2);
             }
         }
 
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,w_t,kin_v0,kin_v)
         for(int k = kmin; k <= kmax + 1; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -530,6 +598,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
             }
         }
 
+        #pragma omp parallel for default(none) shared(ijdim,kmin,kmax,rhogw,w_t,rhogh)
         for(int k = kmin; k <= kmax + 1; k++)
         {
             for(int ij = 0; ij < ijdim; ij++)
@@ -543,6 +612,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         std::cerr << "Error in PRCIP_TRN_ECORRECT: " << PRCIP_TRN_ECORRECT << std::endl;
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,nqmax,q,rhogq,rhog)
     for(int nq = 0; nq < nqmax; nq++)
     {
         for(int k = 0; k < kdim; k++)
@@ -554,6 +624,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         }
     }
 
+    #pragma omp parallel for default(none) shared(ijdim,kdim,rho,ein,rhog,rhoge,gsgam2)
     for(int k = 0; k < kdim; k++)
     {
         for(int ij = 0; ij < ijdim; ij++)
