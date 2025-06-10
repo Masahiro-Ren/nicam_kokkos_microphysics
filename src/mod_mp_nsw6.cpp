@@ -558,7 +558,7 @@ void mp_nsw6(
 
     double UNDEF, EPS, PI, Rvap, LHV0, LHS0, LHF0, PRE00;
 
-    // constexpr int simdlen = 8;
+    constexpr int simdlen = 8;
     // int blk, vec, veclen;
 
     //---------------------------------------------------------------------------
@@ -580,7 +580,7 @@ void mp_nsw6(
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                Nc[k][ij] = std::max( UNCCN[k][ij] * 1.0E-6, Nc_def );
+                Nc[k][ij] = std::fmax( UNCCN[k][ij] * 1.0E-6, Nc_def );
             }
         }
     }
@@ -626,10 +626,41 @@ void mp_nsw6(
     coef_xf    = 3.0 / 4.0 / PI / rho_w;
 
     // !! Big loop start here !!
+    /**
+     * 'ip' is deprecated
+     */
+    #pragma omp parallel for default(none) \
+    private(dens,temp,qv,qc,qr,qi,qs,qg,Sliq,Sice,Rdens,rho_fact,temc,sw_bergeron,zerosw,tmp,\
+            RLMDr,RLMDr_dr,RLMDr_2,RLMDr_3,RLMDr_7,RLMDr_1br,RLMDr_2br,RLMDr_3br,RLMDr_3dr,\
+            RLMDr_5dr,RLMDr_6dr,RLMDs,RLMDs_ds,RLMDs_2,RLMDs_3,RLMDs_1bs,RLMDs_2bs,RLMDs_3bs,\
+            RLMDs_3ds,RLMDs_5ds,RLMDg,RLMDg_dg,RLMDg_2,RLMDg_3,RLMDg_3dg,RLMDg_5dg,\
+            MOMs_0,MOMs_1,MOMs_2,MOMs_0bs,MOMs_1bs,MOMs_2bs,MOMs_2ds,MOMs_5ds_h,RMOMs_Vt,\
+            coef_bt,coef_at,Xs2,tems,loga_,b_,nm,\
+            Vti,Vtr,Vts,Vtg,Esi_mod,Egs_mod,Pracw_orig,Pracw_kk,rhoqc,Dc,Praut_berry,Praut_kk,\
+            betai,betas,Ka,Kd,Nu,Glv,Giv,Gil,ventr,vents,ventg,dt1,Ni50,sw,rhoqi,XNi,XMi,Di,Ni0,Qi0,\
+            xf_qc,rf_qc,r2_qc,r2_qr,r3_qc,r3_qr,\
+            net,fac,fac_sw,qv_t,qc_t,qr_t,qi_t,qs_t,qg_t,wk) \
+    shared(ijdim,kmin,kmax,rho,tem,pre,q,qsatl,qsati,Nc,dt,sw_expice,sw_roh2014,sw_kk2000,sw_constVti,\
+           drhogqv,drhogqc,drhogqr,drhogqi,drhogqs,drhogqg,rhog,Vt,CONST_Vti,\
+           coef_dgam,coef_xf,rceff,rctop,tctop,rceff_cld,rctop_cld,tctop_cld,\
+           I_QV,I_QC,I_QR,I_QI,I_QS,I_QG,UNDEF,EPS,PI,Rvap,LHV0,LHS0,LHF0,PRE00,\
+           GAM,GAM_2,GAM_3,GAM_1br,GAM_2br,GAM_3br,GAM_3dr,GAM_6dr,GAM_1brdr,GAM_5dr_h,GAM_1bs,GAM_2bs,\
+           GAM_3bs,GAM_3ds,GAM_1bsds,GAM_5ds_h,GAM_1bg,GAM_3dg,GAM_1bgdg,GAM_5dg_h,coef_a,coef_b,ln10,\
+           N0r,N0s,N0g,Ar,As,Ag,Br,Bs,Bg,Cr,Cs,Cg,Dr,Ds,Dg,Eiw,Erw,Esw,Egw,Eri,Esi,Egi,Esr,Egr,Egs,\
+           gamma_sacr,gamma_gacs,mi,beta_saut,gamma_saut,beta_gaut,gamma_gaut,qicrt_saut,qscrt_gaut,\
+           f1r,f2r,f1s,f2s,f1g,f2g,A_frz,B_frz,mi40,mi50,vti50,Ri50,a1,a2,ma2,\
+           Di_a,Di_max,Nc_ihtr) \
+    collapse(2)
     for(int k = kmin; k <= kmax; k++)
     {
-        for(int ij = 0; ij < ijdim; ij++)
+        for(int blk = 0; blk < ijdim; blk += simdlen)
         {
+        int veclen = std::min(ijdim - blk, simdlen);
+        // for(int ij = 0; ij < ijdim; ij++)
+        for(int vec = 0; vec < veclen; vec++)
+        {
+            int ij = blk + vec;
+
             dens = rho[k][ij];
             temp = tem[k][ij];
             qv   = std::max( q[I_QV][k][ij], 0.0 );
@@ -1305,8 +1336,9 @@ void mp_nsw6(
                              + ( 1.0 - sw ) * UNDEF;
             tctop_cld[0][ij] = (       sw ) * temp
                              + ( 1.0 - sw ) * UNDEF;
-        }
-    }
+        } // ij loop
+        } // blk loop
+    } // k loop
 
 
     // update rhogq
@@ -1531,7 +1563,7 @@ void negative_filter( double rhog  [kdim][ijdim],
                 // total hydrometeor (before correction)
                 diffq += rhogq[nq][k][ij];
                 // remove negative value of hydrometeors (mass)
-                rhogq[nq][k][ij] = std::max(rhogq[nq][k][ij], 0.0);
+                rhogq[nq][k][ij] = std::fmax(rhogq[nq][k][ij], 0.0);
             }
 
             for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
@@ -1553,7 +1585,7 @@ void negative_filter( double rhog  [kdim][ijdim],
         {
             double diffq = rhogq[I_QV][k][ij];
             // remove negative value of water vapor (mass)
-            rhogq[I_QV][k][ij] = std::max(rhogq[I_QV][k][ij], 0.0);
+            rhogq[I_QV][k][ij] = std::fmax(rhogq[I_QV][k][ij], 0.0);
 
             diffq -= rhogq[I_QV][k][ij];
 
@@ -1632,7 +1664,7 @@ void Bergeron_param( double tem[kdim][ijdim],
     {
         for(int ij = 0; ij < ijdim; ij++)
         {
-            temc = std::min( std::max( tem[k][ij] - TEM00, -30.99 ), 0.0 );
+            temc = std::fmin( std::fmax( tem[k][ij] - TEM00, -30.99 ), 0.0 );
             // itemc = int(-temc) + 1; in fortran 
             itemc = int(-temc);
             fact = -(temc + double(itemc - 1));

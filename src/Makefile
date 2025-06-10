@@ -32,4 +32,4 @@ $(TARGET):$(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f *.o $(TARGET)
+	rm -f *.o $(TARGET) *.lst
