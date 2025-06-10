@@ -513,7 +513,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                kin_h0[k][ij] = rhogkin_v[k][ij] / rhogh[k][ij];
+                kin_v0[k][ij] = rhogkin_v[k][ij] / rhogh[k][ij]; // bug fix: kin_h0 -> kin_v0
                 w_t   [k][ij] = rhogw[k][ij] / rhogh[k][ij];
                 kin_v [k][ij] = 0.5 * std::pow(w_t[k][ij], 2);
             }
