@@ -558,6 +558,7 @@ void mp_nsw6(
 
     double UNDEF, EPS, PI, Rvap, LHV0, LHS0, LHF0, PRE00;
 
+    // constexpr int simdlen = 512;
     constexpr int simdlen = 8;
     // int blk, vec, veclen;
 
