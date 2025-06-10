@@ -184,6 +184,7 @@ int main(int argc, char* argv[])
 
     for(int k = 0; k < 2; k++)
     {
+        #pragma omp parallel for shared(k,ADM_gall_in,precip_mp_tmp,precip1_mp_tmp,precip2_mp_tmp,precip_mp,precip1_mp,precip2_mp)
         for(int ij = 0; ij < ADM_gall_in; ij++)
         {
             precip_mp_tmp [k][ij] = precip_mp [k][0][0][ij];
