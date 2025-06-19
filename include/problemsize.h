@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <omp.h>
 
 template <typename T>
 using Vec1d = std::vector<T>;

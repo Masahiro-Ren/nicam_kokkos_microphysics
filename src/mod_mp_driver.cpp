@@ -243,6 +243,7 @@ void mp_driver( int l_region,
 		}
 		else if(MP_TYPE == "NSW6")
 		{
+			double start_nsw6 = omp_get_wtime();
 			mp_nsw6(l_region,
 					rhog,
 					rhogvx,
@@ -287,6 +288,9 @@ void mp_driver( int l_region,
 					jz,
 					z,
 					dt_mp);
+			double end_nsw6 = omp_get_wtime();
+
+			std::cout << "nsw6_timer: " << end_nsw6 - start_nsw6 << " s" << std::endl;
 
 			#pragma omp parallel for shared(kdim,ijdim,re_solid)
 			for(int k = 0; k < kdim; k++)
