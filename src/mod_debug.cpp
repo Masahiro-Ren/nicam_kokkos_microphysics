@@ -95,7 +95,9 @@ namespace DEBUG {
 
     void GRD_Setup()
     {
+#ifdef DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
         // Setting the vertical coordinate
         // GRD_gz    = new double[ADM_kall];
@@ -166,7 +168,6 @@ namespace DEBUG {
 
     void GRD_Input_vgrid()
     {
-        /** Waiting for implementing */
         std::cout << __PRETTY_FUNCTION__ << " Reading vgrid data " << std::endl;
         read_data_1d("data/vgrid/GRD_gz.dat", GRD_gz);
         read_data_1d("data/vgrid/GRD_gzh.dat", GRD_gzh);
@@ -185,7 +186,9 @@ namespace DEBUG {
         double rhogkin_v[kdim][ijdim] )
     {
         /** TO DO */
+#ifdef DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
         size_t gall = ijdim;
 

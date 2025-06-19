@@ -15,7 +15,9 @@ void vadv1d_prep( int    mkmin,
                   int kcell_min   [kdim],
                   double dt)
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double wh[kdim][ijdim];
     
@@ -146,7 +148,9 @@ void vadv1d_getflux_new( int    mkmin,
                          int    kcell_min[kdim],
                          double frhof    [kdim][ijdim] )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double zdis[kdim][ijdim];
     double fact;

@@ -25,7 +25,9 @@ double LovR_ice;
 
 void SATURATION_Setup()
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     if(EIN_TYPE == "EXACT")
     {
@@ -54,7 +56,9 @@ void SATURATION_Setrange(double Tw, double Ti)
 
 void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double rtem;
 
@@ -75,7 +79,9 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double rtem;
 
@@ -103,7 +109,9 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double gsgam2 [kdim][ijdim],
                             bool   ice_adjust )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double ein_mosit[kdim][ijdim];
     double qsum     [kdim][ijdim];
@@ -207,7 +215,9 @@ void satadjust_all( double rho    [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double qd[kdim][ijdim];
 
@@ -327,7 +337,9 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] )
 {
+#ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
     double qd[kdim][ijdim];
 
