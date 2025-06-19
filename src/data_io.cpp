@@ -38,7 +38,8 @@ void read_data_1d(const std::string& filename, double arr1d[ADM_kall])
 /**
  * Kokkos ver.
  */
-void read_data_1d(const std::string& filename, View<double*>& arr1d)
+// void read_data_1d(const std::string& filename, View<double*>& arr1d)
+void read_data_1d(const std::string& filename, View1D<double, Kokkos::CudaSpace>::HostMirror arr1d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -58,7 +59,7 @@ void read_data_1d(const std::string& filename, View<double*>& arr1d)
 
     size_t dim0 = arr1d.extent_int(0);
 
-    auto range_1d = RangePolicy<Schedule<Kokkos::Static>, EXE_SPACE>(0, dim0);
+    auto range_1d = RangePolicy<Schedule<Kokkos::Static>, HOST_SPACE>(0, dim0);
     Kokkos::parallel_for("read_data_1d", range_1d, 
     KOKKOS_LAMBDA(const size_t i){
         arr1d(i) = cast_array[i];
@@ -96,7 +97,8 @@ void read_data_2d(const std::string& filename, double arr2d[ADM_lall][ADM_gall_i
 /**
  * Kokkos ver.
  */
-void read_data_2d(const std::string& filename, View<double**>& arr2d)
+// void read_data_2d(const std::string& filename, View<double**>& arr2d)
+void read_data_2d(const std::string& filename, View2D<double, Kokkos::CudaSpace>::HostMirror arr2d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -117,7 +119,7 @@ void read_data_2d(const std::string& filename, View<double**>& arr2d)
     size_t dim0 = arr2d.extent_int(0);
     size_t dim1 = arr2d.extent_int(1);
 
-    auto range_2d = MDRangePolicy<EXE_SPACE, Kokkos::Rank<2>>({0,0},{dim0, dim1});
+    auto range_2d = MDRangePolicy<HOST_SPACE, Kokkos::Rank<2>>({0,0},{dim0, dim1});
     Kokkos::parallel_for("read_data_2d", range_2d, 
     KOKKOS_LAMBDA(const size_t j, const size_t i){
         arr2d(j, i) = cast_array[j * ADM_gall_in + i];
@@ -192,7 +194,8 @@ void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_KNONE]
 /**
  * Kokkos ver.
  */
-void read_data_3d(const std::string& filename, View<double***>& arr3d)
+// void read_data_3d(const std::string& filename, View<double***>& arr3d)
+void read_data_3d(const std::string& filename, View3D<double, Kokkos::CudaSpace>::HostMirror arr3d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -238,7 +241,7 @@ void read_data_3d(const std::string& filename, View<double***>& arr3d)
         DEBUG::ADM_Proc_stop();
     }
 
-    auto range_3d = MDRangePolicy<EXE_SPACE, Kokkos::Rank<3>>({0,0,0}, {dim0, dim1, dim2}); 
+    auto range_3d = MDRangePolicy<HOST_SPACE, Kokkos::Rank<3>>({0,0,0}, {dim0, dim1, dim2}); 
     Kokkos::parallel_for("read_data_3d", range_3d, 
     KOKKOS_LAMBDA(const size_t k, const size_t j, const size_t i){
         arr3d(k, j, i) = cast_array[k * IJ + j * ADM_gall_in + i];
@@ -320,7 +323,8 @@ void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNO
 /**
  * Kokkos ver.
  */
-void read_data_4d(const std::string& filename, View<double****>& arr4d)
+// void read_data_4d(const std::string& filename, View<double****>& arr4d)
+void read_data_4d(const std::string& filename, View4D<double, Kokkos::CudaSpace>::HostMirror arr4d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -367,7 +371,7 @@ void read_data_4d(const std::string& filename, View<double****>& arr4d)
         DEBUG::ADM_Proc_stop();
     }
 
-    auto range_4d = MDRangePolicy<EXE_SPACE, Kokkos::Rank<4>>({0,0,0,0}, {dim0, dim1, dim2, dim3}); 
+    auto range_4d = MDRangePolicy<HOST_SPACE, Kokkos::Rank<4>>({0,0,0,0}, {dim0, dim1, dim2, dim3}); 
     Kokkos::parallel_for("read_data_4d", range_4d, 
     KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t j, const size_t i){
         arr4d(l, k, j, i) = cast_array[l * IJK + k * IJ + j * ADM_gall_in + i];

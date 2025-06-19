@@ -814,24 +814,24 @@ void satadjust_liq( const View<double**>&  rho    ,
 
     });
 
-    Kokkos::parallel_reduce("sat_ite_summax", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
-    KOKKOS_LAMBDA(const size_t k, const size_t ij, int& local_sum, int& local_max){
-        local_sum += ite_temp(k,ij);
-        if(local_max < ite_temp(k,ij)) local_max = ite_temp(k,ij);
-    }, sat_ite_sum, Kokkos::Max<int>(sat_ite_max));
+    // Kokkos::parallel_reduce("sat_ite_summax", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
+    // KOKKOS_LAMBDA(const size_t k, const size_t ij, int& local_sum, int& local_max){
+    //     local_sum += ite_temp(k,ij);
+    //     if(local_max < ite_temp(k,ij)) local_max = ite_temp(k,ij);
+    // }, sat_ite_sum, Kokkos::Max<int>(sat_ite_max));
 
-    Kokkos::parallel_reduce("sat_ite_count", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
-    KOKKOS_LAMBDA(const size_t k, const size_t ij, int& update){
-        if(ite_temp(k,ij) != 0)
-            update += 1;
-        else
-            ite_temp(k,ij) = itelim;
-    }, sat_ite_count);
+    // Kokkos::parallel_reduce("sat_ite_count", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
+    // KOKKOS_LAMBDA(const size_t k, const size_t ij, int& update){
+    //     if(ite_temp(k,ij) != 0)
+    //         update += 1;
+    //     else
+    //         ite_temp(k,ij) = itelim;
+    // }, sat_ite_count);
 
-    Kokkos::parallel_reduce("sat_ite_min", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
-    KOKKOS_LAMBDA(const size_t k, const size_t ij, int& local_min){
-        if(local_min > ite_temp(k,ij)) local_min = ite_temp(k,ij);
-    }, Kokkos::Min<int>(sat_ite_min));
+    // Kokkos::parallel_reduce("sat_ite_min", MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO}, {kmax+1,ijdim}), 
+    // KOKKOS_LAMBDA(const size_t k, const size_t ij, int& local_min){
+    //     if(local_min > ite_temp(k,ij)) local_min = ite_temp(k,ij);
+    // }, Kokkos::Min<int>(sat_ite_min));
 
 }
 

@@ -16,11 +16,27 @@ using Kokkos::subview;
 using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
-#ifdef USEOPENMP
-    using EXE_SPACE = Kokkos::OpenMP;
-#else
-    using EXE_SPACE = Kokkos::Serial;
-#endif
+
+using HOST_SPACE = Kokkos::OpenMP;
+using DEVICE_SPACE = Kokkos::Cuda;
+
+using TARGET_MEM = Kokkos::CudaSpace;
+using HOST_MEM = Kokkos::HostSpace;
+
+template<typename T, typename S>
+using View1D = Kokkos::View<T*,S>;
+template<typename T, typename S>
+using View2D = Kokkos::View<T**,S>;
+template<typename T, typename S>
+using View3D = Kokkos::View<T***,S>;
+template<typename T, typename S>
+using View4D = Kokkos::View<T****,S>;
+
+// #ifdef USEOPENMP
+//     using EXE_SPACE = Kokkos::OpenMP;
+// #else
+//     using EXE_SPACE = Kokkos::Serial;
+// #endif
 // using EXE_SPACE = Kokkos::OpenMP;
 
 // template <typename T>

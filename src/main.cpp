@@ -11,101 +11,84 @@ using namespace SATADJUST;
 using namespace MP_DRIVER;
 
 
-/**
- * For result checking
- */
-// double CHECK_rhog  [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogvx[ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogvy[ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogvz[ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogw [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhoge [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QV1   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QC2   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QR3   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QI4   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QS5   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QG6   [ADM_lall][ADM_kall][ADM_gall_in];
-
 int main(int argc, char* argv[])
 {
 Kokkos::initialize(argc, argv);
 {
     // declare all variables
-    View<double***> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View<double****> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
-    View<double****> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View4D<double, Kokkos::CudaSpace> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View4D<double, Kokkos::CudaSpace> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
 
-    View<double****> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double****> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double****> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, Kokkos::CudaSpace> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, Kokkos::CudaSpace> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, Kokkos::CudaSpace> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View<double***> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View<double***> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View<double**> ix ("ix", ADM_lall, ADM_gall_in);
-    View<double**> iy ("iy", ADM_lall, ADM_gall_in);
-    View<double**> iz ("iz", ADM_lall, ADM_gall_in);
-    View<double**> jx ("jx", ADM_lall, ADM_gall_in);
-    View<double**> jy ("jy", ADM_lall, ADM_gall_in);
-    View<double**> jz ("jz", ADM_lall, ADM_gall_in);
+    View2D<double, Kokkos::CudaSpace> ix ("ix", ADM_lall, ADM_gall_in);
+    View2D<double, Kokkos::CudaSpace> iy ("iy", ADM_lall, ADM_gall_in);
+    View2D<double, Kokkos::CudaSpace> iz ("iz", ADM_lall, ADM_gall_in);
+    View2D<double, Kokkos::CudaSpace> jx ("jx", ADM_lall, ADM_gall_in);
+    View2D<double, Kokkos::CudaSpace> jy ("jy", ADM_lall, ADM_gall_in);
+    View2D<double, Kokkos::CudaSpace> jz ("jz", ADM_lall, ADM_gall_in);
 
-    View<double***> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View<double***> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View<double***> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
-
+    View3D<double, Kokkos::CudaSpace> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, Kokkos::CudaSpace> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
     /**
      * For result checking
      */
-    View<double***> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, Kokkos::HostSpace> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
     
     /**
      * Display Execution Configurations
@@ -127,229 +110,352 @@ Kokkos::initialize(argc, argv);
 
     std::cout << "============= Start Initialize =============== \n";
 
-    read_data_3d("data/rhog.dat", rhog);
-    read_data_3d("data/rhogvx.dat", rhogvx);
-    read_data_3d("data/rhogvy.dat", rhogvy);
-    read_data_3d("data/rhogvz.dat", rhogvz);
-    read_data_3d("data/rhogw.dat", rhogw);
-    read_data_3d("data/rhoge.dat", rhoge);
-    read_data_3d("data/vx.dat", vx);
-    read_data_3d("data/vy.dat", vy);
-    read_data_3d("data/vz.dat", vz);
-    read_data_3d("data/w.dat", w);
-    read_data_3d("data/unccn.dat", unccn);
-    read_data_3d("data/rho.dat", rho);
-    read_data_3d("data/pre.dat", pre);
-    read_data_3d("data/tem.dat", tem);
-
-    read_data_4d("data/rhogq_Lswp.dat", rhogq_Lswp);
-    read_data_4d("data/q_Lswp.dat", q_Lswp);
-
-    read_data_4d("data/precip_mp.dat", precip_mp);
-    read_data_4d("data/precip1_mp.dat", precip1_mp);
-    read_data_4d("data/precip2_mp.dat", precip2_mp);
-
-    read_data_3d("data/rhoein_precip_mp.dat", rhoein_precip_mp);
-    read_data_3d("data/lh_precip_mp.dat", lh_precip_mp);
-    read_data_3d("data/rhophi_precip_mp.dat", rhophi_precip_mp);
-    read_data_3d("data/rhokin_precip_mp.dat", rhokin_precip_mp);
-
-    read_data_3d("data/frhoge_af.dat", frhoge_af);
-    read_data_3d("data/frhogqv_af.dat", frhogqv_af);
-    read_data_3d("data/frhoge_rad.dat", frhoge_rad);
-    read_data_3d("data/qke.dat", qke);
-    read_data_3d("data/gsgam2.dat", gsgam2);
-    read_data_3d("data/gsgam2h.dat", gsgam2h);
-    read_data_3d("data/gam2.dat", gam2);
-    read_data_3d("data/gam2h.dat", gam2h);
-
-    read_data_2d("data/ix.dat", ix);
-    read_data_2d("data/iy.dat", iy);
-    read_data_2d("data/iz.dat", iz);
-    read_data_2d("data/jx.dat", jx);
-    read_data_2d("data/jy.dat", jy);
-    read_data_2d("data/jz.dat", jz);
-
-    read_data_3d("data/z.dat", z);
-    read_data_3d("data/zh.dat", zh);
-    read_data_3d("data/GPREC.dat", GPREC);
-    read_data_3d("data/CBMFX.dat", CBMFX);
-
     /**
-     * Vertical grid setup
+     * Create Host Mirror
      */
-    GRD_Setup();
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhog   = Kokkos::create_mirror_view(rhog  );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogvx = Kokkos::create_mirror_view(rhogvx);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogvy = Kokkos::create_mirror_view(rhogvy);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogvz = Kokkos::create_mirror_view(rhogvz);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogw  = Kokkos::create_mirror_view(rhogw );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhoge  = Kokkos::create_mirror_view(rhoge );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_vx     = Kokkos::create_mirror_view(vx    );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_vy     = Kokkos::create_mirror_view(vy    );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_vz     = Kokkos::create_mirror_view(vz    );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_w      = Kokkos::create_mirror_view(w     );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_unccn  = Kokkos::create_mirror_view(unccn );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rho    = Kokkos::create_mirror_view(rho   );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_pre    = Kokkos::create_mirror_view(pre   );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_tem    = Kokkos::create_mirror_view(tem   );
+
+    View4D<double, Kokkos::CudaSpace>::HostMirror h_rhogq_Lswp = Kokkos::create_mirror_view(rhogq_Lswp);
+    View4D<double, Kokkos::CudaSpace>::HostMirror h_q_Lswp     = Kokkos::create_mirror_view(q_Lswp    );
+
+    View4D<double, Kokkos::CudaSpace>::HostMirror h_precip_mp  = Kokkos::create_mirror_view(precip_mp );
+    View4D<double, Kokkos::CudaSpace>::HostMirror h_precip1_mp = Kokkos::create_mirror_view(precip1_mp);
+    View4D<double, Kokkos::CudaSpace>::HostMirror h_precip2_mp = Kokkos::create_mirror_view(precip2_mp);
+
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhoein_precip_mp = Kokkos::create_mirror_view(rhoein_precip_mp);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_lh_precip_mp     = Kokkos::create_mirror_view(lh_precip_mp    );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhophi_precip_mp = Kokkos::create_mirror_view(rhophi_precip_mp);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhokin_precip_mp = Kokkos::create_mirror_view(rhokin_precip_mp);
+
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_frhoge_af  = Kokkos::create_mirror_view(frhoge_af );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_frhogqv_af = Kokkos::create_mirror_view(frhogqv_af);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_frhoge_rad = Kokkos::create_mirror_view(frhoge_rad);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_qke        = Kokkos::create_mirror_view(qke       );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_gsgam2     = Kokkos::create_mirror_view(gsgam2    );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_gsgam2h    = Kokkos::create_mirror_view(gsgam2h   );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_gam2       = Kokkos::create_mirror_view(gam2      );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_gam2h      = Kokkos::create_mirror_view(gam2h     );
+
+    View2D<double, Kokkos::CudaSpace>::HostMirror h_ix = Kokkos::create_mirror_view(ix);
+    View2D<double, Kokkos::CudaSpace>::HostMirror h_iy = Kokkos::create_mirror_view(iy);
+    View2D<double, Kokkos::CudaSpace>::HostMirror h_iz = Kokkos::create_mirror_view(iz);
+    View2D<double, Kokkos::CudaSpace>::HostMirror h_jx = Kokkos::create_mirror_view(jx);
+    View2D<double, Kokkos::CudaSpace>::HostMirror h_jy = Kokkos::create_mirror_view(jy);
+    View2D<double, Kokkos::CudaSpace>::HostMirror h_jz = Kokkos::create_mirror_view(jz);
+
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_z           = Kokkos::create_mirror_view(z          );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_zh          = Kokkos::create_mirror_view(zh         );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_GPREC       = Kokkos::create_mirror_view(GPREC      );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_CBMFX       = Kokkos::create_mirror_view(CBMFX      );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_qd          = Kokkos::create_mirror_view(qd         );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rceff       = Kokkos::create_mirror_view(rceff      );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rceff_solid = Kokkos::create_mirror_view(rceff_solid);
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rceff_cld   = Kokkos::create_mirror_view(rceff_cld  );
+
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rctop  = Kokkos::create_mirror_view(rctop );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_rwtop  = Kokkos::create_mirror_view(rwtop );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_tctop  = Kokkos::create_mirror_view(tctop );
+
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_GDCLW  = Kokkos::create_mirror_view(GDCLW );
+    View3D<double, Kokkos::CudaSpace>::HostMirror h_GDCFRC = Kokkos::create_mirror_view(GDCFRC);
+
+    read_data_3d("data/rhog.dat",   h_rhog);
+    read_data_3d("data/rhogvx.dat", h_rhogvx);
+    read_data_3d("data/rhogvy.dat", h_rhogvy);
+    read_data_3d("data/rhogvz.dat", h_rhogvz);
+    read_data_3d("data/rhogw.dat",  h_rhogw);
+    read_data_3d("data/rhoge.dat",  h_rhoge);
+    read_data_3d("data/vx.dat",     h_vx);
+    read_data_3d("data/vy.dat",     h_vy);
+    read_data_3d("data/vz.dat",     h_vz);
+    read_data_3d("data/w.dat",      h_w);
+    read_data_3d("data/unccn.dat",  h_unccn);
+    read_data_3d("data/rho.dat",    h_rho);
+    read_data_3d("data/pre.dat",    h_pre);
+    read_data_3d("data/tem.dat",    h_tem);
+
+    read_data_4d("data/rhogq_Lswp.dat", h_rhogq_Lswp);
+    read_data_4d("data/q_Lswp.dat",     h_q_Lswp);
+
+    read_data_4d("data/precip_mp.dat",  h_precip_mp);
+    read_data_4d("data/precip1_mp.dat", h_precip1_mp);
+    read_data_4d("data/precip2_mp.dat", h_precip2_mp);
+
+    read_data_3d("data/rhoein_precip_mp.dat", h_rhoein_precip_mp);
+    read_data_3d("data/lh_precip_mp.dat",     h_lh_precip_mp);
+    read_data_3d("data/rhophi_precip_mp.dat", h_rhophi_precip_mp);
+    read_data_3d("data/rhokin_precip_mp.dat", h_rhokin_precip_mp);
+
+    read_data_3d("data/frhoge_af.dat",  h_frhoge_af);
+    read_data_3d("data/frhogqv_af.dat", h_frhogqv_af);
+    read_data_3d("data/frhoge_rad.dat", h_frhoge_rad);
+    read_data_3d("data/qke.dat",     h_qke);
+    read_data_3d("data/gsgam2.dat",  h_gsgam2);
+    read_data_3d("data/gsgam2h.dat", h_gsgam2h);
+    read_data_3d("data/gam2.dat",    h_gam2);
+    read_data_3d("data/gam2h.dat",   h_gam2h);
+
+    read_data_2d("data/ix.dat", h_ix);
+    read_data_2d("data/iy.dat", h_iy);
+    read_data_2d("data/iz.dat", h_iz);
+    read_data_2d("data/jx.dat", h_jx);
+    read_data_2d("data/jy.dat", h_jy);
+    read_data_2d("data/jz.dat", h_jz);
+
+    read_data_3d("data/z.dat",  h_z);
+    read_data_3d("data/zh.dat", h_zh);
+    read_data_3d("data/GPREC.dat", h_GPREC);
+    read_data_3d("data/CBMFX.dat", h_CBMFX);
+
+    // copy data from host to device
+    Kokkos::fence();
+    Kokkos::deep_copy(rhog  , h_rhog   );
+    Kokkos::deep_copy(rhogvx, h_rhogvx );
+    Kokkos::deep_copy(rhogvy, h_rhogvy );
+    Kokkos::deep_copy(rhogvz, h_rhogvz );
+    Kokkos::deep_copy(rhogw , h_rhogw  );
+    Kokkos::deep_copy(rhoge , h_rhoge  );
+    Kokkos::deep_copy(vx    , h_vx     );
+    Kokkos::deep_copy(vy    , h_vy     );
+    Kokkos::deep_copy(vz    , h_vz     );
+    Kokkos::deep_copy(w     , h_w      );
+    Kokkos::deep_copy(unccn , h_unccn  );
+    Kokkos::deep_copy(rho   , h_rho    );
+    Kokkos::deep_copy(pre   , h_pre    );
+    Kokkos::deep_copy(tem   , h_tem    );
+
+    Kokkos::deep_copy(rhogq_Lswp, h_rhogq_Lswp);
+    Kokkos::deep_copy(q_Lswp    , h_q_Lswp    );
+
+    Kokkos::deep_copy(precip_mp , h_precip_mp );
+    Kokkos::deep_copy(precip1_mp, h_precip1_mp);
+    Kokkos::deep_copy(precip2_mp, h_precip2_mp);
+
+    Kokkos::deep_copy(rhoein_precip_mp, h_rhoein_precip_mp );
+    Kokkos::deep_copy(lh_precip_mp    , h_lh_precip_mp     );
+    Kokkos::deep_copy(rhophi_precip_mp, h_rhophi_precip_mp );
+    Kokkos::deep_copy(rhokin_precip_mp, h_rhokin_precip_mp );
+
+    Kokkos::deep_copy(frhoge_af , h_frhoge_af );
+    Kokkos::deep_copy(frhogqv_af, h_frhogqv_af);
+    Kokkos::deep_copy(frhoge_rad, h_frhoge_rad);
+    Kokkos::deep_copy(qke       , h_qke       );
+    Kokkos::deep_copy(gsgam2    , h_gsgam2    );
+    Kokkos::deep_copy(gsgam2h   , h_gsgam2h   );
+    Kokkos::deep_copy(gam2      , h_gam2      );
+    Kokkos::deep_copy(gam2h     , h_gam2h     );
+
+    Kokkos::deep_copy(ix, h_ix);
+    Kokkos::deep_copy(iy, h_iy);
+    Kokkos::deep_copy(iz, h_iz);
+    Kokkos::deep_copy(jx, h_jx);
+    Kokkos::deep_copy(jy, h_jy);
+    Kokkos::deep_copy(jz, h_jz);
+
+    Kokkos::deep_copy(z          , h_z          );
+    Kokkos::deep_copy(zh         , h_zh         );
+    Kokkos::deep_copy(GPREC      , h_GPREC      );
+    Kokkos::deep_copy(CBMFX      , h_CBMFX      );
+    Kokkos::deep_copy(qd         , h_qd         );
+    Kokkos::deep_copy(rceff      , h_rceff      );
+    Kokkos::deep_copy(rceff_solid, h_rceff_solid);
+    Kokkos::deep_copy(rceff_cld  , h_rceff_cld  );
+
+    Kokkos::deep_copy(rctop, h_rctop);
+    Kokkos::deep_copy(rwtop, h_rwtop);
+    Kokkos::deep_copy(tctop, h_tctop);
+
+    Kokkos::deep_copy(GDCLW , h_GDCLW );
+    Kokkos::deep_copy(GDCFRC, h_GDCFRC);
+    Kokkos::fence();
+    // /**
+    //  * Vertical grid setup
+    //  */
+    // GRD_Setup();
     // /**
     //  * Saturation set_up
     //  */
-    SATURATION_Setup();
+    // SATURATION_Setup();
     // /**
     //  * microphysics initialization
     //  */
-    mp_init(MP_TYPE);
+    // mp_init(MP_TYPE);
 
-    int l = SET_l;
+    // int l = SET_l;
 
-    std::cout << "============= Finish Initialize =============== \n";
+    // std::cout << "============= Finish Initialize =============== \n";
 
     // /**
     //  * Start Simulation
     // */
-    std::cout << "============= Start Kernel =============== \n";
+    // std::cout << "============= Start Kernel =============== \n";
 
     // /**
     //  * create sub views:
     //  */
-    auto sub_rhog   = subview(rhog  , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rhogvx = subview(rhogvx, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rhogvy = subview(rhogvy, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rhogvz = subview(rhogvz, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rhogw  = subview(rhogw , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rhoge  = subview(rhoge , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_vx     = subview(vx    , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_vy     = subview(vy    , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_vz     = subview(vz    , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_w      = subview(w     , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_unccn  = subview(unccn , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rho    = subview(rho   , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_pre    = subview(pre   , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_tem    = subview(tem   , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhog   = subview(rhog  , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhogvx = subview(rhogvx, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhogvy = subview(rhogvy, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhogvz = subview(rhogvz, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhogw  = subview(rhogw , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhoge  = subview(rhoge , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_vx     = subview(vx    , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_vy     = subview(vy    , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_vz     = subview(vz    , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_w      = subview(w     , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_unccn  = subview(unccn , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rho    = subview(rho   , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_pre    = subview(pre   , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_tem    = subview(tem   , 0, Kokkos::ALL(), Kokkos::ALL());
 
-    auto sub_rhogq_Lswp = subview(rhogq_Lswp, 0, Kokkos::ALL(), Kokkos::ALL(), Kokkos::ALL());
-    auto sub_q_Lswp     = subview(q_Lswp    , 0, Kokkos::ALL(), Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rhogq_Lswp = subview(rhogq_Lswp, 0, Kokkos::ALL(), Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_q_Lswp     = subview(q_Lswp    , 0, Kokkos::ALL(), Kokkos::ALL(), Kokkos::ALL());
 
-    auto sub_precip_mp  = subview(precip_mp , Kokkos::ALL(), 0, 0, Kokkos::ALL());
-    auto sub_precip1_mp = subview(precip1_mp, Kokkos::ALL(), 0, 0, Kokkos::ALL());
-    auto sub_precip2_mp = subview(precip2_mp, Kokkos::ALL(), 0, 0, Kokkos::ALL());
+    // auto sub_precip_mp  = subview(precip_mp , Kokkos::ALL(), 0, 0, Kokkos::ALL());
+    // auto sub_precip1_mp = subview(precip1_mp, Kokkos::ALL(), 0, 0, Kokkos::ALL());
+    // auto sub_precip2_mp = subview(precip2_mp, Kokkos::ALL(), 0, 0, Kokkos::ALL());
 
-    auto sub_rhoein_precip_mp = subview(rhoein_precip_mp, 0, 0, Kokkos::ALL());
-    auto sub_lh_precip_mp     = subview(lh_precip_mp    , 0, 0, Kokkos::ALL());
-    auto sub_rhophi_precip_mp = subview(rhophi_precip_mp, 0, 0, Kokkos::ALL());
-    auto sub_rhokin_precip_mp = subview(rhokin_precip_mp, 0, 0, Kokkos::ALL());
+    // auto sub_rhoein_precip_mp = subview(rhoein_precip_mp, 0, 0, Kokkos::ALL());
+    // auto sub_lh_precip_mp     = subview(lh_precip_mp    , 0, 0, Kokkos::ALL());
+    // auto sub_rhophi_precip_mp = subview(rhophi_precip_mp, 0, 0, Kokkos::ALL());
+    // auto sub_rhokin_precip_mp = subview(rhokin_precip_mp, 0, 0, Kokkos::ALL());
 
-    auto sub_frhoge_af  = subview(frhoge_af , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_frhogqv_af = subview(frhogqv_af, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_frhoge_rad = subview(frhoge_rad, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_qke        = subview(qke       , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_gsgam2     = subview(gsgam2    , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_gsgam2h    = subview(gsgam2h   , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_gam2       = subview(gam2      , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_gam2h      = subview(gam2h     , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_frhoge_af  = subview(frhoge_af , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_frhogqv_af = subview(frhogqv_af, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_frhoge_rad = subview(frhoge_rad, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_qke        = subview(qke       , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_gsgam2     = subview(gsgam2    , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_gsgam2h    = subview(gsgam2h   , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_gam2       = subview(gam2      , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_gam2h      = subview(gam2h     , 0, Kokkos::ALL(), Kokkos::ALL());
 
-    auto sub_ix = subview(ix, 0, Kokkos::ALL());
-    auto sub_iy = subview(iy, 0, Kokkos::ALL());
-    auto sub_iz = subview(iz, 0, Kokkos::ALL());
-    auto sub_jx = subview(jx, 0, Kokkos::ALL());
-    auto sub_jy = subview(jy, 0, Kokkos::ALL());
-    auto sub_jz = subview(jz, 0, Kokkos::ALL());
+    // auto sub_ix = subview(ix, 0, Kokkos::ALL());
+    // auto sub_iy = subview(iy, 0, Kokkos::ALL());
+    // auto sub_iz = subview(iz, 0, Kokkos::ALL());
+    // auto sub_jx = subview(jx, 0, Kokkos::ALL());
+    // auto sub_jy = subview(jy, 0, Kokkos::ALL());
+    // auto sub_jz = subview(jz, 0, Kokkos::ALL());
 
-    auto sub_z           = subview(z           , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_zh          = subview(zh          , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_GPREC       = subview(GPREC       , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_CBMFX       = subview(CBMFX       , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_qd          = subview(qd          , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rceff       = subview(rceff       , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rceff_solid = subview(rceff_solid , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rceff_cld   = subview(rceff_cld   , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_z           = subview(z           , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_zh          = subview(zh          , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_GPREC       = subview(GPREC       , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_CBMFX       = subview(CBMFX       , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_qd          = subview(qd          , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rceff       = subview(rceff       , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rceff_solid = subview(rceff_solid , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rceff_cld   = subview(rceff_cld   , 0, Kokkos::ALL(), Kokkos::ALL());
 
-    auto sub_rctop = subview(rctop, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_rwtop = subview(rwtop, 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_tctop = subview(tctop, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rctop = subview(rctop, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_rwtop = subview(rwtop, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_tctop = subview(tctop, 0, Kokkos::ALL(), Kokkos::ALL());
 
-    auto sub_GDCLW  = subview(GDCLW , 0, Kokkos::ALL(), Kokkos::ALL());
-    auto sub_GDCFRC = subview(GDCFRC, 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_GDCLW  = subview(GDCLW , 0, Kokkos::ALL(), Kokkos::ALL());
+    // auto sub_GDCFRC = subview(GDCFRC, 0, Kokkos::ALL(), Kokkos::ALL());
 
-    for(int i = 0; i < SET_iteration; i++)
-    {
-        // Call mp_driver
-        mp_driver(
-                  l,
-                  sub_rhog             ,
-                  sub_rhogvx           ,
-                  sub_rhogvy           ,
-                  sub_rhogvz           ,
-                  sub_rhogw            ,
-                  sub_rhoge            ,
-                  sub_rhogq_Lswp       ,
-                  sub_vx               ,
-                  sub_vy               ,
-                  sub_vz               ,
-                  sub_w                ,
-                  sub_unccn            ,
-                  sub_rho              ,
-                  sub_tem              ,
-                  sub_pre              ,
-                  sub_q_Lswp           ,
-                  sub_qd               ,
-                  sub_precip_mp        ,  
-                  sub_precip1_mp       ,
-                  sub_precip2_mp       ,
-                  sub_rhoein_precip_mp ,
-                  sub_lh_precip_mp     ,
-                  sub_rhophi_precip_mp ,
-                  sub_rhokin_precip_mp ,
-                  sub_rceff            ,
-                  sub_rceff_solid      ,
-                  sub_rceff_cld        ,
-                  sub_rctop            ,
-                  sub_rwtop            ,
-                  sub_tctop            ,
-                  sub_frhoge_af        ,
-                  sub_frhogqv_af       ,
-                  sub_frhoge_rad       ,
-                  sub_qke              ,
-                  sub_gsgam2           ,
-                  sub_gsgam2h          ,
-                  sub_gam2             ,
-                  sub_gam2h            ,
-                  sub_ix               ,
-                  sub_iy               ,
-                  sub_iz               ,
-                  sub_jx               ,
-                  sub_jy               ,
-                  sub_jz               ,
-                  sub_z                ,
-                  sub_zh               ,
-                  TIME_DTL,
-                  TIME_CTIME,
-                  sub_GDCLW            ,
-                  sub_GDCFRC           ,
-                  sub_GPREC            ,
-                  sub_CBMFX           
-                  );
-    }
-    std::cout << "============= Finish Kernel =============== \n";
+    // for(int i = 0; i < SET_iteration; i++)
+    // {
+    //     // Call mp_driver
+    //     mp_driver(
+    //               l,
+    //               sub_rhog             ,
+    //               sub_rhogvx           ,
+    //               sub_rhogvy           ,
+    //               sub_rhogvz           ,
+    //               sub_rhogw            ,
+    //               sub_rhoge            ,
+    //               sub_rhogq_Lswp       ,
+    //               sub_vx               ,
+    //               sub_vy               ,
+    //               sub_vz               ,
+    //               sub_w                ,
+    //               sub_unccn            ,
+    //               sub_rho              ,
+    //               sub_tem              ,
+    //               sub_pre              ,
+    //               sub_q_Lswp           ,
+    //               sub_qd               ,
+    //               sub_precip_mp        ,  
+    //               sub_precip1_mp       ,
+    //               sub_precip2_mp       ,
+    //               sub_rhoein_precip_mp ,
+    //               sub_lh_precip_mp     ,
+    //               sub_rhophi_precip_mp ,
+    //               sub_rhokin_precip_mp ,
+    //               sub_rceff            ,
+    //               sub_rceff_solid      ,
+    //               sub_rceff_cld        ,
+    //               sub_rctop            ,
+    //               sub_rwtop            ,
+    //               sub_tctop            ,
+    //               sub_frhoge_af        ,
+    //               sub_frhogqv_af       ,
+    //               sub_frhoge_rad       ,
+    //               sub_qke              ,
+    //               sub_gsgam2           ,
+    //               sub_gsgam2h          ,
+    //               sub_gam2             ,
+    //               sub_gam2h            ,
+    //               sub_ix               ,
+    //               sub_iy               ,
+    //               sub_iz               ,
+    //               sub_jx               ,
+    //               sub_jy               ,
+    //               sub_jz               ,
+    //               sub_z                ,
+    //               sub_zh               ,
+    //               TIME_DTL,
+    //               TIME_CTIME,
+    //               sub_GDCLW            ,
+    //               sub_GDCFRC           ,
+    //               sub_GPREC            ,
+    //               sub_CBMFX           
+    //               );
+    // }
+    // std::cout << "============= Finish Kernel =============== \n";
 
-    if (SET_check)
-    {
-        std::cout << "Checking Reuslts \n";
+    // if (SET_check)
+    // {
+    //     std::cout << "Checking Reuslts \n";
 
-        read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
-        read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
-        read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
-        read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
-        read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
-        read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
-        read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
-        read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
-        read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
-        read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
-        read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
-        read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
+    //     read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
+    //     read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
+    //     read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
+    //     read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
+    //     read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
+    //     read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
+    //     read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
+    //     read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
+    //     read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
+    //     read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
+    //     read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
+    //     read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
 
-        PROF_val_check("rhog",   rhog,   CHECK_rhog);
-        PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
-        PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
-        PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
-        PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
-        PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
-        PROF_val_check("QV", rhogq_Lswp, I_QV, CHECK_QV1);
-        PROF_val_check("QC", rhogq_Lswp, I_QC, CHECK_QC2);
-        PROF_val_check("QR", rhogq_Lswp, I_QR, CHECK_QR3);
-        PROF_val_check("QI", rhogq_Lswp, I_QI, CHECK_QI4);
-        PROF_val_check("QS", rhogq_Lswp, I_QS, CHECK_QS5);
-        PROF_val_check("QG", rhogq_Lswp, I_QG, CHECK_QG6);
-    }
+    //     PROF_val_check("rhog",   rhog,   CHECK_rhog);
+    //     PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
+    //     PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
+    //     PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
+    //     PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
+    //     PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
+    //     PROF_val_check("QV", rhogq_Lswp, I_QV, CHECK_QV1);
+    //     PROF_val_check("QC", rhogq_Lswp, I_QC, CHECK_QC2);
+    //     PROF_val_check("QR", rhogq_Lswp, I_QR, CHECK_QR3);
+    //     PROF_val_check("QI", rhogq_Lswp, I_QI, CHECK_QI4);
+    //     PROF_val_check("QS", rhogq_Lswp, I_QS, CHECK_QS5);
+    //     PROF_val_check("QG", rhogq_Lswp, I_QG, CHECK_QG6);
+    // }
 
     std::cout << "============= All process finished =============== \n";
 }
