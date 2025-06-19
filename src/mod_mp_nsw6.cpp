@@ -660,6 +660,7 @@ void mp_nsw6(
         {
         int veclen = std::min(ijdim - blk, simdlen);
         // for(int ij = 0; ij < ijdim; ij++)
+        #pragma omp simd simdlen(8)
         for(int vec = 0; vec < veclen; vec++)
         {
             int ij = blk + vec;

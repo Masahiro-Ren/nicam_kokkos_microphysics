@@ -465,34 +465,34 @@ shared(ijdim,kmin,kmax,tem,q,qd,rho,Emoist,qsum,CPovR_liq,CVovR_liq,LovR_liq,\
 } // end omp region
 
     // find sum, max in one time
-    for(int k = kmin; k <= kmax; k++)
-    {
-        for(int ij = 0; ij < ijdim; ij++)
-        {
-            sat_ite_sum += ite_temp[k][ij];
-            if(sat_ite_max < ite_temp[k][ij]) sat_ite_max = ite_temp[k][ij];
-        }
-    }
+    // for(int k = kmin; k <= kmax; k++)
+    // {
+    //     for(int ij = 0; ij < ijdim; ij++)
+    //     {
+    //         sat_ite_sum += ite_temp[k][ij];
+    //         if(sat_ite_max < ite_temp[k][ij]) sat_ite_max = ite_temp[k][ij];
+    //     }
+    // }
 
-    for(int k = kmin; k <= kmax; k++)
-    {
-        for(int ij = 0; ij < ijdim; ij++)
-        {
-            if(ite_temp[k][ij] != 0)
-                sat_ite_count += 1;
-            else
-                ite_temp[k][ij] = itelim;
-        }
-    }
+    // for(int k = kmin; k <= kmax; k++)
+    // {
+    //     for(int ij = 0; ij < ijdim; ij++)
+    //     {
+    //         if(ite_temp[k][ij] != 0)
+    //             sat_ite_count += 1;
+    //         else
+    //             ite_temp[k][ij] = itelim;
+    //     }
+    // }
 
-    // find min value
-    for(int k = kmin; k <= kmax; k++)
-    {
-        for(int ij = 0; ij < ijdim; ij++)
-        {
-            if(sat_ite_min > ite_temp[k][ij] || sat_ite_min < 0) sat_ite_min = ite_temp[k][ij];
-        }
-    }
+    // // find min value
+    // for(int k = kmin; k <= kmax; k++)
+    // {
+    //     for(int ij = 0; ij < ijdim; ij++)
+    //     {
+    //         if(sat_ite_min > ite_temp[k][ij] || sat_ite_min < 0) sat_ite_min = ite_temp[k][ij];
+    //     }
+    // }
 
 }
 
