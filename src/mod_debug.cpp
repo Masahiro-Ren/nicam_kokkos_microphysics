@@ -191,8 +191,11 @@ namespace DEBUG {
 #endif
 
         size_t gall = ijdim;
-
+    
+    #pragma omp parallel default(none) shared(gall,kmin,kmax,rhog,rhogvx,rhogvy,rhogvz,rhogw,rhogkin,rhogkin_h,rhogkin_v,C2Wfact,W2Cfact)
+    {
         // --- horizontal kinetic energy
+        #pragma omp for
         for(int k = kmin; k <= kmax; k++)
         {
             for(int g = 0; g < gall; g++)
@@ -203,6 +206,7 @@ namespace DEBUG {
             }
         }
 
+        #pragma omp for
         for(int g = 0; g < gall; g++)
         {
             rhogkin_h[kmin - 1][g] = 0.0;
@@ -210,6 +214,7 @@ namespace DEBUG {
         }
 
         // --- vertical kinetic energy
+        #pragma omp for
         for(int k = kmin + 1; k <= kmax; k++)
         {
             for(int g = 0; g < gall; g++)
@@ -220,6 +225,7 @@ namespace DEBUG {
             }
         }
 
+        #pragma omp for
         for(int g = 0; g < gall; g++)
         {
             rhogkin_v[kmin - 1][g] = 0.0;
@@ -228,6 +234,7 @@ namespace DEBUG {
         }
 
         // -- total kinetic energy
+        #pragma omp for
         for(int k = kmin; k <= kmax; k++)
         {
             for(int g = 0; g < gall; g++)
@@ -238,11 +245,13 @@ namespace DEBUG {
             }
         }
 
+        #pragma omp for
         for(int g = 0; g < gall; g++)
         {
             rhogkin[kmin - 1][g] = 0.0;
             rhogkin[kmax + 1][g] = 0.0;
         }
+    } // end of omp region
 
     }
 

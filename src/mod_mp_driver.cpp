@@ -109,8 +109,15 @@ void mp_driver( int l_region,
 	double fraction_mp = 1.0 / double(MP_DIV_NUM); // 1 / MP_DIV_NUM
 	double dt_mp = dt * fraction_mp;
 
+	#pragma omp parallel default(none) \
+	shared(nqmax,kdim,ijdim,precip_sum,ISO1_precip_sum,ISO2_precip_sum,\
+		   precip_trc_sum,\
+		   GDCLW_sum,GDCFRC_sum,GPREC_sum,\
+		   precip_rhoe_sum,precip_lh_heat_sum,precip_rhophi_sum,precip_rhokin_sum)
+	{
 	for(int k = 0; k < 2; k++)
 	{
+		#pragma omp for
 		for(int ij = 0; ij < ijdim; ij++)
 		{
 			precip_sum[k][ij] = 0.0;
@@ -120,11 +127,14 @@ void mp_driver( int l_region,
 	}
 	for(int nq = 0; nq < nqmax; nq++)
 	{
+		#pragma omp for
 		for(int ij = 0; ij < ijdim; ij++)
 		{
 			precip_trc_sum[nq][ij] = 0.0;
 		}
 	}
+	
+	#pragma omp for
 	for(int k = 0; k < kdim; k++)
 	{
 		for(int ij = 0; ij < ijdim; ij++)
@@ -134,6 +144,8 @@ void mp_driver( int l_region,
 			GPREC_sum[k][ij] = 0.0;
 		}
 	}
+
+	#pragma omp for
 	for(int ij = 0; ij < ijdim; ij++)
 	{
 		precip_rhoe_sum[ij] = 0.0;
@@ -141,6 +153,7 @@ void mp_driver( int l_region,
 		precip_rhophi_sum [ij] = 0.0;
 		precip_rhokin_sum [ij] = 0.0;
 	}
+	} // end omp region
 
 	// memset(precip_sum,         0, sizeof(precip_sum));
 	// memset(ISO1_precip_sum,    0, sizeof(ISO1_precip_sum));
@@ -156,6 +169,7 @@ void mp_driver( int l_region,
 
 	if(MP_TYPE != "NDW6")
 	{
+		#pragma omp parallel for default(none) shared(kdim,ijdim,re_rain,re_ice,re_snow,re_graupel,CONST_UNDEF)
 		for(int k = 0; k < kdim; k++)
 		{
 			for(int ij = 0; ij < ijdim; ij++)
@@ -171,8 +185,15 @@ void mp_driver( int l_region,
 
 	for(int m = 0; m < MP_DIV_NUM; m++)
 	{
+		#pragma omp parallel default(none) \
+		shared(nqmax,kdim,ijdim,precip,ISO1_precip,ISO2_precip,\
+		       precip_trc,\
+			   GDCLW,GDCFRC,GPREC,\
+			   precip_rhoe,precip_lh_heat,precip_rhophi,precip_rhokin)
+		{
 		for(int k = 0; k < 2; k++)
 		{
+			#pragma omp for
 			for(int ij = 0; ij < ijdim; ij++)
 			{
 				precip     [k][ij] = 0.0;
@@ -182,11 +203,13 @@ void mp_driver( int l_region,
 		}
 		for(int nq = 0; nq < nqmax; nq++)
 		{
+			#pragma omp for
 			for(int ij = 0; ij < ijdim; ij++)
 			{
 				precip_trc[nq][ij] = 0.0;
 			}
 		}
+		#pragma omp for
 		for(int k = 0; k < kdim; k++)
 		{
 			for(int ij = 0; ij < ijdim; ij++)
@@ -196,6 +219,7 @@ void mp_driver( int l_region,
 				GPREC [k][ij] = 0.0;
 			}
 		}
+		#pragma omp for
 		for(int ij = 0; ij < ijdim; ij++)
 		{
 			precip_rhoe   [ij] = 0.0;
@@ -203,9 +227,11 @@ void mp_driver( int l_region,
 			precip_rhophi [ij] = 0.0;
 			precip_rhokin [ij] = 0.0;
 		}
+		} // end omp region
 
 		if(MP_TYPE == "NONE")
 		{
+			#pragma omp parallel for default(none) shared(kdim,ijdim,re_liquid,re_solid)
 			for(int k = 0; k < kdim; k++)
 			{
 				for(int ij = 0; ij < ijdim; ij++)
@@ -262,13 +288,24 @@ void mp_driver( int l_region,
 					z,
 					dt_mp);
 
+			#pragma omp parallel for shared(kdim,ijdim,re_solid)
 			for(int k = 0; k < kdim; k++)
 				for(int ij = 0; ij < ijdim; ij++)
 					re_solid[k][ij] = 20.0E-6;
 		}
 
+		#pragma omp parallel default(none) \
+		shared(nqmax,kdim,ijdim,\
+		       precip_sum,ISO1_precip_sum,ISO2_precip_sum,\
+			   precip_rhoe_sum,precip_lh_heat_sum,precip_rhophi_sum,precip_rhokin_sum,\
+			   precip_trc_sum,GDCLW_sum,GDCFRC_sum,GPREC_sum,\
+			   precip,ISO1_precip,ISO2_precip,\
+			   precip_rhoe,precip_lh_heat,precip_rhophi,precip_rhokin,\
+			   precip_trc,GDCLW,GDCFRC,GPREC)
+		{
 		for(int k = 0; k < 2; k++)
 		{
+			#pragma omp for
 			for(int ij = 0; ij < ijdim; ij++)
 			{
 				precip_sum[k][ij]      += precip[k][ij];
@@ -276,6 +313,7 @@ void mp_driver( int l_region,
 				ISO2_precip_sum[k][ij] += ISO2_precip[k][ij];
 			}
 		}
+		#pragma omp for
 		for(int ij = 0; ij < ijdim; ij++)
 		{
 			precip_rhoe_sum[ij]    += precip_rhoe[ij];
@@ -285,9 +323,11 @@ void mp_driver( int l_region,
 		}
 
 		for(int nq = 0; nq < nqmax; nq++)
+			#pragma omp for
 			for(int ij = 0; ij < ijdim; ij++)
 				precip_trc_sum[nq][ij] += precip_trc[nq][ij];
 
+		#pragma omp for
 		for(int k = 0; k < kdim; k++)
 		{
 			for(int ij = 0; ij < ijdim; ij++)
@@ -297,10 +337,21 @@ void mp_driver( int l_region,
 				GPREC_sum [k][ij] += GPREC[k][ij];
 			}
 		}
+		} // end omp region
 	}
 
+	#pragma omp parallel default(none) \
+	shared(nqmax,kdim,ijdim,fraction_mp,\
+	       precip,ISO1_precip,ISO2_precip,\
+		   precip_rhoe,precip_lh_heat,precip_rhophi,precip_rhokin,\
+		   precip_trc,GDCLW,GDCFRC,GPREC,\
+		   precip_sum,ISO1_precip_sum,ISO2_precip_sum,\
+		   precip_rhoe_sum,precip_lh_heat_sum,precip_rhophi_sum,precip_rhokin_sum,\
+		   precip_trc_sum,GDCLW_sum,GDCFRC_sum,GPREC_sum)
+	{
 	for(int k = 0; k < 2; k++)
 	{
+		#pragma omp for
 		for(int ij = 0; ij < ijdim; ij++)
 		{
 			precip[k][ij]      = precip_sum[k][ij] * fraction_mp;
@@ -308,6 +359,7 @@ void mp_driver( int l_region,
 			ISO2_precip[k][ij] = ISO2_precip_sum[k][ij] * fraction_mp;
 		}
 	}
+	#pragma omp for
 	for(int ij = 0; ij < ijdim; ij++)
 	{
 		precip_rhoe[ij]    = precip_rhoe_sum[ij] * fraction_mp;
@@ -316,9 +368,11 @@ void mp_driver( int l_region,
 		precip_rhokin [ij] = precip_rhokin_sum[ij] * fraction_mp;
 	}
 	for(int nq = 0; nq < nqmax; nq++)
+		#pragma omp for
 		for(int ij = 0; ij < ijdim; ij++)
 			precip_trc[nq][ij] += precip_trc_sum[nq][ij] * fraction_mp;
 
+	#pragma omp for
 	for(int k = 0; k < kdim; k++)
 	{
 		for(int ij = 0; ij < ijdim; ij++)
@@ -328,6 +382,7 @@ void mp_driver( int l_region,
 			GPREC [k][ij] = GPREC_sum[k][ij] * fraction_mp;
 		}
 	}
+	} // end omp region
 
 }
 
