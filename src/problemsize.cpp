@@ -14,6 +14,17 @@ double GRD_afact[ADM_kall];
 double GRD_bfact[ADM_kall];
 double GRD_cfact[ADM_kall];
 double GRD_dfact[ADM_kall];
+// view version of grd, gmtr, vmtr
+View1D<double, Kokkos::CudaSpace> d_GRD_gz   ;
+View1D<double, Kokkos::CudaSpace> d_GRD_gzh  ;
+View1D<double, Kokkos::CudaSpace> d_GRD_dgz  ;
+View1D<double, Kokkos::CudaSpace> d_GRD_dgzh ;
+View1D<double, Kokkos::CudaSpace> d_GRD_rdgz ;
+View1D<double, Kokkos::CudaSpace> d_GRD_rdgzh;
+View1D<double, Kokkos::CudaSpace> d_GRD_afact;
+View1D<double, Kokkos::CudaSpace> d_GRD_bfact;
+View1D<double, Kokkos::CudaSpace> d_GRD_cfact;
+View1D<double, Kokkos::CudaSpace> d_GRD_dfact;
 
 // define run conf
 std::string EIN_TYPE     = "SIMPLE";

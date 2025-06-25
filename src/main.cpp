@@ -74,6 +74,29 @@ Kokkos::initialize(argc, argv);
 
     View3D<double, Kokkos::CudaSpace> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
     View3D<double, Kokkos::CudaSpace> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
+
+    // init views of GRD
+    // View1D<double, Kokkos::CudaSpace> d_GRD_gz   ("GRD_gz   ", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_gzh  ("GRD_gzh  ", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_dgz  ("GRD_dgz  ", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_dgzh ("GRD_dgzh ", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_rdgz ("GRD_rdgz ", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_rdgzh("GRD_rdgzh", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_afact("GRD_afact", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_bfact("GRD_bfact", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_cfact("GRD_cfact", ADM_kall);
+    // View1D<double, Kokkos::CudaSpace> d_GRD_dfact("GRD_dfact", ADM_kall);
+    d_GRD_gz   = View1D<double, Kokkos::CudaSpace> ("GRD_gz   ", ADM_kall);
+    d_GRD_gzh  = View1D<double, Kokkos::CudaSpace> ("GRD_gzh  ", ADM_kall);
+    d_GRD_dgz  = View1D<double, Kokkos::CudaSpace> ("GRD_dgz  ", ADM_kall);
+    d_GRD_dgzh = View1D<double, Kokkos::CudaSpace> ("GRD_dgzh ", ADM_kall);
+    d_GRD_rdgz = View1D<double, Kokkos::CudaSpace> ("GRD_rdgz ", ADM_kall);
+    d_GRD_rdgzh= View1D<double, Kokkos::CudaSpace> ("GRD_rdgzh", ADM_kall);
+    d_GRD_afact= View1D<double, Kokkos::CudaSpace> ("GRD_afact", ADM_kall);
+    d_GRD_bfact= View1D<double, Kokkos::CudaSpace> ("GRD_bfact", ADM_kall);
+    d_GRD_cfact= View1D<double, Kokkos::CudaSpace> ("GRD_cfact", ADM_kall);
+    d_GRD_dfact= View1D<double, Kokkos::CudaSpace> ("GRD_dfact", ADM_kall);
+
     /**
      * For result checking
      */
@@ -113,64 +136,65 @@ Kokkos::initialize(argc, argv);
     /**
      * Create Host Mirror
      */
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhog   = Kokkos::create_mirror_view(rhog  );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogvx = Kokkos::create_mirror_view(rhogvx);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogvy = Kokkos::create_mirror_view(rhogvy);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogvz = Kokkos::create_mirror_view(rhogvz);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhogw  = Kokkos::create_mirror_view(rhogw );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhoge  = Kokkos::create_mirror_view(rhoge );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_vx     = Kokkos::create_mirror_view(vx    );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_vy     = Kokkos::create_mirror_view(vy    );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_vz     = Kokkos::create_mirror_view(vz    );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_w      = Kokkos::create_mirror_view(w     );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_unccn  = Kokkos::create_mirror_view(unccn );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rho    = Kokkos::create_mirror_view(rho   );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_pre    = Kokkos::create_mirror_view(pre   );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_tem    = Kokkos::create_mirror_view(tem   );
+    // Example: View3D<double, Kokkos::CudaSpace>::HostMirror h_rhog   = Kokkos::create_mirror_view(rhog  );
+    auto h_rhog   = Kokkos::create_mirror_view(rhog  );
+    auto h_rhogvx = Kokkos::create_mirror_view(rhogvx);
+    auto h_rhogvy = Kokkos::create_mirror_view(rhogvy);
+    auto h_rhogvz = Kokkos::create_mirror_view(rhogvz);
+    auto h_rhogw  = Kokkos::create_mirror_view(rhogw );
+    auto h_rhoge  = Kokkos::create_mirror_view(rhoge );
+    auto h_vx     = Kokkos::create_mirror_view(vx    );
+    auto h_vy     = Kokkos::create_mirror_view(vy    );
+    auto h_vz     = Kokkos::create_mirror_view(vz    );
+    auto h_w      = Kokkos::create_mirror_view(w     );
+    auto h_unccn  = Kokkos::create_mirror_view(unccn );
+    auto h_rho    = Kokkos::create_mirror_view(rho   );
+    auto h_pre    = Kokkos::create_mirror_view(pre   );
+    auto h_tem    = Kokkos::create_mirror_view(tem   );
 
-    View4D<double, Kokkos::CudaSpace>::HostMirror h_rhogq_Lswp = Kokkos::create_mirror_view(rhogq_Lswp);
-    View4D<double, Kokkos::CudaSpace>::HostMirror h_q_Lswp     = Kokkos::create_mirror_view(q_Lswp    );
+    auto h_rhogq_Lswp = Kokkos::create_mirror_view(rhogq_Lswp);
+    auto h_q_Lswp     = Kokkos::create_mirror_view(q_Lswp    );
 
-    View4D<double, Kokkos::CudaSpace>::HostMirror h_precip_mp  = Kokkos::create_mirror_view(precip_mp );
-    View4D<double, Kokkos::CudaSpace>::HostMirror h_precip1_mp = Kokkos::create_mirror_view(precip1_mp);
-    View4D<double, Kokkos::CudaSpace>::HostMirror h_precip2_mp = Kokkos::create_mirror_view(precip2_mp);
+    auto h_precip_mp  = Kokkos::create_mirror_view(precip_mp );
+    auto h_precip1_mp = Kokkos::create_mirror_view(precip1_mp);
+    auto h_precip2_mp = Kokkos::create_mirror_view(precip2_mp);
 
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhoein_precip_mp = Kokkos::create_mirror_view(rhoein_precip_mp);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_lh_precip_mp     = Kokkos::create_mirror_view(lh_precip_mp    );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhophi_precip_mp = Kokkos::create_mirror_view(rhophi_precip_mp);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rhokin_precip_mp = Kokkos::create_mirror_view(rhokin_precip_mp);
+    auto h_rhoein_precip_mp = Kokkos::create_mirror_view(rhoein_precip_mp);
+    auto h_lh_precip_mp     = Kokkos::create_mirror_view(lh_precip_mp    );
+    auto h_rhophi_precip_mp = Kokkos::create_mirror_view(rhophi_precip_mp);
+    auto h_rhokin_precip_mp = Kokkos::create_mirror_view(rhokin_precip_mp);
 
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_frhoge_af  = Kokkos::create_mirror_view(frhoge_af );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_frhogqv_af = Kokkos::create_mirror_view(frhogqv_af);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_frhoge_rad = Kokkos::create_mirror_view(frhoge_rad);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_qke        = Kokkos::create_mirror_view(qke       );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_gsgam2     = Kokkos::create_mirror_view(gsgam2    );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_gsgam2h    = Kokkos::create_mirror_view(gsgam2h   );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_gam2       = Kokkos::create_mirror_view(gam2      );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_gam2h      = Kokkos::create_mirror_view(gam2h     );
+    auto h_frhoge_af  = Kokkos::create_mirror_view(frhoge_af );
+    auto h_frhogqv_af = Kokkos::create_mirror_view(frhogqv_af);
+    auto h_frhoge_rad = Kokkos::create_mirror_view(frhoge_rad);
+    auto h_qke        = Kokkos::create_mirror_view(qke       );
+    auto h_gsgam2     = Kokkos::create_mirror_view(gsgam2    );
+    auto h_gsgam2h    = Kokkos::create_mirror_view(gsgam2h   );
+    auto h_gam2       = Kokkos::create_mirror_view(gam2      );
+    auto h_gam2h      = Kokkos::create_mirror_view(gam2h     );
 
-    View2D<double, Kokkos::CudaSpace>::HostMirror h_ix = Kokkos::create_mirror_view(ix);
-    View2D<double, Kokkos::CudaSpace>::HostMirror h_iy = Kokkos::create_mirror_view(iy);
-    View2D<double, Kokkos::CudaSpace>::HostMirror h_iz = Kokkos::create_mirror_view(iz);
-    View2D<double, Kokkos::CudaSpace>::HostMirror h_jx = Kokkos::create_mirror_view(jx);
-    View2D<double, Kokkos::CudaSpace>::HostMirror h_jy = Kokkos::create_mirror_view(jy);
-    View2D<double, Kokkos::CudaSpace>::HostMirror h_jz = Kokkos::create_mirror_view(jz);
+    auto h_ix = Kokkos::create_mirror_view(ix);
+    auto h_iy = Kokkos::create_mirror_view(iy);
+    auto h_iz = Kokkos::create_mirror_view(iz);
+    auto h_jx = Kokkos::create_mirror_view(jx);
+    auto h_jy = Kokkos::create_mirror_view(jy);
+    auto h_jz = Kokkos::create_mirror_view(jz);
 
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_z           = Kokkos::create_mirror_view(z          );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_zh          = Kokkos::create_mirror_view(zh         );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_GPREC       = Kokkos::create_mirror_view(GPREC      );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_CBMFX       = Kokkos::create_mirror_view(CBMFX      );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_qd          = Kokkos::create_mirror_view(qd         );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rceff       = Kokkos::create_mirror_view(rceff      );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rceff_solid = Kokkos::create_mirror_view(rceff_solid);
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rceff_cld   = Kokkos::create_mirror_view(rceff_cld  );
+    auto h_z           = Kokkos::create_mirror_view(z          );
+    auto h_zh          = Kokkos::create_mirror_view(zh         );
+    auto h_GPREC       = Kokkos::create_mirror_view(GPREC      );
+    auto h_CBMFX       = Kokkos::create_mirror_view(CBMFX      );
+    auto h_qd          = Kokkos::create_mirror_view(qd         );
+    auto h_rceff       = Kokkos::create_mirror_view(rceff      );
+    auto h_rceff_solid = Kokkos::create_mirror_view(rceff_solid);
+    auto h_rceff_cld   = Kokkos::create_mirror_view(rceff_cld  );
 
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rctop  = Kokkos::create_mirror_view(rctop );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_rwtop  = Kokkos::create_mirror_view(rwtop );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_tctop  = Kokkos::create_mirror_view(tctop );
+    auto h_rctop  = Kokkos::create_mirror_view(rctop );
+    auto h_rwtop  = Kokkos::create_mirror_view(rwtop );
+    auto h_tctop  = Kokkos::create_mirror_view(tctop );
 
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_GDCLW  = Kokkos::create_mirror_view(GDCLW );
-    View3D<double, Kokkos::CudaSpace>::HostMirror h_GDCFRC = Kokkos::create_mirror_view(GDCFRC);
+    auto h_GDCLW  = Kokkos::create_mirror_view(GDCLW );
+    auto h_GDCFRC = Kokkos::create_mirror_view(GDCFRC);
 
     read_data_3d("data/rhog.dat",   h_rhog);
     read_data_3d("data/rhogvx.dat", h_rhogvx);
@@ -281,10 +305,24 @@ Kokkos::initialize(argc, argv);
     Kokkos::deep_copy(GDCLW , h_GDCLW );
     Kokkos::deep_copy(GDCFRC, h_GDCFRC);
     Kokkos::fence();
-    // /**
-    //  * Vertical grid setup
-    //  */
-    // GRD_Setup();
+    /**
+     * Vertical grid setup
+     */
+    GRD_Setup();
+    std::cout << "Check values \n";
+    auto h_GRD_gz = Kokkos::create_mirror_view(d_GRD_gz);
+    Kokkos::deep_copy(h_GRD_gz, d_GRD_gz);
+    Kokkos::fence();
+    std::cout << "Values in plain array \n";
+    for(size_t k = 0; k < ADM_kall; k++)
+    {
+        std::cout << GRD_gz[k] << std::endl;
+    }
+    std::cout << "Values in view \n";
+    for(size_t k = 0; k < ADM_kall; k++)
+    {
+        std::cout << h_GRD_gz(k) << std::endl;
+    }
     // /**
     //  * Saturation set_up
     //  */
@@ -458,6 +496,18 @@ Kokkos::initialize(argc, argv);
     // }
 
     std::cout << "============= All process finished =============== \n";
+
+    // try deallocate GRD views
+    d_GRD_gz   = View1D<double, Kokkos::CudaSpace>();
+    d_GRD_gzh  = View1D<double, Kokkos::CudaSpace>();
+    d_GRD_dgz  = View1D<double, Kokkos::CudaSpace>();
+    d_GRD_dgzh = View1D<double, Kokkos::CudaSpace>();
+    d_GRD_rdgz = View1D<double, Kokkos::CudaSpace>();
+    d_GRD_rdgzh= View1D<double, Kokkos::CudaSpace>();
+    d_GRD_afact= View1D<double, Kokkos::CudaSpace>();
+    d_GRD_bfact= View1D<double, Kokkos::CudaSpace>();
+    d_GRD_cfact= View1D<double, Kokkos::CudaSpace>();
+    d_GRD_dfact= View1D<double, Kokkos::CudaSpace>();
 }
 Kokkos::finalize();
 }

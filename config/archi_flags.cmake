@@ -14,4 +14,6 @@ elseif(ARCHITECTURE STREQUAL "INTEL")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ftree-vectorize \ 
                         -march=cascadelake \
                         -DUSEOPENMP")
+elseif(ARCHITECTURE STREQUAL "CUDA")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()

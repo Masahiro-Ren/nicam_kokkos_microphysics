@@ -17,10 +17,11 @@ using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
 
+// Rename execution space
 using HOST_SPACE = Kokkos::OpenMP;
 using DEVICE_SPACE = Kokkos::Cuda;
-
-using TARGET_MEM = Kokkos::CudaSpace;
+// Rename memory space
+using DEVICE_MEM = Kokkos::CudaSpace;
 using HOST_MEM = Kokkos::HostSpace;
 
 template<typename T, typename S>
@@ -148,6 +149,17 @@ extern double GRD_afact[ADM_kall];
 extern double GRD_bfact[ADM_kall];
 extern double GRD_cfact[ADM_kall];
 extern double GRD_dfact[ADM_kall];
+// view version of grd, gmtr, vmtr
+extern View1D<double, Kokkos::CudaSpace> d_GRD_gz   ;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_gzh  ;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_dgz  ;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_dgzh ;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_rdgz ;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_rdgzh;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_afact;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_bfact;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_cfact;
+extern View1D<double, Kokkos::CudaSpace> d_GRD_dfact;
 
 // run conf
 extern std::string EIN_TYPE  ;

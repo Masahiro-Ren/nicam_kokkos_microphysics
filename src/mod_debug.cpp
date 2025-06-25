@@ -97,18 +97,17 @@ namespace DEBUG {
     {
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 
-        // Setting the vertical coordinate
-        // GRD_gz    = new double[ADM_kall];
-        // GRD_gzh   = new double[ADM_kall];
-        // GRD_dgz   = new double[ADM_kall];
-        // GRD_dgzh  = new double[ADM_kall];
-        // GRD_rdgz  = new double[ADM_kall];
-        // GRD_rdgzh = new double[ADM_kall];
-        // Vertical interpolation factor
-        // GRD_afact = new double[ADM_kall];
-        // GRD_bfact = new double[ADM_kall];
-        // GRD_cfact = new double[ADM_kall];
-        // GRD_dfact = new double[ADM_kall];
+        // host mirror of GRD
+        auto h_GRD_gz    = Kokkos::create_mirror_view(d_GRD_gz   );
+        auto h_GRD_gzh   = Kokkos::create_mirror_view(d_GRD_gzh  );
+        auto h_GRD_dgz   = Kokkos::create_mirror_view(d_GRD_dgz  );
+        auto h_GRD_dgzh  = Kokkos::create_mirror_view(d_GRD_dgzh );
+        auto h_GRD_rdgz  = Kokkos::create_mirror_view(d_GRD_rdgz );
+        auto h_GRD_rdgzh = Kokkos::create_mirror_view(d_GRD_rdgzh);
+        auto h_GRD_afact = Kokkos::create_mirror_view(d_GRD_afact);
+        auto h_GRD_bfact = Kokkos::create_mirror_view(d_GRD_bfact);
+        auto h_GRD_cfact = Kokkos::create_mirror_view(d_GRD_cfact);
+        auto h_GRD_dfact = Kokkos::create_mirror_view(d_GRD_dfact);
 
         // Reading data from vgrid94.dat
         // GRD_Input_vgrid(vgrid_fname);
@@ -162,6 +161,33 @@ namespace DEBUG {
         {
             GRD_dfact[k] = 1.0 - GRD_cfact[k];
         }
+
+        // copy data to host views
+        for(size_t k = 0; k < ADM_kall; k++)
+        {
+            h_GRD_gz   (k) = GRD_gz   [k];
+            h_GRD_gzh  (k) = GRD_gzh  [k];
+            h_GRD_dgz  (k) = GRD_dgz  [k];
+            h_GRD_dgzh (k) = GRD_dgzh [k];
+            h_GRD_rdgz (k) = GRD_rdgz [k];
+            h_GRD_rdgzh(k) = GRD_rdgzh[k];
+            h_GRD_afact(k) = GRD_afact[k];
+            h_GRD_bfact(k) = GRD_bfact[k];
+            h_GRD_cfact(k) = GRD_cfact[k];
+            h_GRD_dfact(k) = GRD_dfact[k];
+        }
+
+        Kokkos::deep_copy(d_GRD_gz   , h_GRD_gz   );
+        Kokkos::deep_copy(d_GRD_gzh  , h_GRD_gzh  );
+        Kokkos::deep_copy(d_GRD_dgz  , h_GRD_dgz  );
+        Kokkos::deep_copy(d_GRD_dgzh , h_GRD_dgzh );
+        Kokkos::deep_copy(d_GRD_rdgz , h_GRD_rdgz );
+        Kokkos::deep_copy(d_GRD_rdgzh, h_GRD_rdgzh);
+        Kokkos::deep_copy(d_GRD_afact, h_GRD_afact);
+        Kokkos::deep_copy(d_GRD_bfact, h_GRD_bfact);
+        Kokkos::deep_copy(d_GRD_cfact, h_GRD_cfact);
+        Kokkos::deep_copy(d_GRD_dfact, h_GRD_dfact);
+        Kokkos::fence();
     }
 
     void GRD_Input_vgrid()
