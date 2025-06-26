@@ -75,27 +75,19 @@ Kokkos::initialize(argc, argv);
     View3D<double, Kokkos::CudaSpace> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
     View3D<double, Kokkos::CudaSpace> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
 
-    // init views of GRD
-    // View1D<double, Kokkos::CudaSpace> d_GRD_gz   ("GRD_gz   ", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_gzh  ("GRD_gzh  ", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_dgz  ("GRD_dgz  ", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_dgzh ("GRD_dgzh ", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_rdgz ("GRD_rdgz ", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_rdgzh("GRD_rdgzh", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_afact("GRD_afact", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_bfact("GRD_bfact", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_cfact("GRD_cfact", ADM_kall);
-    // View1D<double, Kokkos::CudaSpace> d_GRD_dfact("GRD_dfact", ADM_kall);
-    d_GRD_gz   = View1D<double, Kokkos::CudaSpace> ("GRD_gz   ", ADM_kall);
-    d_GRD_gzh  = View1D<double, Kokkos::CudaSpace> ("GRD_gzh  ", ADM_kall);
-    d_GRD_dgz  = View1D<double, Kokkos::CudaSpace> ("GRD_dgz  ", ADM_kall);
-    d_GRD_dgzh = View1D<double, Kokkos::CudaSpace> ("GRD_dgzh ", ADM_kall);
-    d_GRD_rdgz = View1D<double, Kokkos::CudaSpace> ("GRD_rdgz ", ADM_kall);
-    d_GRD_rdgzh= View1D<double, Kokkos::CudaSpace> ("GRD_rdgzh", ADM_kall);
-    d_GRD_afact= View1D<double, Kokkos::CudaSpace> ("GRD_afact", ADM_kall);
-    d_GRD_bfact= View1D<double, Kokkos::CudaSpace> ("GRD_bfact", ADM_kall);
-    d_GRD_cfact= View1D<double, Kokkos::CudaSpace> ("GRD_cfact", ADM_kall);
-    d_GRD_dfact= View1D<double, Kokkos::CudaSpace> ("GRD_dfact", ADM_kall);
+    GRD_gz   = View1D<double, Kokkos::SharedSpace> ("GRD_gz   ", ADM_kall);
+    GRD_gzh  = View1D<double, Kokkos::SharedSpace> ("GRD_gzh  ", ADM_kall);
+    GRD_dgz  = View1D<double, Kokkos::SharedSpace> ("GRD_dgz  ", ADM_kall);
+    GRD_dgzh = View1D<double, Kokkos::SharedSpace> ("GRD_dgzh ", ADM_kall);
+    GRD_rdgz = View1D<double, Kokkos::SharedSpace> ("GRD_rdgz ", ADM_kall);
+    GRD_rdgzh= View1D<double, Kokkos::SharedSpace> ("GRD_rdgzh", ADM_kall);
+    GRD_afact= View1D<double, Kokkos::SharedSpace> ("GRD_afact", ADM_kall);
+    GRD_bfact= View1D<double, Kokkos::SharedSpace> ("GRD_bfact", ADM_kall);
+    GRD_cfact= View1D<double, Kokkos::SharedSpace> ("GRD_cfact", ADM_kall);
+    GRD_dfact= View1D<double, Kokkos::SharedSpace> ("GRD_dfact", ADM_kall);
+
+    CVW = View1D<double, Kokkos::SharedSpace>("CVW", 6);
+    CPW = View1D<double, Kokkos::SharedSpace>("CPW", 6);
 
     /**
      * For result checking
@@ -309,23 +301,10 @@ Kokkos::initialize(argc, argv);
      * Vertical grid setup
      */
     GRD_Setup();
-    std::cout << "Check values \n";
-    auto h_GRD_gz = Kokkos::create_mirror_view(d_GRD_gz);
-    Kokkos::deep_copy(h_GRD_gz, d_GRD_gz);
-    Kokkos::fence();
-    std::cout << "Values in plain array \n";
-    for(size_t k = 0; k < ADM_kall; k++)
-    {
-        std::cout << GRD_gz[k] << std::endl;
-    }
-    std::cout << "Values in view \n";
-    for(size_t k = 0; k < ADM_kall; k++)
-    {
-        std::cout << h_GRD_gz(k) << std::endl;
-    }
-    // /**
-    //  * Saturation set_up
-    //  */
+    CVW_CPW_Setup();
+    /**
+     * Saturation set_up
+     */
     // SATURATION_Setup();
     // /**
     //  * microphysics initialization
@@ -498,16 +477,20 @@ Kokkos::initialize(argc, argv);
     std::cout << "============= All process finished =============== \n";
 
     // try deallocate GRD views
-    d_GRD_gz   = View1D<double, Kokkos::CudaSpace>();
-    d_GRD_gzh  = View1D<double, Kokkos::CudaSpace>();
-    d_GRD_dgz  = View1D<double, Kokkos::CudaSpace>();
-    d_GRD_dgzh = View1D<double, Kokkos::CudaSpace>();
-    d_GRD_rdgz = View1D<double, Kokkos::CudaSpace>();
-    d_GRD_rdgzh= View1D<double, Kokkos::CudaSpace>();
-    d_GRD_afact= View1D<double, Kokkos::CudaSpace>();
-    d_GRD_bfact= View1D<double, Kokkos::CudaSpace>();
-    d_GRD_cfact= View1D<double, Kokkos::CudaSpace>();
-    d_GRD_dfact= View1D<double, Kokkos::CudaSpace>();
+    GRD_gz   = View1D<double, Kokkos::CudaSpace>();
+    GRD_gzh  = View1D<double, Kokkos::CudaSpace>();
+    GRD_dgz  = View1D<double, Kokkos::CudaSpace>();
+    GRD_dgzh = View1D<double, Kokkos::CudaSpace>();
+    GRD_rdgz = View1D<double, Kokkos::CudaSpace>();
+    GRD_rdgzh= View1D<double, Kokkos::CudaSpace>();
+    GRD_afact= View1D<double, Kokkos::CudaSpace>();
+    GRD_bfact= View1D<double, Kokkos::CudaSpace>();
+    GRD_cfact= View1D<double, Kokkos::CudaSpace>();
+    GRD_dfact= View1D<double, Kokkos::CudaSpace>();
+
+    CVW= View1D<double, Kokkos::CudaSpace>();
+    CPW= View1D<double, Kokkos::CudaSpace>();
+
 }
 Kokkos::finalize();
 }

@@ -22,6 +22,8 @@ void PROF_val_check(const std::string& val_name, double arr2d[ADM_kall][ADM_gall
 
 void PROF_val_check(const std::string& val_name, double arr3d[ADM_lall][ADM_kall][ADM_gall_in], double CHECK_arr3d[ADM_lall][ADM_kall][ADM_gall_in]);
 
+void CVW_CPW_Setup();
+
 void GRD_Setup();
 
 void GRD_Input_vgrid();

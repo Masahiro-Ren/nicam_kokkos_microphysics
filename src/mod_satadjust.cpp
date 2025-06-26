@@ -3,13 +3,13 @@
 /**
  * Some private parameters
  */
-double TEM_MIN = 10.0;
-double DTEM_EPS0 = 1.0E-8;
+constexpr double TEM_MIN = 10.0;
+constexpr double DTEM_EPS0 = 1.0E-8;
 
 std::string ALPHA_TYPE = "LINEAR";
 
-double SATURATION_ULIMIT_TEMP = 273.15;
-double SATURATION_LLIMIT_TEMP = 233.15;
+constexpr double SATURATION_ULIMIT_TEMP = 273.15;
+constexpr double SATURATION_LLIMIT_TEMP = 233.15;
 
 
 

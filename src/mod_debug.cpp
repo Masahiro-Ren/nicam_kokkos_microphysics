@@ -32,16 +32,6 @@ namespace DEBUG {
         {
             for(int ij = 0; ij < ADM_gall_in; ij++)
             {
-                // double err;
-                // if(std::abs(CHECK_arr2d[k][ij]) > CONST_EPS)
-                // {
-                //     err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) / CHECK_arr2d[k][ij] );
-                // }
-                // else
-                // {
-                //     err = std::abs(arr2d[k][ij]);
-                // }
-
                 double err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) );
                 err_sum += err;
                 err_max = std::max(err_max, err);
@@ -69,16 +59,6 @@ namespace DEBUG {
             {
                 for(int ij = 0; ij < ADM_gall_in; ij++)
                 {
-                    // double err;
-                    // if(std::abs(CHECK_arr3d[l][k][ij]) > CONST_EPS)
-                    // {
-                    //     err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) / CHECK_arr3d[l][k][ij] );
-                    // }
-                    // else
-                    // {
-                    //     err = std::abs(arr3d[l][k][ij]);
-                    // }
-
                     double err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) );
                     err_sum += err;
                     err_max = std::max(err_max, err);
@@ -93,21 +73,37 @@ namespace DEBUG {
         std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
     }
 
+    void CVW_CPW_Setup()
+    {
+        auto h_CVW = Kokkos::create_mirror_view(CVW);
+        auto h_CPW = Kokkos::create_mirror_view(CPW);
+
+        for(int i = 0; i < 6; i++)
+        {
+            h_CVW(i) = CONST_CVdry;
+            h_CPW(i) = CONST_CVdry;
+        }
+        h_CPW(0) = CONST_CPdry;
+
+        Kokkos::deep_copy(CVW, h_CVW);
+        Kokkos::deep_copy(CPW, h_CPW);
+    }
+
     void GRD_Setup()
     {
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 
         // host mirror of GRD
-        auto h_GRD_gz    = Kokkos::create_mirror_view(d_GRD_gz   );
-        auto h_GRD_gzh   = Kokkos::create_mirror_view(d_GRD_gzh  );
-        auto h_GRD_dgz   = Kokkos::create_mirror_view(d_GRD_dgz  );
-        auto h_GRD_dgzh  = Kokkos::create_mirror_view(d_GRD_dgzh );
-        auto h_GRD_rdgz  = Kokkos::create_mirror_view(d_GRD_rdgz );
-        auto h_GRD_rdgzh = Kokkos::create_mirror_view(d_GRD_rdgzh);
-        auto h_GRD_afact = Kokkos::create_mirror_view(d_GRD_afact);
-        auto h_GRD_bfact = Kokkos::create_mirror_view(d_GRD_bfact);
-        auto h_GRD_cfact = Kokkos::create_mirror_view(d_GRD_cfact);
-        auto h_GRD_dfact = Kokkos::create_mirror_view(d_GRD_dfact);
+        auto h_GRD_gz    = Kokkos::create_mirror_view(GRD_gz   );
+        auto h_GRD_gzh   = Kokkos::create_mirror_view(GRD_gzh  );
+        auto h_GRD_dgz   = Kokkos::create_mirror_view(GRD_dgz  );
+        auto h_GRD_dgzh  = Kokkos::create_mirror_view(GRD_dgzh );
+        auto h_GRD_rdgz  = Kokkos::create_mirror_view(GRD_rdgz );
+        auto h_GRD_rdgzh = Kokkos::create_mirror_view(GRD_rdgzh);
+        auto h_GRD_afact = Kokkos::create_mirror_view(GRD_afact);
+        auto h_GRD_bfact = Kokkos::create_mirror_view(GRD_bfact);
+        auto h_GRD_cfact = Kokkos::create_mirror_view(GRD_cfact);
+        auto h_GRD_dfact = Kokkos::create_mirror_view(GRD_dfact);
 
         // Reading data from vgrid94.dat
         // GRD_Input_vgrid(vgrid_fname);
@@ -116,22 +112,22 @@ namespace DEBUG {
         // calculation of grid intervals ( cell center )
         for(int k = ADM_kmin - 1; k <= ADM_kmax; k++)
         {
-            GRD_dgz[k] = GRD_gzh[k+1] - GRD_gzh[k];
+            arrGRD_dgz[k] = arrGRD_gzh[k+1] - arrGRD_gzh[k];
         }
-        GRD_dgz[ADM_kmax + 1] = GRD_dgz[ADM_kmax];
+        arrGRD_dgz[ADM_kmax + 1] = arrGRD_dgz[ADM_kmax];
 
         // calculation of grid intervals ( cell wall )
         for(int k = ADM_kmin; k <= ADM_kmax + 1; k++)
         {
-            GRD_dgzh[k] = GRD_gz[k] - GRD_gz[k-1];
+            arrGRD_dgzh[k] = arrGRD_gz[k] - arrGRD_gz[k-1];
         }
-        GRD_dgzh[ADM_kmin - 1] = GRD_dgzh[ADM_kmin];
+        arrGRD_dgzh[ADM_kmin - 1] = arrGRD_dgzh[ADM_kmin];
 
         // calculation of 1/dgz and 1/dgzh
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_rdgz[k] = 1.0 / GRD_dgz  [k];
-            GRD_rdgzh[k] = 1.0 / GRD_dgzh[k];
+            arrGRD_rdgz[k]  = 1.0 / arrGRD_dgz [k];
+            arrGRD_rdgzh[k] = 1.0 / arrGRD_dgzh[k];
         }
 
         //---< vertical interpolation factor >---
@@ -139,54 +135,54 @@ namespace DEBUG {
         // vertical interpolation factor
         for(int k = ADM_kmin; k <= ADM_kmax + 1; k++)
         {
-            GRD_afact[k] = ( GRD_gzh[k] - GRD_gz[k-1] ) /
-                            ( GRD_gz[k] - GRD_gz[k-1] );
+            arrGRD_afact[k] = ( arrGRD_gzh[k] - arrGRD_gz[k-1] ) /
+                              ( arrGRD_gz[k] -  arrGRD_gz[k-1] );
         }
-        GRD_afact[ADM_kmin-1] = 1.0;
+        arrGRD_afact[ADM_kmin-1] = 1.0;
 
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_bfact[k] = 1.0 - GRD_afact[k];
+            arrGRD_bfact[k] = 1.0 - arrGRD_afact[k];
         }
 
         for(int k = ADM_kmin; k <= ADM_kmax; k++)
         {
-            GRD_cfact[k] =   ( GRD_gz[k] - GRD_gzh[k] )
-                           / ( GRD_gzh[k+1] - GRD_gzh[k] );
+            arrGRD_cfact[k] =   ( arrGRD_gz[k] - arrGRD_gzh[k] )
+                              / ( arrGRD_gzh[k+1] - arrGRD_gzh[k] );
         }
-        GRD_cfact[ADM_kmin - 1] = 1.0;
-        GRD_cfact[ADM_kmax + 1] = 0.0;
+        arrGRD_cfact[ADM_kmin - 1] = 1.0;
+        arrGRD_cfact[ADM_kmax + 1] = 0.0;
 
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_dfact[k] = 1.0 - GRD_cfact[k];
+            arrGRD_dfact[k] = 1.0 - arrGRD_cfact[k];
         }
 
         // copy data to host views
         for(size_t k = 0; k < ADM_kall; k++)
         {
-            h_GRD_gz   (k) = GRD_gz   [k];
-            h_GRD_gzh  (k) = GRD_gzh  [k];
-            h_GRD_dgz  (k) = GRD_dgz  [k];
-            h_GRD_dgzh (k) = GRD_dgzh [k];
-            h_GRD_rdgz (k) = GRD_rdgz [k];
-            h_GRD_rdgzh(k) = GRD_rdgzh[k];
-            h_GRD_afact(k) = GRD_afact[k];
-            h_GRD_bfact(k) = GRD_bfact[k];
-            h_GRD_cfact(k) = GRD_cfact[k];
-            h_GRD_dfact(k) = GRD_dfact[k];
+            h_GRD_gz   (k) = arrGRD_gz   [k];
+            h_GRD_gzh  (k) = arrGRD_gzh  [k];
+            h_GRD_dgz  (k) = arrGRD_dgz  [k];
+            h_GRD_dgzh (k) = arrGRD_dgzh [k];
+            h_GRD_rdgz (k) = arrGRD_rdgz [k];
+            h_GRD_rdgzh(k) = arrGRD_rdgzh[k];
+            h_GRD_afact(k) = arrGRD_afact[k];
+            h_GRD_bfact(k) = arrGRD_bfact[k];
+            h_GRD_cfact(k) = arrGRD_cfact[k];
+            h_GRD_dfact(k) = arrGRD_dfact[k];
         }
 
-        Kokkos::deep_copy(d_GRD_gz   , h_GRD_gz   );
-        Kokkos::deep_copy(d_GRD_gzh  , h_GRD_gzh  );
-        Kokkos::deep_copy(d_GRD_dgz  , h_GRD_dgz  );
-        Kokkos::deep_copy(d_GRD_dgzh , h_GRD_dgzh );
-        Kokkos::deep_copy(d_GRD_rdgz , h_GRD_rdgz );
-        Kokkos::deep_copy(d_GRD_rdgzh, h_GRD_rdgzh);
-        Kokkos::deep_copy(d_GRD_afact, h_GRD_afact);
-        Kokkos::deep_copy(d_GRD_bfact, h_GRD_bfact);
-        Kokkos::deep_copy(d_GRD_cfact, h_GRD_cfact);
-        Kokkos::deep_copy(d_GRD_dfact, h_GRD_dfact);
+        Kokkos::deep_copy(GRD_gz   , h_GRD_gz   );
+        Kokkos::deep_copy(GRD_gzh  , h_GRD_gzh  );
+        Kokkos::deep_copy(GRD_dgz  , h_GRD_dgz  );
+        Kokkos::deep_copy(GRD_dgzh , h_GRD_dgzh );
+        Kokkos::deep_copy(GRD_rdgz , h_GRD_rdgz );
+        Kokkos::deep_copy(GRD_rdgzh, h_GRD_rdgzh);
+        Kokkos::deep_copy(GRD_afact, h_GRD_afact);
+        Kokkos::deep_copy(GRD_bfact, h_GRD_bfact);
+        Kokkos::deep_copy(GRD_cfact, h_GRD_cfact);
+        Kokkos::deep_copy(GRD_dfact, h_GRD_dfact);
         Kokkos::fence();
     }
 
@@ -194,8 +190,8 @@ namespace DEBUG {
     {
         /** Waiting for implementing */
         std::cout << __PRETTY_FUNCTION__ << " Reading vgrid data " << std::endl;
-        read_data_1d("data/vgrid/GRD_gz.dat", GRD_gz);
-        read_data_1d("data/vgrid/GRD_gzh.dat", GRD_gzh);
+        read_data_1d("data/vgrid/GRD_gz.dat", arrGRD_gz);
+        read_data_1d("data/vgrid/GRD_gzh.dat", arrGRD_gzh);
     }
 
     void cnvvar_rhogkin_in(

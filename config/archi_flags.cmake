@@ -15,5 +15,5 @@ elseif(ARCHITECTURE STREQUAL "INTEL")
                         -march=cascadelake \
                         -DUSEOPENMP")
 elseif(ARCHITECTURE STREQUAL "CUDA")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DUSE_CUDA")
 endif()
