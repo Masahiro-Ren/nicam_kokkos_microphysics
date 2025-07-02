@@ -16,6 +16,7 @@ extern int sat_ite_max;
 extern int sat_ite_min;
 
 
+// Host code
 void ADM_Proc_stop();
 
 void PROF_val_check(const std::string& val_name, double arr2d[ADM_kall][ADM_gall_in], double CHECK_arr2d[ADM_kall][ADM_gall_in]);
