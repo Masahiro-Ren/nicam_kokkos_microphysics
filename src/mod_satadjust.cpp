@@ -753,7 +753,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
                 // ADM_Proc_stop();
                 Kokkos::printf("%.16f\t %.16f\t %.16f\t %.16f\t %.16f\n", rho(k,ij), tem(k,ij), q(I_QV,k,ij), q(I_QC,k,ij), q(I_QI,k,ij));
                 Kokkos::printf("xxx [satadjust_all] not converged! dtemp = %.16f ij= %d k= %d ite= %d", dtemp, ij, k, ite);
-                Kokkos::Abort();
+                Kokkos::abort("Program Shutdown.");
             }
         }
 
