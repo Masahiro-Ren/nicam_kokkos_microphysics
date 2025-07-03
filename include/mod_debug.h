@@ -45,16 +45,16 @@ void cnvvar_rhogkin_in(
  * Kokkos ver.
  */
 void cnvvar_rhogkin_in(
-    const View<double**>&  rhog     ,
-    const View<double**>&  rhogvx   ,
-    const View<double**>&  rhogvy   ,
-    const View<double**>&  rhogvz   ,
-    const View<double**>&  rhogw    ,
-    const View<double***>& C2Wfact  ,
-    const View<double***>& W2Cfact  ,
-    const View<double**>&  rhogkin  ,
-    const View<double**>&  rhogkin_h,
-    const View<double**>&  rhogkin_v );
+    const View2D<double, DEFAULT_MEM>&  rhog     ,
+    const View2D<double, DEFAULT_MEM>&  rhogvx   ,
+    const View2D<double, DEFAULT_MEM>&  rhogvy   ,
+    const View2D<double, DEFAULT_MEM>&  rhogvz   ,
+    const View2D<double, DEFAULT_MEM>&  rhogw    ,
+    const View3D<double, DEFAULT_MEM>&  C2Wfact  ,
+    const View3D<double, DEFAULT_MEM>&  W2Cfact  ,
+    const View2D<double, DEFAULT_MEM>&  rhogkin  ,
+    const View2D<double, DEFAULT_MEM>&  rhogkin_h,
+    const View2D<double, DEFAULT_MEM>&  rhogkin_v );
 
 double MISC_gammafunc(double xx);
 

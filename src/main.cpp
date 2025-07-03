@@ -16,78 +16,78 @@ int main(int argc, char* argv[])
 Kokkos::initialize(argc, argv);
 {
     // declare all variables
-    View3D<double, Kokkos::CudaSpace> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View4D<double, Kokkos::CudaSpace> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
-    View4D<double, Kokkos::CudaSpace> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
 
-    View4D<double, Kokkos::CudaSpace> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
-    View4D<double, Kokkos::CudaSpace> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
-    View4D<double, Kokkos::CudaSpace> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View3D<double, Kokkos::CudaSpace> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View3D<double, Kokkos::CudaSpace> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View2D<double, Kokkos::CudaSpace> ix ("ix", ADM_lall, ADM_gall_in);
-    View2D<double, Kokkos::CudaSpace> iy ("iy", ADM_lall, ADM_gall_in);
-    View2D<double, Kokkos::CudaSpace> iz ("iz", ADM_lall, ADM_gall_in);
-    View2D<double, Kokkos::CudaSpace> jx ("jx", ADM_lall, ADM_gall_in);
-    View2D<double, Kokkos::CudaSpace> jy ("jy", ADM_lall, ADM_gall_in);
-    View2D<double, Kokkos::CudaSpace> jz ("jz", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> ix ("ix", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> iy ("iy", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> iz ("iz", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> jx ("jx", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> jy ("jy", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> jz ("jz", ADM_lall, ADM_gall_in);
 
-    View3D<double, Kokkos::CudaSpace> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View3D<double, Kokkos::CudaSpace> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View3D<double, Kokkos::CudaSpace> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
-    View3D<double, Kokkos::CudaSpace> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
 
-    GRD_gz   = View1D<double, Kokkos::SharedSpace> ("GRD_gz   ", ADM_kall);
-    GRD_gzh  = View1D<double, Kokkos::SharedSpace> ("GRD_gzh  ", ADM_kall);
-    GRD_dgz  = View1D<double, Kokkos::SharedSpace> ("GRD_dgz  ", ADM_kall);
-    GRD_dgzh = View1D<double, Kokkos::SharedSpace> ("GRD_dgzh ", ADM_kall);
-    GRD_rdgz = View1D<double, Kokkos::SharedSpace> ("GRD_rdgz ", ADM_kall);
-    GRD_rdgzh= View1D<double, Kokkos::SharedSpace> ("GRD_rdgzh", ADM_kall);
-    GRD_afact= View1D<double, Kokkos::SharedSpace> ("GRD_afact", ADM_kall);
-    GRD_bfact= View1D<double, Kokkos::SharedSpace> ("GRD_bfact", ADM_kall);
-    GRD_cfact= View1D<double, Kokkos::SharedSpace> ("GRD_cfact", ADM_kall);
-    GRD_dfact= View1D<double, Kokkos::SharedSpace> ("GRD_dfact", ADM_kall);
+    GRD_gz   = View1D<double, DEFAULT_MEM> ("GRD_gz   ", ADM_kall);
+    GRD_gzh  = View1D<double, DEFAULT_MEM> ("GRD_gzh  ", ADM_kall);
+    GRD_dgz  = View1D<double, DEFAULT_MEM> ("GRD_dgz  ", ADM_kall);
+    GRD_dgzh = View1D<double, DEFAULT_MEM> ("GRD_dgzh ", ADM_kall);
+    GRD_rdgz = View1D<double, DEFAULT_MEM> ("GRD_rdgz ", ADM_kall);
+    GRD_rdgzh= View1D<double, DEFAULT_MEM> ("GRD_rdgzh", ADM_kall);
+    GRD_afact= View1D<double, DEFAULT_MEM> ("GRD_afact", ADM_kall);
+    GRD_bfact= View1D<double, DEFAULT_MEM> ("GRD_bfact", ADM_kall);
+    GRD_cfact= View1D<double, DEFAULT_MEM> ("GRD_cfact", ADM_kall);
+    GRD_dfact= View1D<double, DEFAULT_MEM> ("GRD_dfact", ADM_kall);
 
-    CVW = View1D<double, Kokkos::SharedSpace>("CVW", 6);
-    CPW = View1D<double, Kokkos::SharedSpace>("CPW", 6);
+    CVW = View1D<double, DEFAULT_MEM>("CVW", 6);
+    CPW = View1D<double, DEFAULT_MEM>("CPW", 6);
 
     /**
      * For result checking

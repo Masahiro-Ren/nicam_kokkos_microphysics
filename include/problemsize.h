@@ -146,16 +146,16 @@ extern double arrGRD_bfact[ADM_kall];
 extern double arrGRD_cfact[ADM_kall];
 extern double arrGRD_dfact[ADM_kall];
 // view version of grd, gmtr, vmtr
-extern View1D<double, Kokkos::CudaSpace> GRD_gz   ;
-extern View1D<double, Kokkos::CudaSpace> GRD_gzh  ;
-extern View1D<double, Kokkos::CudaSpace> GRD_dgz  ;
-extern View1D<double, Kokkos::CudaSpace> GRD_dgzh ;
-extern View1D<double, Kokkos::CudaSpace> GRD_rdgz ;
-extern View1D<double, Kokkos::CudaSpace> GRD_rdgzh;
-extern View1D<double, Kokkos::CudaSpace> GRD_afact;
-extern View1D<double, Kokkos::CudaSpace> GRD_bfact;
-extern View1D<double, Kokkos::CudaSpace> GRD_cfact;
-extern View1D<double, Kokkos::CudaSpace> GRD_dfact;
+extern View1D<double, DEFAULT_MEM> GRD_gz   ;
+extern View1D<double, DEFAULT_MEM> GRD_gzh  ;
+extern View1D<double, DEFAULT_MEM> GRD_dgz  ;
+extern View1D<double, DEFAULT_MEM> GRD_dgzh ;
+extern View1D<double, DEFAULT_MEM> GRD_rdgz ;
+extern View1D<double, DEFAULT_MEM> GRD_rdgzh;
+extern View1D<double, DEFAULT_MEM> GRD_afact;
+extern View1D<double, DEFAULT_MEM> GRD_bfact;
+extern View1D<double, DEFAULT_MEM> GRD_cfact;
+extern View1D<double, DEFAULT_MEM> GRD_dfact;
 
 // run conf
 extern std::string EIN_TYPE  ;

@@ -39,7 +39,7 @@ void read_data_1d(const std::string& filename, double arr1d[ADM_kall])
  * Kokkos ver.
  */
 // void read_data_1d(const std::string& filename, View<double*>& arr1d)
-void read_data_1d(const std::string& filename, View1D<double, Kokkos::CudaSpace>::HostMirror arr1d)
+void read_data_1d(const std::string& filename, View1D<double, DEFAULT_MEM>::HostMirror arr1d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -98,7 +98,7 @@ void read_data_2d(const std::string& filename, double arr2d[ADM_lall][ADM_gall_i
  * Kokkos ver.
  */
 // void read_data_2d(const std::string& filename, View<double**>& arr2d)
-void read_data_2d(const std::string& filename, View2D<double, Kokkos::CudaSpace>::HostMirror arr2d)
+void read_data_2d(const std::string& filename, View2D<double, DEFAULT_MEM>::HostMirror arr2d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -195,7 +195,7 @@ void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_KNONE]
  * Kokkos ver.
  */
 // void read_data_3d(const std::string& filename, View<double***>& arr3d)
-void read_data_3d(const std::string& filename, View3D<double, Kokkos::CudaSpace>::HostMirror arr3d)
+void read_data_3d(const std::string& filename, View3D<double, DEFAULT_MEM>::HostMirror arr3d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
@@ -324,7 +324,7 @@ void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNO
  * Kokkos ver.
  */
 // void read_data_4d(const std::string& filename, View<double****>& arr4d)
-void read_data_4d(const std::string& filename, View4D<double, Kokkos::CudaSpace>::HostMirror arr4d)
+void read_data_4d(const std::string& filename, View4D<double, DEFAULT_MEM>::HostMirror arr4d)
 {
     std::ifstream infile(filename, std::ios::binary);
 
