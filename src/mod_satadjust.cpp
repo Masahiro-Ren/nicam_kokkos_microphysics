@@ -8,8 +8,8 @@ constexpr double DTEM_EPS0 = 1.0E-8;
 
 std::string ALPHA_TYPE = "LINEAR";
 
-constexpr double SATURATION_ULIMIT_TEMP = 273.15;
-constexpr double SATURATION_LLIMIT_TEMP = 233.15;
+double SATURATION_ULIMIT_TEMP = 273.15;
+double SATURATION_LLIMIT_TEMP = 233.15;
 
 
 
@@ -79,7 +79,7 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 
 // Kokkos ver.
 // void SATURATION_psat_liq(const View<double**>& tem, const View<double**>& psat)
-void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2d<double, DEFAULT_MEM>& psat)
+void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<double, DEFAULT_MEM>& psat)
 {
 #ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
@@ -639,7 +639,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
     auto CVW = PROBLEM_SIZE::CVW;
 
-    View<double> RTEM00("RTEM00")
+    View<double> RTEM00("RTEM00");
     View<double> PSAT0("PSAT0");
     View<double> Rvap ("Rvap ");
     View<double> CVdry("CVdry");
@@ -647,6 +647,8 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
     View<double> dtemp_criteria  ("dtemp_criteria");
     View<double> CPovR_liq("CPovR_liq");
     View<double> CPovR_ice("CPovR_ice");
+    View<double> CVovR_liq("CVovR_liq");
+    View<double> CVovR_ice("CVovR_ice");
     View<double> LovR_liq("LovR_liq");
     View<double> LovR_ice("LovR_ice");
 
@@ -658,6 +660,8 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
     Kokkos::deep_copy(dtemp_criteria, h_dtemp_criteria);
     Kokkos::deep_copy(CPovR_liq, SATADJUST::CPovR_liq);
     Kokkos::deep_copy(CPovR_ice, SATADJUST::CPovR_ice);
+    Kokkos::deep_copy(CVovR_liq, SATADJUST::CVovR_liq);
+    Kokkos::deep_copy(CVovR_ice, SATADJUST::CVovR_ice);
     Kokkos::deep_copy(LovR_liq, SATADJUST::LovR_liq);
     Kokkos::deep_copy(LovR_ice, SATADJUST::LovR_ice);
 
@@ -698,14 +702,14 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
                 double qsatl = psatl / ( rho(k,ij) * Rvap() * tem(k,ij) );
                 double qsati = psati / ( rho(k,ij) * Rvap() * tem(k,ij) );
-                qsat  = psat  / ( rho(k,ij) * Rvap * tem(k,ij) );
+                qsat  = psat  / ( rho(k,ij) * Rvap() * tem(k,ij) );
 
                 // Sepration
                 q(I_QV,k,ij) = qsat;
                 q(I_QC,k,ij) = ( qsum(k,ij) - qsat ) * alpha;
                 q(I_QI,k,ij) = ( qsum(k,ij) - qsat ) * (1.0 - alpha);
 
-                double CVtot = qd(k,ij) * CVdry;
+                double CVtot = qd(k,ij) * CVdry();
                 for(int nq = NQW_STR; nq <= NQW_END; nq++)
                     CVtot = CVtot + q(nq,k,ij) * CVW(nq);
                 
