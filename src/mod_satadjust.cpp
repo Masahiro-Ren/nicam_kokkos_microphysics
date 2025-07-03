@@ -11,8 +11,6 @@ std::string ALPHA_TYPE = "LINEAR";
 double SATURATION_ULIMIT_TEMP = 273.15;
 double SATURATION_LLIMIT_TEMP = 233.15;
 
-
-
 namespace SATADJUST{
 
 double CPovR_liq;
@@ -633,7 +631,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
     // double rtem, alpha, psatl, psati, psat, qsatl, qsati, qsat;
     // double CVtot, Emoist_new, dtemp, lim1, lim2;
     // double dalpha_dT, dqsatl_dT, dqsati_dT, dqsat_dT, dqc_dT, dqi_dT, dCVtot_dT, dEmoist_dT;
-
+    
     double h_RTEM00 = 1.0 / CONST_TEM00;
     double h_dtemp_criteria = std::pow(10.0, (-(RP_PREC + 1)/2));
 
@@ -769,7 +767,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
                     const View2D<double, DEFAULT_MEM>&  Emoist ,
                     const View2D<double, DEFAULT_MEM>&  qsum   ,
                     const View2D<double, DEFAULT_MEM>&  tem    ,
-                    const View3D<double, DEFAULT_MEM>& q       )
+                    const View3D<double, DEFAULT_MEM>&  q      )
 {
 #ifdef DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
@@ -793,7 +791,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
     // bool converged;
 
     // In Fortran: ite_temp(2:95, 1:16641)
-    View<int**> ite_temp("ite_temp", kdim, ijdim);
+    // View<int**> ite_temp("ite_temp", kdim, ijdim);
 
     THRMDYN_qd(q, qd);
 
@@ -851,7 +849,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
                 if(tem(k,ij) * 0.0 != 0.0) break;
             }
 
-            ite_temp(k,ij) = ite;
+            // ite_temp(k,ij) = ite;
 
             if(!converged)
             {
