@@ -477,19 +477,19 @@ Kokkos::initialize(argc, argv);
     std::cout << "============= All process finished =============== \n";
 
     // try deallocate GRD views
-    GRD_gz   = View1D<double, Kokkos::CudaSpace>();
-    GRD_gzh  = View1D<double, Kokkos::CudaSpace>();
-    GRD_dgz  = View1D<double, Kokkos::CudaSpace>();
-    GRD_dgzh = View1D<double, Kokkos::CudaSpace>();
-    GRD_rdgz = View1D<double, Kokkos::CudaSpace>();
-    GRD_rdgzh= View1D<double, Kokkos::CudaSpace>();
-    GRD_afact= View1D<double, Kokkos::CudaSpace>();
-    GRD_bfact= View1D<double, Kokkos::CudaSpace>();
-    GRD_cfact= View1D<double, Kokkos::CudaSpace>();
-    GRD_dfact= View1D<double, Kokkos::CudaSpace>();
+    GRD_gz   = View1D<double, DEFAULT_MEM>();
+    GRD_gzh  = View1D<double, DEFAULT_MEM>();
+    GRD_dgz  = View1D<double, DEFAULT_MEM>();
+    GRD_dgzh = View1D<double, DEFAULT_MEM>();
+    GRD_rdgz = View1D<double, DEFAULT_MEM>();
+    GRD_rdgzh= View1D<double, DEFAULT_MEM>();
+    GRD_afact= View1D<double, DEFAULT_MEM>();
+    GRD_bfact= View1D<double, DEFAULT_MEM>();
+    GRD_cfact= View1D<double, DEFAULT_MEM>();
+    GRD_dfact= View1D<double, DEFAULT_MEM>();
 
-    CVW= View1D<double, Kokkos::CudaSpace>();
-    CPW= View1D<double, Kokkos::CudaSpace>();
+    CVW= View1D<double, DEFAULT_MEM>();
+    CPW= View1D<double, DEFAULT_MEM>();
 
 }
 Kokkos::finalize();
