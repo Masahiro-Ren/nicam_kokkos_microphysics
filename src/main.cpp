@@ -92,18 +92,18 @@ Kokkos::initialize(argc, argv);
     /**
      * For result checking
      */
-    View3D<double, Kokkos::HostSpace> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View3D<double, Kokkos::HostSpace> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
     
     /**
      * Display Execution Configurations
