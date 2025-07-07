@@ -206,7 +206,7 @@ namespace DEBUG {
         double rhogkin_h[kdim][ijdim],
         double rhogkin_v[kdim][ijdim] )
     {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -278,7 +278,7 @@ namespace DEBUG {
         const View2D<double, DEFAULT_MEM>&  rhogkin_h,
         const View2D<double, DEFAULT_MEM>&  rhogkin_v )
     {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 

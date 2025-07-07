@@ -78,7 +78,7 @@ void mp_driver( int l_region,
 				double CBMFX		 [kdim][ijdim]
 				)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -387,7 +387,7 @@ void mp_driver( int l_region,
 				const View<double**>&  CBMFX		 
 				)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 

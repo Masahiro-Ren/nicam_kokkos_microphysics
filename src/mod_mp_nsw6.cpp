@@ -466,7 +466,7 @@ void mp_nsw6(
             double dt
             )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -2521,7 +2521,7 @@ void mp_nsw6(
             double dt
             )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
     // working
@@ -3528,7 +3528,7 @@ void negative_filter( double rhog  [kdim][ijdim],
                       double q     [nqmax][kdim][ijdim],
                       double gsgam2[kdim][ijdim]  )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -3618,7 +3618,7 @@ void Bergeron_param( double tem[kdim][ijdim],
                      double a2 [kdim][ijdim],
                      double ma2[kdim][ijdim])
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -3672,7 +3672,7 @@ void negative_filter( const View<double**>&  rhog,
                       const View<double***>& q,     
                       const View<double**>&  gsgam2)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -3748,7 +3748,7 @@ void Bergeron_param( const View<double**> tem,
                      const View<double**> a2 ,
                      const View<double**> ma2)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 

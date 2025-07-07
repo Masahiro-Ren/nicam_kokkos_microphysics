@@ -41,7 +41,7 @@ void precip_transport_new(  double rhog               [kdim][ijdim],
                             double **precip_trc = nullptr      // precip[nqmax][ijdim]
                             )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -609,7 +609,7 @@ void precip_transport_new(  const View<double**>&  rhog               ,
                             double **precip_trc      // precip[nqmax][ijdim]
                             )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 

@@ -15,7 +15,7 @@ void vadv1d_prep( int    mkmin,
                   int kcell_min   [kdim],
                   double dt)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -148,7 +148,7 @@ void vadv1d_getflux_new( int    mkmin,
                          int    kcell_min[kdim],
                          double frhof    [kdim][ijdim] )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -239,7 +239,7 @@ void vadv1d_prep( int    mkmin,
                   View<int*>&  kcell_min   ,
                   double dt)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -377,7 +377,7 @@ void vadv1d_getflux_new( int    mkmin,
                          View<int*>&     kcell_min,
                          View<double**>&  frhof     )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 

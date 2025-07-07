@@ -23,7 +23,7 @@ double LovR_ice;
 
 void SATURATION_Setup()
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -54,7 +54,7 @@ void SATURATION_Setrange(double Tw, double Ti)
 
 void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -79,7 +79,7 @@ void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim])
 // void SATURATION_psat_liq(const View<double**>& tem, const View<double**>& psat)
 void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<double, DEFAULT_MEM>& psat)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -107,7 +107,7 @@ void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<do
 
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -132,7 +132,7 @@ void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim])
 // void SATURATION_psat_ice(const View<double**>& tem, const View<double**>& psat)
 void SATURATION_psat_ice(const View2D<double, DEFAULT_MEM>& tem, const View2D<double, DEFAULT_MEM>& psat)
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -167,11 +167,11 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double gsgam2 [kdim][ijdim],
                             bool   ice_adjust )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-    double ein_mosit[kdim][ijdim];
+    double ein_moist[kdim][ijdim];
     double qsum     [kdim][ijdim];
     double CVtot    [kdim][ijdim];
     double rho      [kdim][ijdim];
@@ -183,7 +183,7 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                ein_mosit[k][ij] = rhoge[k][ij] / rhog[k][ij] 
+                ein_moist[k][ij] = rhoge[k][ij] / rhog[k][ij] 
                                     + q[I_QV][k][ij] * LHV 
                                     - q[I_QI][k][ij] * LHF;
                 qsum[k][ij] = q[I_QV][k][ij] 
@@ -202,7 +202,7 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
         {
             for(int ij = 0; ij < ijdim; ij++)
             {
-                ein_mosit[k][ij] = rhoge[k][ij] / rhog[k][ij] 
+                ein_moist[k][ij] = rhoge[k][ij] / rhog[k][ij] 
                                     + q[I_QV][k][ij] * LHV;
 
                 qsum[k][ij] = q[I_QV][k][ij] 
@@ -221,17 +221,17 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
         for(int ij = 0; ij < ijdim; ij++)
         {
             rho[k][ij] = rhog[k][ij] /  gsgam2[k][ij];
-            tem[k][ij] = ( ein_mosit[k][ij] - q[I_QV][k][ij] * LHV ) / CVtot[k][ij];
+            tem[k][ij] = ( ein_moist[k][ij] - q[I_QV][k][ij] * LHV ) / CVtot[k][ij];
         }
     }
 
     if(I_QI > 0 && ice_adjust)
     {
-        satadjust_all(rho, ein_mosit, qsum, tem, q);
+        satadjust_all(rho, ein_moist, qsum, tem, q);
     }
     else
     {
-        satadjust_liq(rho, ein_mosit, qsum, tem, q);
+        satadjust_liq(rho, ein_moist, qsum, tem, q);
     }
 
 
@@ -272,18 +272,18 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
  */
 void SATURATION_adjustment( const View2D<double, DEFAULT_MEM>&  rhog   ,
                             const View2D<double, DEFAULT_MEM>&  rhoge  ,
-                            const View3D<double, DEFAULT_MEM>& rhogq  ,
+                            const View3D<double, DEFAULT_MEM>&  rhogq  ,
                             const View2D<double, DEFAULT_MEM>&  tem    ,
-                            const View3D<double, DEFAULT_MEM>& q      ,
+                            const View3D<double, DEFAULT_MEM>&  q      ,
                             const View2D<double, DEFAULT_MEM>&  qd     ,
                             const View2D<double, DEFAULT_MEM>&  gsgam2 ,
                             bool   ice_adjust )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-    View2D<double, DEFAULT_MEM> ein_mosit("ein_mosit", kdim, ijdim);
+    View2D<double, DEFAULT_MEM> ein_moist("ein_moist", kdim, ijdim);
     View2D<double, DEFAULT_MEM> qsum     ("qsum     ", kdim, ijdim);
     View2D<double, DEFAULT_MEM> CVtot    ("CVtot    ", kdim, ijdim);
     View2D<double, DEFAULT_MEM> rho      ("rho      ", kdim, ijdim);
@@ -293,7 +293,7 @@ void SATURATION_adjustment( const View2D<double, DEFAULT_MEM>&  rhog   ,
     {
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-            ein_mosit(k,ij) = rhoge(k,ij) / rhog(k,ij) 
+            ein_moist(k,ij) = rhoge(k,ij) / rhog(k,ij) 
                               + q(I_QV,k,ij) * LHV 
                               - q(I_QI,k,ij) * LHF;
             qsum(k,ij) =  q(I_QV,k,ij) 
@@ -310,7 +310,7 @@ void SATURATION_adjustment( const View2D<double, DEFAULT_MEM>&  rhog   ,
 
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-            ein_mosit(k,ij) = rhoge(k,ij) / rhog(k,ij) 
+            ein_moist(k,ij) = rhoge(k,ij) / rhog(k,ij) 
                                 + q(I_QV,k,ij) * LHV;
 
             qsum(k,ij) =  q(I_QV,k,ij) 
@@ -326,16 +326,16 @@ void SATURATION_adjustment( const View2D<double, DEFAULT_MEM>&  rhog   ,
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
         rho(k,ij) = rhog(k,ij) /  gsgam2(k,ij);
-        tem(k,ij) = ( ein_mosit(k,ij) - q(I_QV,k,ij) * LHV ) / CVtot(k,ij);
+        tem(k,ij) = ( ein_moist(k,ij) - q(I_QV,k,ij) * LHV ) / CVtot(k,ij);
     });
 
     if(I_QI > 0 && ice_adjust)
     {
-        satadjust_all(rho, ein_mosit, qsum, tem, q);
+        satadjust_all(rho, ein_moist, qsum, tem, q);
     }
     else
     {
-        satadjust_liq(rho, ein_mosit, qsum, tem, q);
+        satadjust_liq(rho, ein_moist, qsum, tem, q);
     }
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
@@ -366,7 +366,7 @@ void satadjust_all( double rho    [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -488,7 +488,7 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     double tem    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -622,7 +622,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
                     const View2D<double, DEFAULT_MEM>&  tem    ,
                     const View3D<double, DEFAULT_MEM>& q       )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -769,7 +769,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
                     const View2D<double, DEFAULT_MEM>&  tem    ,
                     const View3D<double, DEFAULT_MEM>&  q      )
 {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
