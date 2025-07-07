@@ -72,15 +72,15 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] );
 
 // Kokkos private procedures
-void satadjust_all( const View<double**>&  rho    ,
-                    const View<double**>&  Emoist ,
-                    const View<double**>&  qsum   ,
-                    const View<double**>&  tem    ,
-                    const View<double***>& q       );
+void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
+                    const View2D<double, DEFAULT_MEM>&  Emoist ,
+                    const View2D<double, DEFAULT_MEM>&  qsum   ,
+                    const View2D<double, DEFAULT_MEM>&  tem    ,
+                    const View3D<double, DEFAULT_MEM>&  q       );
 
-void satadjust_liq( const View<double**>&  rho    ,
-                    const View<double**>&  Emoist ,
-                    const View<double**>&  qsum   ,
-                    const View<double**>&  tem    ,
-                    const View<double***>& q       );
+void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
+                    const View2D<double, DEFAULT_MEM>&  Emoist ,
+                    const View2D<double, DEFAULT_MEM>&  qsum   ,
+                    const View2D<double, DEFAULT_MEM>&  tem    ,
+                    const View3D<double, DEFAULT_MEM>&  q       );
 }

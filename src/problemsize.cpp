@@ -15,16 +15,16 @@ double arrGRD_bfact[ADM_kall];
 double arrGRD_cfact[ADM_kall];
 double arrGRD_dfact[ADM_kall];
 // view version of grd, gmtr, vmtr
-View1D<double, Kokkos::CudaSpace> GRD_gz   ;
-View1D<double, Kokkos::CudaSpace> GRD_gzh  ;
-View1D<double, Kokkos::CudaSpace> GRD_dgz  ;
-View1D<double, Kokkos::CudaSpace> GRD_dgzh ;
-View1D<double, Kokkos::CudaSpace> GRD_rdgz ;
-View1D<double, Kokkos::CudaSpace> GRD_rdgzh;
-View1D<double, Kokkos::CudaSpace> GRD_afact;
-View1D<double, Kokkos::CudaSpace> GRD_bfact;
-View1D<double, Kokkos::CudaSpace> GRD_cfact;
-View1D<double, Kokkos::CudaSpace> GRD_dfact;
+View1D<double, DEFAULT_MEM> GRD_gz   ;
+View1D<double, DEFAULT_MEM> GRD_gzh  ;
+View1D<double, DEFAULT_MEM> GRD_dgz  ;
+View1D<double, DEFAULT_MEM> GRD_dgzh ;
+View1D<double, DEFAULT_MEM> GRD_rdgz ;
+View1D<double, DEFAULT_MEM> GRD_rdgzh;
+View1D<double, DEFAULT_MEM> GRD_afact;
+View1D<double, DEFAULT_MEM> GRD_bfact;
+View1D<double, DEFAULT_MEM> GRD_cfact;
+View1D<double, DEFAULT_MEM> GRD_dfact;
 
 // define run conf
 std::string EIN_TYPE     = "SIMPLE";
