@@ -452,9 +452,16 @@ void vadv1d_getflux_new( int    mkmin,
         {
             for(int k2 = kcell_min(k); k2 <= kcell_max(k); k2++)
             {
+                double f1 = static_cast<double>(k2 - (kcell(k,ij)+1));
+                double f2 = static_cast<double>((k-1) - k2);
+                double f3 = static_cast<double>(k2 - k);
+                double f4 = static_cast<double>((kcell(k,ij) - 1) - k2);
+                // double fact = dz(k2) * 0.25
+                //                      * (  ( copysign(1, k2 - (kcell(k,ij)+1)) + 1.0 ) * ( copysign(1, (k-1) - k2) + 1.0 )
+                //                      - ( copysign(1, k2 - k) + 1.0 ) * ( copysign(1, (kcell(k,ij) - 1) - k2) + 1.0 ) );
                 double fact = dz(k2) * 0.25
-                                     * (  ( copysign(1, k2 - (kcell(k,ij)+1)) + 1.0 ) * ( copysign(1, (k-1) - k2) + 1.0 )
-                                     - ( copysign(1, k2 - k) + 1.0 ) * ( copysign(1, (kcell(k,ij) - 1) - k2) + 1.0 ) );
+                                     * (  ( copysign(1.0, f1) + 1.0 ) * ( copysign(1.0, f2) + 1.0 )
+                                     - ( copysign(1, f3) + 1.0 ) * ( copysign(1, f4) + 1.0 ) );
                 
                 frhof(k,ij) = frhof(k,ij) + rhof(k2,ij) * fact;
                 zdis(k,ij) = zdis0(k,ij) - fact;
