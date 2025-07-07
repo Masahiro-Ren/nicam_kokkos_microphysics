@@ -84,7 +84,6 @@ void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<do
 #endif
 
     double h_RTEM00 = 1.0 / CONST_TEM00;
-    double h_PSAT0 = CONST_PSAT0;
 
     View<double> RTEM00("RTEM00");
     View<double> PSAT0("PSAT0");
@@ -649,6 +648,8 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
     View<double> CVovR_ice("CVovR_ice");
     View<double> LovR_liq("LovR_liq");
     View<double> LovR_ice("LovR_ice");
+    View<double> SATURATION_LLIMIT_TEMP("sat_llimit_temp");
+    View<double> SATURATION_ULIMIT_TEMP("sat_ulimit_temp");
 
     Kokkos::deep_copy(RTEM00, h_RTEM00);
     Kokkos::deep_copy(PSAT0, CONST_PSAT0);
@@ -662,7 +663,8 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
     Kokkos::deep_copy(CVovR_ice, SATADJUST::CVovR_ice);
     Kokkos::deep_copy(LovR_liq, SATADJUST::LovR_liq);
     Kokkos::deep_copy(LovR_ice, SATADJUST::LovR_ice);
-
+    Kokkos::deep_copy(SATURATION_LLIMIT_TEMP, ::SATURATION_LLIMIT_TEMP);
+    Kokkos::deep_copy(SATURATION_ULIMIT_TEMP, ::SATURATION_ULIMIT_TEMP);
 
     constexpr int itelim = 100;
     // bool converged;
@@ -671,7 +673,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
     KOKKOS_LAMBDA(const size_t k,  const size_t ij){
-        double alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP ) / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
+        double alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP() ) / ( SATURATION_ULIMIT_TEMP() - SATURATION_LLIMIT_TEMP() );
         alpha = min( max(alpha, 0.0), 1.0 );
 
         double rtem = 1.0 / ( max(tem(k,ij), TEM_MIN) );
@@ -689,7 +691,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
             double dtemp;
             for(ite = 0; ite < itelim; ite++)
             {
-                alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP ) / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
+                alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP() ) / ( SATURATION_ULIMIT_TEMP() - SATURATION_LLIMIT_TEMP() );
                 alpha = min( max(alpha, 0.0), 1.0 );
 
                 rtem = 1.0 / ( max(tem(k,ij), TEM_MIN) );
@@ -714,9 +716,9 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
                 double Emoist_new = tem(k,ij) * CVtot + q(I_QV,k,ij) * LHV - q(I_QI,k,ij) * LHF;
 
                 // dx/dT
-                double lim1 = 0.5 + copysign(0.5, SATURATION_ULIMIT_TEMP - tem(k,ij));
-                double lim2 = 0.5 + copysign(0.5, tem(k,ij) - SATURATION_LLIMIT_TEMP);
-                double dalpha_dT = lim1 * lim2 / ( SATURATION_ULIMIT_TEMP - SATURATION_LLIMIT_TEMP );
+                double lim1 = 0.5 + copysign(0.5, SATURATION_ULIMIT_TEMP() - tem(k,ij));
+                double lim2 = 0.5 + copysign(0.5, tem(k,ij) - SATURATION_LLIMIT_TEMP());
+                double dalpha_dT = lim1 * lim2 / ( SATURATION_ULIMIT_TEMP() - SATURATION_LLIMIT_TEMP() );
 
                 double dqsatl_dT = ( LovR_liq() / (pow(tem(k,ij), 2)) + CVovR_liq() / tem(k,ij) ) * qsatl;
                 double dqsati_dT = ( LovR_ice() / (pow(tem(k,ij), 2)) + CVovR_ice() / tem(k,ij) ) * qsati;
@@ -804,6 +806,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
     View<double> LovR_ice("LovR_ice");
 
     constexpr int itelim = 100;
+    auto CVW = PROBLEM_SIZE::CVW;
     Kokkos::deep_copy(RTEM00, h_RTEM00);
     Kokkos::deep_copy(PSAT0, CONST_PSAT0);
     Kokkos::deep_copy(Rvap , CONST_Rvap);
@@ -821,7 +824,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        double rtem = 1.0 / ( std::max(tem(k,ij), TEM_MIN) );
+        double rtem = 1.0 / ( max(tem(k,ij), TEM_MIN) );
 
         double psat = PSAT0() * ( pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * exp(LovR_liq() * (RTEM00() - rtem));
 
