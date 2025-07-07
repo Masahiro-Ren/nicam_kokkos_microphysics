@@ -305,7 +305,7 @@ Kokkos::initialize(argc, argv);
     /**
      * Saturation set_up
      */
-    // SATURATION_Setup();
+    SATURATION_Setup();
     // /**
     //  * microphysics initialization
     //  */
