@@ -34,13 +34,13 @@ using DEFAULT_MEM = HOST_MEM;
 #endif
 
 template<typename T, typename S>
-using View1D = Kokkos::View<T*,S>;
+using View1D = Kokkos::View<T*, Kokkos::LayoutRight, S>;
 template<typename T, typename S>
-using View2D = Kokkos::View<T**,S>;
+using View2D = Kokkos::View<T**, Kokkos::LayoutRight, S>;
 template<typename T, typename S>
-using View3D = Kokkos::View<T***,S>;
+using View3D = Kokkos::View<T***, Kokkos::LayoutRight, S>;
 template<typename T, typename S>
-using View4D = Kokkos::View<T****,S>;
+using View4D = Kokkos::View<T****, Kokkos::LayoutRight, S>;
 
 namespace PROBLEM_SIZE 
 {
