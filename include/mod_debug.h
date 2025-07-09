@@ -58,7 +58,7 @@ void cnvvar_rhogkin_in(
 
 double MISC_gammafunc(double xx);
 
-void PROF_val_check(const std::string& val_name, const View<double****>& arr4d, const size_t idx_arr2d, const View<double***>& CHECK_arr3d);
+void PROF_val_check(const std::string& val_name, const View4D<double, DEFAULT_MEM>& arr4d, const size_t idx_arr2d, const View3D<double, HOST_MEM>& CHECK_arr3d);
 
-void PROF_val_check(const std::string& val_name, const View<double***>& arr3d, const View<double***>& CHECK_arr3d);
+void PROF_val_check(const std::string& val_name, const View3D<double, DEFAULT_MEM>& arr3d, const View3D<double, HOST_MEM>& CHECK_arr3d);
 }
