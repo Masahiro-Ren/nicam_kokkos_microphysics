@@ -129,174 +129,113 @@ Kokkos::initialize(argc, argv);
      * Create Host Mirror
      */
     // Example: View3D<double, Kokkos::CudaSpace>::HostMirror h_rhog   = Kokkos::create_mirror_view(rhog  );
-    auto h_rhog   = Kokkos::create_mirror_view(rhog  );
-    auto h_rhogvx = Kokkos::create_mirror_view(rhogvx);
-    auto h_rhogvy = Kokkos::create_mirror_view(rhogvy);
-    auto h_rhogvz = Kokkos::create_mirror_view(rhogvz);
-    auto h_rhogw  = Kokkos::create_mirror_view(rhogw );
-    auto h_rhoge  = Kokkos::create_mirror_view(rhoge );
-    auto h_vx     = Kokkos::create_mirror_view(vx    );
-    auto h_vy     = Kokkos::create_mirror_view(vy    );
-    auto h_vz     = Kokkos::create_mirror_view(vz    );
-    auto h_w      = Kokkos::create_mirror_view(w     );
-    auto h_unccn  = Kokkos::create_mirror_view(unccn );
-    auto h_rho    = Kokkos::create_mirror_view(rho   );
-    auto h_pre    = Kokkos::create_mirror_view(pre   );
-    auto h_tem    = Kokkos::create_mirror_view(tem   );
+    // auto h_rhog   = Kokkos::create_mirror_view(rhog  );
+    // auto h_rhogvx = Kokkos::create_mirror_view(rhogvx);
+    // auto h_rhogvy = Kokkos::create_mirror_view(rhogvy);
+    // auto h_rhogvz = Kokkos::create_mirror_view(rhogvz);
+    // auto h_rhogw  = Kokkos::create_mirror_view(rhogw );
+    // auto h_rhoge  = Kokkos::create_mirror_view(rhoge );
+    // auto h_vx     = Kokkos::create_mirror_view(vx    );
+    // auto h_vy     = Kokkos::create_mirror_view(vy    );
+    // auto h_vz     = Kokkos::create_mirror_view(vz    );
+    // auto h_w      = Kokkos::create_mirror_view(w     );
+    // auto h_unccn  = Kokkos::create_mirror_view(unccn );
+    // auto h_rho    = Kokkos::create_mirror_view(rho   );
+    // auto h_pre    = Kokkos::create_mirror_view(pre   );
+    // auto h_tem    = Kokkos::create_mirror_view(tem   );
 
-    auto h_rhogq_Lswp = Kokkos::create_mirror_view(rhogq_Lswp);
-    auto h_q_Lswp     = Kokkos::create_mirror_view(q_Lswp    );
+    // auto h_rhogq_Lswp = Kokkos::create_mirror_view(rhogq_Lswp);
+    // auto h_q_Lswp     = Kokkos::create_mirror_view(q_Lswp    );
 
-    auto h_precip_mp  = Kokkos::create_mirror_view(precip_mp );
-    auto h_precip1_mp = Kokkos::create_mirror_view(precip1_mp);
-    auto h_precip2_mp = Kokkos::create_mirror_view(precip2_mp);
+    // auto h_precip_mp  = Kokkos::create_mirror_view(precip_mp );
+    // auto h_precip1_mp = Kokkos::create_mirror_view(precip1_mp);
+    // auto h_precip2_mp = Kokkos::create_mirror_view(precip2_mp);
 
-    auto h_rhoein_precip_mp = Kokkos::create_mirror_view(rhoein_precip_mp);
-    auto h_lh_precip_mp     = Kokkos::create_mirror_view(lh_precip_mp    );
-    auto h_rhophi_precip_mp = Kokkos::create_mirror_view(rhophi_precip_mp);
-    auto h_rhokin_precip_mp = Kokkos::create_mirror_view(rhokin_precip_mp);
+    // auto h_rhoein_precip_mp = Kokkos::create_mirror_view(rhoein_precip_mp);
+    // auto h_lh_precip_mp     = Kokkos::create_mirror_view(lh_precip_mp    );
+    // auto h_rhophi_precip_mp = Kokkos::create_mirror_view(rhophi_precip_mp);
+    // auto h_rhokin_precip_mp = Kokkos::create_mirror_view(rhokin_precip_mp);
 
-    auto h_frhoge_af  = Kokkos::create_mirror_view(frhoge_af );
-    auto h_frhogqv_af = Kokkos::create_mirror_view(frhogqv_af);
-    auto h_frhoge_rad = Kokkos::create_mirror_view(frhoge_rad);
-    auto h_qke        = Kokkos::create_mirror_view(qke       );
-    auto h_gsgam2     = Kokkos::create_mirror_view(gsgam2    );
-    auto h_gsgam2h    = Kokkos::create_mirror_view(gsgam2h   );
-    auto h_gam2       = Kokkos::create_mirror_view(gam2      );
-    auto h_gam2h      = Kokkos::create_mirror_view(gam2h     );
+    // auto h_frhoge_af  = Kokkos::create_mirror_view(frhoge_af );
+    // auto h_frhogqv_af = Kokkos::create_mirror_view(frhogqv_af);
+    // auto h_frhoge_rad = Kokkos::create_mirror_view(frhoge_rad);
+    // auto h_qke        = Kokkos::create_mirror_view(qke       );
+    // auto h_gsgam2     = Kokkos::create_mirror_view(gsgam2    );
+    // auto h_gsgam2h    = Kokkos::create_mirror_view(gsgam2h   );
+    // auto h_gam2       = Kokkos::create_mirror_view(gam2      );
+    // auto h_gam2h      = Kokkos::create_mirror_view(gam2h     );
 
-    auto h_ix = Kokkos::create_mirror_view(ix);
-    auto h_iy = Kokkos::create_mirror_view(iy);
-    auto h_iz = Kokkos::create_mirror_view(iz);
-    auto h_jx = Kokkos::create_mirror_view(jx);
-    auto h_jy = Kokkos::create_mirror_view(jy);
-    auto h_jz = Kokkos::create_mirror_view(jz);
+    // auto h_ix = Kokkos::create_mirror_view(ix);
+    // auto h_iy = Kokkos::create_mirror_view(iy);
+    // auto h_iz = Kokkos::create_mirror_view(iz);
+    // auto h_jx = Kokkos::create_mirror_view(jx);
+    // auto h_jy = Kokkos::create_mirror_view(jy);
+    // auto h_jz = Kokkos::create_mirror_view(jz);
 
-    auto h_z           = Kokkos::create_mirror_view(z          );
-    auto h_zh          = Kokkos::create_mirror_view(zh         );
-    auto h_GPREC       = Kokkos::create_mirror_view(GPREC      );
-    auto h_CBMFX       = Kokkos::create_mirror_view(CBMFX      );
-    auto h_qd          = Kokkos::create_mirror_view(qd         );
-    auto h_rceff       = Kokkos::create_mirror_view(rceff      );
-    auto h_rceff_solid = Kokkos::create_mirror_view(rceff_solid);
-    auto h_rceff_cld   = Kokkos::create_mirror_view(rceff_cld  );
+    // auto h_z           = Kokkos::create_mirror_view(z          );
+    // auto h_zh          = Kokkos::create_mirror_view(zh         );
+    // auto h_GPREC       = Kokkos::create_mirror_view(GPREC      );
+    // auto h_CBMFX       = Kokkos::create_mirror_view(CBMFX      );
+    // auto h_qd          = Kokkos::create_mirror_view(qd         );
+    // auto h_rceff       = Kokkos::create_mirror_view(rceff      );
+    // auto h_rceff_solid = Kokkos::create_mirror_view(rceff_solid);
+    // auto h_rceff_cld   = Kokkos::create_mirror_view(rceff_cld  );
 
-    auto h_rctop  = Kokkos::create_mirror_view(rctop );
-    auto h_rwtop  = Kokkos::create_mirror_view(rwtop );
-    auto h_tctop  = Kokkos::create_mirror_view(tctop );
+    // auto h_rctop  = Kokkos::create_mirror_view(rctop );
+    // auto h_rwtop  = Kokkos::create_mirror_view(rwtop );
+    // auto h_tctop  = Kokkos::create_mirror_view(tctop );
 
-    auto h_GDCLW  = Kokkos::create_mirror_view(GDCLW );
-    auto h_GDCFRC = Kokkos::create_mirror_view(GDCFRC);
+    // auto h_GDCLW  = Kokkos::create_mirror_view(GDCLW );
+    // auto h_GDCFRC = Kokkos::create_mirror_view(GDCFRC);
 
-    read_data_3d("data/rhog.dat",   h_rhog);
-    read_data_3d("data/rhogvx.dat", h_rhogvx);
-    read_data_3d("data/rhogvy.dat", h_rhogvy);
-    read_data_3d("data/rhogvz.dat", h_rhogvz);
-    read_data_3d("data/rhogw.dat",  h_rhogw);
-    read_data_3d("data/rhoge.dat",  h_rhoge);
-    read_data_3d("data/vx.dat",     h_vx);
-    read_data_3d("data/vy.dat",     h_vy);
-    read_data_3d("data/vz.dat",     h_vz);
-    read_data_3d("data/w.dat",      h_w);
-    read_data_3d("data/unccn.dat",  h_unccn);
-    read_data_3d("data/rho.dat",    h_rho);
-    read_data_3d("data/pre.dat",    h_pre);
-    read_data_3d("data/tem.dat",    h_tem);
+    read_data_3d("data/rhog.dat",   rhog);
+    read_data_3d("data/rhogvx.dat", rhogvx);
+    read_data_3d("data/rhogvy.dat", rhogvy);
+    read_data_3d("data/rhogvz.dat", rhogvz);
+    read_data_3d("data/rhogw.dat",  rhogw);
+    read_data_3d("data/rhoge.dat",  rhoge);
+    read_data_3d("data/vx.dat",     vx);
+    read_data_3d("data/vy.dat",     vy);
+    read_data_3d("data/vz.dat",     vz);
+    read_data_3d("data/w.dat",      w);
+    read_data_3d("data/unccn.dat",  unccn);
+    read_data_3d("data/rho.dat",    rho);
+    read_data_3d("data/pre.dat",    pre);
+    read_data_3d("data/tem.dat",    tem);
 
-    read_data_4d("data/rhogq_Lswp.dat", h_rhogq_Lswp);
-    read_data_4d("data/q_Lswp.dat",     h_q_Lswp);
+    read_data_4d("data/rhogq_Lswp.dat", rhogq_Lswp);
+    read_data_4d("data/q_Lswp.dat",     q_Lswp);
 
-    read_data_4d("data/precip_mp.dat",  h_precip_mp);
-    read_data_4d("data/precip1_mp.dat", h_precip1_mp);
-    read_data_4d("data/precip2_mp.dat", h_precip2_mp);
+    read_data_4d("data/precip_mp.dat",  precip_mp);
+    read_data_4d("data/precip1_mp.dat", precip1_mp);
+    read_data_4d("data/precip2_mp.dat", precip2_mp);
 
-    read_data_3d("data/rhoein_precip_mp.dat", h_rhoein_precip_mp);
-    read_data_3d("data/lh_precip_mp.dat",     h_lh_precip_mp);
-    read_data_3d("data/rhophi_precip_mp.dat", h_rhophi_precip_mp);
-    read_data_3d("data/rhokin_precip_mp.dat", h_rhokin_precip_mp);
+    read_data_3d("data/rhoein_precip_mp.dat", rhoein_precip_mp);
+    read_data_3d("data/lh_precip_mp.dat",     lh_precip_mp);
+    read_data_3d("data/rhophi_precip_mp.dat", rhophi_precip_mp);
+    read_data_3d("data/rhokin_precip_mp.dat", rhokin_precip_mp);
 
-    read_data_3d("data/frhoge_af.dat",  h_frhoge_af);
-    read_data_3d("data/frhogqv_af.dat", h_frhogqv_af);
-    read_data_3d("data/frhoge_rad.dat", h_frhoge_rad);
-    read_data_3d("data/qke.dat",     h_qke);
-    read_data_3d("data/gsgam2.dat",  h_gsgam2);
-    read_data_3d("data/gsgam2h.dat", h_gsgam2h);
-    read_data_3d("data/gam2.dat",    h_gam2);
-    read_data_3d("data/gam2h.dat",   h_gam2h);
+    read_data_3d("data/frhoge_af.dat",  frhoge_af);
+    read_data_3d("data/frhogqv_af.dat", frhogqv_af);
+    read_data_3d("data/frhoge_rad.dat", frhoge_rad);
+    read_data_3d("data/qke.dat",     qke);
+    read_data_3d("data/gsgam2.dat",  gsgam2);
+    read_data_3d("data/gsgam2h.dat", gsgam2h);
+    read_data_3d("data/gam2.dat",    gam2);
+    read_data_3d("data/gam2h.dat",   gam2h);
 
-    read_data_2d("data/ix.dat", h_ix);
-    read_data_2d("data/iy.dat", h_iy);
-    read_data_2d("data/iz.dat", h_iz);
-    read_data_2d("data/jx.dat", h_jx);
-    read_data_2d("data/jy.dat", h_jy);
-    read_data_2d("data/jz.dat", h_jz);
+    read_data_2d("data/ix.dat", ix);
+    read_data_2d("data/iy.dat", iy);
+    read_data_2d("data/iz.dat", iz);
+    read_data_2d("data/jx.dat", jx);
+    read_data_2d("data/jy.dat", jy);
+    read_data_2d("data/jz.dat", jz);
 
-    read_data_3d("data/z.dat",  h_z);
-    read_data_3d("data/zh.dat", h_zh);
-    read_data_3d("data/GPREC.dat", h_GPREC);
-    read_data_3d("data/CBMFX.dat", h_CBMFX);
+    read_data_3d("data/z.dat",  z);
+    read_data_3d("data/zh.dat", zh);
+    read_data_3d("data/GPREC.dat", GPREC);
+    read_data_3d("data/CBMFX.dat", CBMFX);
 
-    // copy data from host to device
-    Kokkos::fence();
-    Kokkos::deep_copy(rhog  , h_rhog   );
-    Kokkos::deep_copy(rhogvx, h_rhogvx );
-    Kokkos::deep_copy(rhogvy, h_rhogvy );
-    Kokkos::deep_copy(rhogvz, h_rhogvz );
-    Kokkos::deep_copy(rhogw , h_rhogw  );
-    Kokkos::deep_copy(rhoge , h_rhoge  );
-    Kokkos::deep_copy(vx    , h_vx     );
-    Kokkos::deep_copy(vy    , h_vy     );
-    Kokkos::deep_copy(vz    , h_vz     );
-    Kokkos::deep_copy(w     , h_w      );
-    Kokkos::deep_copy(unccn , h_unccn  );
-    Kokkos::deep_copy(rho   , h_rho    );
-    Kokkos::deep_copy(pre   , h_pre    );
-    Kokkos::deep_copy(tem   , h_tem    );
-
-    Kokkos::deep_copy(rhogq_Lswp, h_rhogq_Lswp);
-    Kokkos::deep_copy(q_Lswp    , h_q_Lswp    );
-
-    Kokkos::deep_copy(precip_mp , h_precip_mp );
-    Kokkos::deep_copy(precip1_mp, h_precip1_mp);
-    Kokkos::deep_copy(precip2_mp, h_precip2_mp);
-
-    Kokkos::deep_copy(rhoein_precip_mp, h_rhoein_precip_mp );
-    Kokkos::deep_copy(lh_precip_mp    , h_lh_precip_mp     );
-    Kokkos::deep_copy(rhophi_precip_mp, h_rhophi_precip_mp );
-    Kokkos::deep_copy(rhokin_precip_mp, h_rhokin_precip_mp );
-
-    Kokkos::deep_copy(frhoge_af , h_frhoge_af );
-    Kokkos::deep_copy(frhogqv_af, h_frhogqv_af);
-    Kokkos::deep_copy(frhoge_rad, h_frhoge_rad);
-    Kokkos::deep_copy(qke       , h_qke       );
-    Kokkos::deep_copy(gsgam2    , h_gsgam2    );
-    Kokkos::deep_copy(gsgam2h   , h_gsgam2h   );
-    Kokkos::deep_copy(gam2      , h_gam2      );
-    Kokkos::deep_copy(gam2h     , h_gam2h     );
-
-    Kokkos::deep_copy(ix, h_ix);
-    Kokkos::deep_copy(iy, h_iy);
-    Kokkos::deep_copy(iz, h_iz);
-    Kokkos::deep_copy(jx, h_jx);
-    Kokkos::deep_copy(jy, h_jy);
-    Kokkos::deep_copy(jz, h_jz);
-
-    Kokkos::deep_copy(z          , h_z          );
-    Kokkos::deep_copy(zh         , h_zh         );
-    Kokkos::deep_copy(GPREC      , h_GPREC      );
-    Kokkos::deep_copy(CBMFX      , h_CBMFX      );
-    Kokkos::deep_copy(qd         , h_qd         );
-    Kokkos::deep_copy(rceff      , h_rceff      );
-    Kokkos::deep_copy(rceff_solid, h_rceff_solid);
-    Kokkos::deep_copy(rceff_cld  , h_rceff_cld  );
-
-    Kokkos::deep_copy(rctop, h_rctop);
-    Kokkos::deep_copy(rwtop, h_rwtop);
-    Kokkos::deep_copy(tctop, h_tctop);
-
-    Kokkos::deep_copy(GDCLW , h_GDCLW );
-    Kokkos::deep_copy(GDCFRC, h_GDCFRC);
-    Kokkos::fence();
     /**
      * Vertical grid setup
      */
@@ -443,22 +382,22 @@ Kokkos::initialize(argc, argv);
     }
     std::cout << "============= Finish Kernel =============== \n";
 
-    // if (SET_check)
-    // {
-    //     std::cout << "Checking Reuslts \n";
+    if (SET_check)
+    {
+        std::cout << "Checking Reuslts \n";
 
-    //     read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
-    //     read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
-    //     read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
-    //     read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
-    //     read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
-    //     read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
-    //     read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
-    //     read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
-    //     read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
-    //     read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
-    //     read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
-    //     read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
+        read_data_3d("ref_verify/calculated_rhog_DP.dat",   CHECK_rhog);
+        read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
+        read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
+        read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
+        read_data_3d("ref_verify/calculated_rhoge_DP.dat",  CHECK_rhoge);
+        read_data_3d("ref_verify/calculated_rhogw_DP.dat",  CHECK_rhogw);
+        read_data_3d("ref_verify/calculated_QV1_DP.dat",    CHECK_QV1);
+        read_data_3d("ref_verify/calculated_QC2_DP.dat",    CHECK_QC2);
+        read_data_3d("ref_verify/calculated_QR3_DP.dat",    CHECK_QR3);
+        read_data_3d("ref_verify/calculated_QI4_DP.dat",    CHECK_QI4);
+        read_data_3d("ref_verify/calculated_QS5_DP.dat",    CHECK_QS5);
+        read_data_3d("ref_verify/calculated_QG6_DP.dat",    CHECK_QG6);
 
     //     PROF_val_check("rhog",   rhog,   CHECK_rhog);
     //     PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
@@ -472,7 +411,7 @@ Kokkos::initialize(argc, argv);
     //     PROF_val_check("QI", rhogq_Lswp, I_QI, CHECK_QI4);
     //     PROF_val_check("QS", rhogq_Lswp, I_QS, CHECK_QS5);
     //     PROF_val_check("QG", rhogq_Lswp, I_QG, CHECK_QG6);
-    // }
+    }
 
     std::cout << "============= All process finished =============== \n";
 
