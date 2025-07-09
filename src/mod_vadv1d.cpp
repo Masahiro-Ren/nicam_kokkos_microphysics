@@ -365,7 +365,7 @@ void vadv1d_prep( int    mkmin,
                 h_kcell(k,ij) = 0;
                 for(size_t k2 = h_kcell_min(k); k2 <= h_kcell_max(k); k2++)
                 {
-                    int tmp = int(k2 * std::copysign(1.0, (zh(k)-zdis(k,ij))-zh(k2)) * std::copysign(1.0, zh(k2+1) - (zh(k) - zdis(k,ij))) );
+                    int tmp = int(k2 * std::copysign(1.0, (h_zh(k)-h_zdis(k,ij))-h_zh(k2)) * std::copysign(1.0, h_zh(k2+1) - (h_zh(k) - h_zdis(k,ij))) );
                     h_kcell(k,ij) = std::max(h_kcell(k,ij), tmp);
                 }
             }
@@ -461,7 +461,7 @@ void vadv1d_getflux_new( int    mkmin,
                 //                      - ( copysign(1, k2 - k) + 1.0 ) * ( copysign(1, (kcell(k,ij) - 1) - k2) + 1.0 ) );
                 double fact = dz(k2) * 0.25
                                      * (  ( copysign(1.0, f1) + 1.0 ) * ( copysign(1.0, f2) + 1.0 )
-                                     - ( copysign(1, f3) + 1.0 ) * ( copysign(1, f4) + 1.0 ) );
+                                     - ( copysign(1.0, f3) + 1.0 ) * ( copysign(1.0, f4) + 1.0 ) );
                 
                 frhof(k,ij) = frhof(k,ij) + rhof(k2,ij) * fact;
                 zdis(k,ij) = zdis0(k,ij) - fact;
