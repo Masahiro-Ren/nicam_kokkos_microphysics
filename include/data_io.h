@@ -125,9 +125,25 @@ void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNO
  * Kokkos ver.
  */
 // void read_data_1d(const std::string& filename, View<double*>& arr1d);
-void read_data_1d(const std::string& filename, View1D<double, DEFAULT_MEM> arr1d);
-void read_data_2d(const std::string& filename, View2D<double, DEFAULT_MEM> arr2d);
-void read_data_3d(const std::string& filename, View3D<double, DEFAULT_MEM> arr3d);
-void read_data_4d(const std::string& filename, View4D<double, DEFAULT_MEM> arr4d);
+template<typename MEM_SPACE>
+void read_data_1d(const std::string& filename, View1D<double, MEM_SPACE> arr1d);
+template<typename MEM_SPACE>
+void read_data_2d(const std::string& filename, View2D<double, MEM_SPACE> arr2d);
+template<typename MEM_SPACE>
+void read_data_3d(const std::string& filename, View3D<double, MEM_SPACE> arr3d);
+template<typename MEM_SPACE>
+void read_data_4d(const std::string& filename, View4D<double, MEM_SPACE> arr4d);
+
+extern template void read_data_1d<HOST_MEM>(const std::string& filename, View1D<double, HOST_MEM> arr1d); 
+extern template void read_data_2d<HOST_MEM>(const std::string& filename, View2D<double, HOST_MEM> arr2d); 
+extern template void read_data_3d<HOST_MEM>(const std::string& filename, View3D<double, HOST_MEM> arr3d); 
+extern template void read_data_4d<HOST_MEM>(const std::string& filename, View4D<double, HOST_MEM> arr4d); 
+
+#ifdef USE_CUDA
+extern template void read_data_1d<DEVICE_MEM>(const std::string& filename, View1D<double, DEVICE_MEM> arr1d); 
+extern template void read_data_2d<DEVICE_MEM>(const std::string& filename, View2D<double, DEVICE_MEM> arr2d); 
+extern template void read_data_3d<DEVICE_MEM>(const std::string& filename, View3D<double, DEVICE_MEM> arr3d); 
+extern template void read_data_4d<DEVICE_MEM>(const std::string& filename, View4D<double, DEVICE_MEM> arr4d); 
+#endif
 
 }
