@@ -375,9 +375,9 @@ namespace DEBUG {
         KOKKOS_LAMBDA(const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
             double err = std::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
             local_sum += err;
-            local_min = std::min(local_min, err);
-            local_max = std::max(local_max, err);
-        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
+            local_min = Kokkos::min(local_min, err);
+            local_max = Kokkos::max(local_max, err);
+        }, err_sum, Kokkos::Min<double, HOST_MEM>(err_min), Kokkos::Max<double,HOST_MEM>(err_max));
 
         std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
@@ -397,9 +397,9 @@ namespace DEBUG {
         KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
             double err = std::abs(h_arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
             local_sum += err;
-            local_min = std::min(local_min, err);
-            local_max = std::max(local_max, err);
-        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
+            local_min = Kokkos::min(local_min, err);
+            local_max = Kokkos::max(local_max, err);
+        }, err_sum, Kokkos::Min<double, HOST_MEM>(err_min), Kokkos::Max<double, HOST_MEM>(err_max));
 
         std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
