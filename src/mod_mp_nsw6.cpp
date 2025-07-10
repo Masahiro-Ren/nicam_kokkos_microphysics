@@ -833,8 +833,39 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     const double As = paras.As;
     const double N0r = paras.N0r;
     const double N0s = paras.N0s;
-    const double GAM_1br = para.GAM_1br;
-    const double GAM_1bs = para.GAM_1bs;
+
+    const double GAM     = paras.GAM  ;
+    const double GAM_2   = paras.GAM_2;
+    const double GAM_3   = paras.GAM_3;
+    const double GAM_1br = paras.GAM_1br;
+    const double GAM_1bs = paras.GAM_1bs;
+    const double GAM_2bs = paras.GAM_2bs;
+    const double GAM_3bs = paras.GAM_3bs;
+    const double GAM_3ds = paras.GAM_3ds;
+    const double GAM_5ds_h = paras.GAM_5ds_h;
+    const double GAM_1brdr = paras.GAM_1brdr;
+    const double GAM_1bsds = paras.GAM_1bsds;
+    const double GAM_1bgdg = paras.GAM_1bgdg;
+
+    const double Eiw        = paras.Eiw       ; 
+    const double Erw        = paras.Erw       ; 
+    const double Esw        = paras.Esw       ; 
+    const double Egw        = paras.Egw       ; 
+    const double Eri        = paras.Eri       ; 
+    const double Esi        = paras.Esi       ; 
+    const double Egi        = paras.Egi       ; 
+    const double Esr        = paras.Esr       ; 
+    const double Egr        = paras.Egr       ; 
+    const double Egs        = paras.Egs       ; 
+    const double gamma_sacr = paras.gamma_sacr; 
+    const double gamma_gacs = paras.gamma_gacs; 
+    const double mi         = paras.mi        ; 
+
+    const double sw_roh2014 = paras.sw_roh2014;
+    const double ln10 = paras.ln10;
+
+    const double sw_constVti = paras.sw_constVti;
+    const double CONST_Vti = paras.CONST_Vti;
     // ---- < END create alias from global params > ----
 
     dens = rho(k,ij);
@@ -919,14 +950,14 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     zerosw = 0.5 - std::copysign(0.5, Xs2 - 1.0E-12);
 
     tems = std::min(-0.1, temc);
-    coef_at[0] = coef_a[0] + tems * ( coef_a[1] + tems * ( coef_a[4] + tems * coef_a[8] ) );
-    coef_at[1] = coef_a[2] + tems * ( coef_a[3] + tems *   coef_a[6] );
-    coef_at[2] = coef_a[5] + tems *   coef_a[7];
-    coef_at[3] = coef_a[9];
-    coef_bt[0] = coef_b[0] + tems * ( coef_b[1] + tems * ( coef_b[4] + tems * coef_b[8] ) );
-    coef_bt[1] = coef_b[2] + tems * ( coef_b[3] + tems *   coef_b[6] );
-    coef_bt[2] = coef_b[5] + tems *   coef_b[7];
-    coef_bt[3] = coef_b[9];
+    coef_at[0] = paras.coef_a[0] + tems * ( paras.coef_a[1] + tems * ( paras.coef_a[4] + tems * paras.coef_a[8] ) );
+    coef_at[1] = paras.coef_a[2] + tems * ( paras.coef_a[3] + tems *   paras.coef_a[6] );
+    coef_at[2] = paras.coef_a[5] + tems *   paras.coef_a[7];
+    coef_at[3] = paras.coef_a[9];
+    coef_bt[0] = paras.coef_b[0] + tems * ( paras.coef_b[1] + tems * ( paras.coef_b[4] + tems * paras.coef_b[8] ) );
+    coef_bt[1] = paras.coef_b[2] + tems * ( paras.coef_b[3] + tems *   paras.coef_b[6] );
+    coef_bt[2] = paras.coef_b[5] + tems *   paras.coef_b[7];
+    coef_bt[3] = paras.coef_b[9];
 
     // 0th moment
     loga_ = coef_at[0];
