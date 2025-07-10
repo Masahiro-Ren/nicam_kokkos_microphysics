@@ -10,19 +10,17 @@ namespace MP_DRIVER{
 
 void mp_init(const std::string& MP_TYPE_in)
 {
-	std::cout << "*** microphysics type: NSW6 *** \n";
-
-	// if(MP_TYPE_in == "NSW6")
-	// {
-	// 	std::cout << "*** microphysics type: NSW6 *** \n";
-	// 	// std::cout << "Call mp_nsw6_init \n";
-	// 	mp_nsw6_init();
-	// }
-	// else
-	// {
-	// 	std::cerr << __PRETTY_FUNCTION__ << " NOT appropriate type. Type:  " << MP_TYPE << std::endl;
-	// 	ADM_Proc_stop();
-	// }
+	if(MP_TYPE_in == "NSW6")
+	{
+		std::cout << "*** microphysics type: NSW6 *** \n";
+		// std::cout << "Call mp_nsw6_init \n";
+		mp_nsw6_init();
+	}
+	else
+	{
+		std::cerr << __PRETTY_FUNCTION__ << " NOT appropriate type. Type:  " << MP_TYPE << std::endl;
+		ADM_Proc_stop();
+	}
 }
 
 // void mp_driver( int l_region,
