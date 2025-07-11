@@ -385,7 +385,7 @@ namespace DEBUG {
         std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
     }
 
-    void PROF_val_check(const std::string& val_name, const View3D<double, DEFAULT_MEM>& arr3d, const View3D<double, DEFAULT_MEM>& CHECK_arr3d)
+    void PROF_val_check(const std::string& val_name, const View3D<double, DEFAULT_MEM>& arr3d, const View3D<double, HOST_MEM>& CHECK_arr3d)
     {
         auto h_arr3d = Kokkos::create_mirror_view_and_copy(HOST_MEM(), arr3d);
 
