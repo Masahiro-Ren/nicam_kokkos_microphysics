@@ -116,12 +116,13 @@ namespace THRMDYN{
     {
         // double CVdry = CONST_CVdry;
         auto CVW = PROBLEM_SIZE::CVW;
-        View<double> CVdry("CVdry");
-        Kokkos::deep_copy(CVdry, CONST_CVdry);
+        // View<double> CVdry("CVdry");
+        // Kokkos::deep_copy(CVdry, CONST_CVdry);
 
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-            cv(k,ij) = qd(k,ij) * CVdry();
+            const double CVdry = CONST_CVdry;
+            cv(k,ij) = qd(k,ij) * CVdry;
         });
 
         for(int nq = NQW_STR; nq <= NQW_END; nq++)
@@ -142,13 +143,13 @@ namespace THRMDYN{
         auto CVW = PROBLEM_SIZE::CVW;
         View2D<double, DEFAULT_MEM> cv("cv", kdim, ijdim);
         View2D<double, DEFAULT_MEM> qd("qd", kdim, ijdim);
-        View<double> CVdry("CVdry"); 
-        View<double> Rdry ("Rdry "); 
-        View<double> Rvap ("Rvap "); 
+        // View<double> CVdry("CVdry"); 
+        // View<double> Rdry ("Rdry "); 
+        // View<double> Rvap ("Rvap "); 
 
-        Kokkos::deep_copy(CVdry, CONST_CVdry);
-        Kokkos::deep_copy(Rdry, CONST_Rdry);
-        Kokkos::deep_copy(Rvap, CONST_Rvap);
+        // Kokkos::deep_copy(CVdry, CONST_CVdry);
+        // Kokkos::deep_copy(Rdry, CONST_Rdry);
+        // Kokkos::deep_copy(Rvap, CONST_Rvap);
         // Kokkos::deep_copy(d_CVW, CVW);
 
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
@@ -168,9 +169,12 @@ namespace THRMDYN{
 
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                cv (k,ij) = cv (k,ij) + qd (k,ij) * CVdry();
+                const double CVdry = CONST_CVdry;
+                const double Rdry = CONST_Rdry;
+                const double Rvap = CONST_Rvap;
+                cv (k,ij) = cv (k,ij) + qd (k,ij) * CVdry;
                 tem(k,ij) = ein(k,ij) / cv (k,ij);
-                pre(k,ij) = rho(k,ij) * tem(k,ij) * ( qd(k,ij) * Rdry() + q(I_QV,k,ij) * Rvap() );
+                pre(k,ij) = rho(k,ij) * tem(k,ij) * ( qd(k,ij) * Rdry + q(I_QV,k,ij) * Rvap );
         });
 
     }
