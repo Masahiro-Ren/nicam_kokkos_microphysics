@@ -1,5 +1,7 @@
 #include "mod_mp_nsw6.h"
 
+GlobalParams para;
+
 /**
  * Private parameters
  */
@@ -451,9 +453,9 @@ void mp_nsw6_new::init()
     a2       = View2D<double, DEFAULT_MEM>("a2", kdim, ijdim);                 //<
     ma2      = View2D<double, DEFAULT_MEM>("ma2", kdim, ijdim);                //< 1-a2
     Vt       = View3D<double, DEFAULT_MEM>("Vt  ", nqmax, kdim, ijdim);
-    cva      = View2D<double, DEFAULT_MEM> ("cva ", kdim, ijdim);
-    rgs      = View2D<double, DEFAULT_MEM> ("rgs ", kdim, ijdim);
-    rgsh     = View2D<double, DEFAULT_MEM> ("rgsh", kdim, ijdim);
+    cva      = View2D<double, DEFAULT_MEM>("cva ", kdim, ijdim);
+    rgs      = View2D<double, DEFAULT_MEM>("rgs ", kdim, ijdim);
+    rgsh     = View2D<double, DEFAULT_MEM>("rgsh", kdim, ijdim);
     ml_Pconv = View2D<double, DEFAULT_MEM>("ml_Pconv", kdim, ijdim);
     ml_Pconw = View2D<double, DEFAULT_MEM>("ml_Pconw", kdim, ijdim);
     ml_Pconi = View2D<double, DEFAULT_MEM>("ml_Pconi", kdim, ijdim);
@@ -506,7 +508,7 @@ void mp_nsw6_new::init()
     // "Berry and Reinhardt(1974-a) eq.(16-a,b)"
     // 0.38 * {var1/2x} =~ {var1/2 r}
     //         dgamma_a = 1.0_RP /{var x}
-    double Dc = 0.146 - 5.964E-2 * std::log(Nc_def / 2000.0);
+    double Dc = 0.146 - 5.964E-2 * std::log(para.Nc_def / 2000.0);
     dgamma_a = 0.1444 / (Dc * Dc); // Dc**2 in fortran
     GAM_dgam   = MISC_gammafunc(dgamma_a);
     GAM_dgam23 = MISC_gammafunc(dgamma_a + 2.0/3.0);
@@ -712,12 +714,12 @@ void mp_nsw6_new::operator()(TagUpdateCLD, const size_t ij) const
     rceff    (kmax+1,ij) = 0.0;
     rceff_cld(kmax+1,ij) = 0.0;
 
-    double sw = ( 0.5 + std::copysign(0.5, tctop(0,ij) - TEM00 ) ); // if T > 0C, sw=1
+    double sw = ( 0.5 + copysign(0.5, tctop(0,ij) - TEM00 ) ); // if T > 0C, sw=1
 
     rwtop(0,ij) =  (       sw ) * rctop(0,ij)
                 + ( 1.0 - sw ) * UNDEF;
 
-    sw = ( 0.5 + std::copysign(0.5, rctop_cld(0,ij) - TEM00 ) ); // if T > 0C, sw=1
+    sw = ( 0.5 + copysign(0.5, rctop_cld(0,ij) - TEM00 ) ); // if T > 0C, sw=1
 
     rwtop_cld(0,ij) =  (       sw ) * rctop_cld(0,ij)
                     + ( 1.0 - sw ) * UNDEF;
@@ -828,24 +830,39 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     double r3_qr;                 //< r^3 moment  of qr
 
     // ---- < create alias from global params > ----
-    const double sw_expice = paras.sw_expice;
     const double Ar = paras.Ar;
     const double As = paras.As;
+    const double Ag = paras.Ag;
+    const double Cr = paras.Cr;
+    const double Cs = paras.Cs;
+    const double Cg = paras.Cg;
     const double N0r = paras.N0r;
     const double N0s = paras.N0s;
+    const double N0g = paras.N0g;
 
     const double GAM     = paras.GAM  ;
     const double GAM_2   = paras.GAM_2;
     const double GAM_3   = paras.GAM_3;
+
     const double GAM_1br = paras.GAM_1br;
+    const double GAM_2br = paras.GAM_2br;
+    const double GAM_3br = paras.GAM_3br;
+    const double GAM_3dr = paras.GAM_3dr;
+    const double GAM_6dr = paras.GAM_6dr;
+    const double GAM_1brdr = paras.GAM_1brdr;
+    const double GAM_5dr_h = paras.GAM_5dr_h;
+
     const double GAM_1bs = paras.GAM_1bs;
     const double GAM_2bs = paras.GAM_2bs;
     const double GAM_3bs = paras.GAM_3bs;
     const double GAM_3ds = paras.GAM_3ds;
-    const double GAM_5ds_h = paras.GAM_5ds_h;
-    const double GAM_1brdr = paras.GAM_1brdr;
     const double GAM_1bsds = paras.GAM_1bsds;
+    const double GAM_5ds_h = paras.GAM_5ds_h;
+
+    const double GAM_1bg = paras.GAM_1bg;
+    const double GAM_3dg   = paras.GAM_3dg;
     const double GAM_1bgdg = paras.GAM_1bgdg;
+    const double GAM_5dg_h = paras.GAM_5dg_h;
 
     const double Eiw        = paras.Eiw       ; 
     const double Erw        = paras.Erw       ; 
@@ -861,38 +878,66 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     const double gamma_gacs = paras.gamma_gacs; 
     const double mi         = paras.mi        ; 
 
-    const double sw_roh2014 = paras.sw_roh2014;
-    const double ln10 = paras.ln10;
+    const double beta_saut  = paras.beta_saut ;  
+    const double gamma_saut = paras.gamma_saut;  
+    const double beta_gaut  = paras.beta_gaut ;  
+    const double gamma_gaut = paras.gamma_gaut;  
+    const double qicrt_saut = paras.qicrt_saut;  
+    const double qscrt_gaut = paras.qscrt_gaut;  
 
+    const double f1r        = paras.f1r;     
+    const double f2r        = paras.f2r;     
+    const double f1s        = paras.f1s;     
+    const double f2s        = paras.f2s;     
+    const double f1g        = paras.f1g;     
+    const double f2g        = paras.f2g;     
+
+    const double A_frz      = paras.A_frz;
+    const double B_frz      = paras.B_frz;
+
+    const double mi40       = paras.mi40 ; 
+    const double mi50       = paras.mi50 ; 
+    const double vti50      = paras.vti50; 
+    const double Ri50       = paras.Ri50 ; 
+
+    const double sw_expice  = paras.sw_expice;
+    const double Nc_ihtr    = paras.Nc_ihtr  ;
+    const double Di_max     = paras.Di_max;
+    const double Di_a       = paras.Di_a  ;
+
+    const double sw_kk2000 = paras.sw_kk2000;
     const double sw_constVti = paras.sw_constVti;
     const double CONST_Vti = paras.CONST_Vti;
+
+    const double sw_roh2014 = paras.sw_roh2014;
+    const double ln10 = paras.ln10;
     // ---- < END create alias from global params > ----
 
     dens = rho(k,ij);
     temp = tem(k,ij);
-    qv   = std::max( q(I_QV, k, ij), 0.0 );
-    qc   = std::max( q(I_QC, k, ij), 0.0 );
-    qr   = std::max( q(I_QR, k, ij), 0.0 );
-    qi   = std::max( q(I_QI, k, ij), 0.0 );
-    qs   = std::max( q(I_QS, k, ij), 0.0 );
-    qg   = std::max( q(I_QG, k, ij), 0.0 );
+    qv   = max( q(I_QV, k, ij), 0.0 );
+    qc   = max( q(I_QC, k, ij), 0.0 );
+    qr   = max( q(I_QR, k, ij), 0.0 );
+    qi   = max( q(I_QI, k, ij), 0.0 );
+    qs   = max( q(I_QS, k, ij), 0.0 );
+    qg   = max( q(I_QG, k, ij), 0.0 );
 
     // saturation ration S
-    Sliq = qv / (std::max(qsatl(k,ij), EPS));
-    Sice = qv / (std::max(qsati(k,ij), EPS));
+    Sliq = qv / (max(qsatl(k,ij), EPS));
+    Sice = qv / (max(qsati(k,ij), EPS));
 
     Rdens = 1.0 / dens;
-    rho_fact = std::sqrt(dens00 * Rdens);
+    rho_fact = sqrt(dens00 * Rdens);
     temc = temp - TEM00;
 
-    wk[I_delta1] = ( 0.5 + std::copysign(0.5, qr - 1.0E-4) );
+    wk[I_delta1] = ( 0.5 + copysign(0.5, qr - 1.0E-4) );
 
-    wk[I_delta2] = ( 0.5 + std::copysign(0.5, 1.0E-4 - qr) )
-                    * ( 0.5 + std::copysign(0.5, 1.0E-4 - qs) );
+    wk[I_delta2] = ( 0.5 + copysign(0.5, 1.0E-4 - qr) )
+                    * ( 0.5 + copysign(0.5, 1.0E-4 - qs) );
     
-    wk[I_spsati] = 0.5 + std::copysign(0.5, Sice - 1.0);
+    wk[I_spsati] = 0.5 + copysign(0.5, Sice - 1.0);
 
-    wk[I_iceflg] = 0.5 - std::copysign(0.5, temc); // 0: warm, 1: ice
+    wk[I_iceflg] = 0.5 - copysign(0.5, temc); // 0: warm, 1: ice
 
     wk[I_dqv_dt] = qv / dt;
     wk[I_dqc_dt] = qc / dt;
@@ -901,37 +946,37 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_dqs_dt] = qs / dt;
     wk[I_dqg_dt] = qg / dt;
 
-    sw_bergeron = ( 0.5 + std::copysign(0.5, temc + 30.0) )
-                    * ( 0.5 + std::copysign(0.5, 0.0 - temc) )
+    sw_bergeron = ( 0.5 + copysign(0.5, temc + 30.0) )
+                    * ( 0.5 + copysign(0.5, 0.0 - temc) )
                     * ( 1.0 - sw_expice );
     
     // slope parameter lambda (Rain)
-    zerosw = 0.5 - std::copysign(0.5, qr - 1.0E-12);
-    RLMDr = std::sqrt( std::sqrt( dens * qr / (Ar * N0r * GAM_1br) + zerosw ) ) * (1.0 - zerosw);
+    zerosw = 0.5 - copysign(0.5, qr - 1.0E-12);
+    RLMDr = sqrt( sqrt( dens * qr / (Ar * N0r * GAM_1br) + zerosw ) ) * (1.0 - zerosw);
 
-    RLMDr_dr  = std::sqrt(RLMDr);   // **Dr
-    RLMDr_2   = std::pow(RLMDr, 2);
-    RLMDr_3   = std::pow(RLMDr, 3);
-    RLMDr_7   = std::pow(RLMDr, 7);
-    RLMDr_1br = std::pow(RLMDr, 4); // (1+Br)
-    RLMDr_2br = std::pow(RLMDr, 5); // (2+Br)
-    RLMDr_3br = std::pow(RLMDr, 6); // (3+Br)
-    RLMDr_3dr = std::pow(RLMDr, 3) * RLMDr_dr;
-    RLMDr_5dr = std::pow(RLMDr, 5) * RLMDr_dr;
-    RLMDr_6dr = std::pow(RLMDr, 6) * RLMDr_dr;
+    RLMDr_dr  = sqrt(RLMDr);   // **Dr
+    RLMDr_2   = pow(RLMDr, 2);
+    RLMDr_3   = pow(RLMDr, 3);
+    RLMDr_7   = pow(RLMDr, 7);
+    RLMDr_1br = pow(RLMDr, 4); // (1+Br)
+    RLMDr_2br = pow(RLMDr, 5); // (2+Br)
+    RLMDr_3br = pow(RLMDr, 6); // (3+Br)
+    RLMDr_3dr = pow(RLMDr, 3) * RLMDr_dr;
+    RLMDr_5dr = pow(RLMDr, 5) * RLMDr_dr;
+    RLMDr_6dr = pow(RLMDr, 6) * RLMDr_dr;
 
     // slope parameter lambda (Snow)
-    zerosw = 0.5 - std::copysign(0.5, qs - 1.0E-12);
-    RLMDs  = std::sqrt( std::sqrt( dens * qs / ( As * N0s * GAM_1bs ) + zerosw ) ) * ( 1.0 - zerosw );
+    zerosw = 0.5 - copysign(0.5, qs - 1.0E-12);
+    RLMDs  = sqrt( sqrt( dens * qs / ( As * N0s * GAM_1bs ) + zerosw ) ) * ( 1.0 - zerosw );
 
-    RLMDs_ds  = std::sqrt( std::sqrt(RLMDs) ); // **Ds
-    RLMDs_2   = std::pow(RLMDs, 2);
-    RLMDs_3   = std::pow(RLMDs, 3);
-    RLMDs_1bs = std::pow(RLMDs, 4); // (1+Bs)
-    RLMDs_2bs = std::pow(RLMDs, 5); // (2+Bs)
-    RLMDs_3bs = std::pow(RLMDs, 6); // (3+Bs)
-    RLMDs_3ds = std::pow(RLMDs, 3) * RLMDs_ds;
-    RLMDs_5ds = std::pow(RLMDs, 5) * RLMDs_ds;
+    RLMDs_ds  = sqrt( sqrt(RLMDs) ); // **Ds
+    RLMDs_2   = pow(RLMDs, 2);
+    RLMDs_3   = pow(RLMDs, 3);
+    RLMDs_1bs = pow(RLMDs, 4); // (1+Bs)
+    RLMDs_2bs = pow(RLMDs, 5); // (2+Bs)
+    RLMDs_3bs = pow(RLMDs, 6); // (3+Bs)
+    RLMDs_3ds = pow(RLMDs, 3) * RLMDs_ds;
+    RLMDs_5ds = pow(RLMDs, 5) * RLMDs_ds;
 
     MOMs_0     = N0s * GAM       * RLMDs    ;       // Ns * 0th moment
     MOMs_1     = N0s * GAM_2     * RLMDs_2  ;       // Ns * 1st moment
@@ -940,16 +985,16 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     MOMs_1bs   = N0s * GAM_2bs   * RLMDs_2bs;       // Ns * 1+bs
     MOMs_2bs   = N0s * GAM_3bs   * RLMDs_3bs;       // Ns * 2+bs
     MOMs_2ds   = N0s * GAM_3ds   * RLMDs_3ds;       // Ns * 2+ds
-    MOMs_5ds_h = N0s * GAM_5ds_h * std::sqrt(RLMDs_5ds); // Ns * (5+ds)/2
+    MOMs_5ds_h = N0s * GAM_5ds_h * sqrt(RLMDs_5ds); // Ns * (5+ds)/2
     RMOMs_Vt   = GAM_1bsds / GAM_1bs * RLMDs_ds;
 
     //---< modification by Roh and Satoh (2014) >---
 
     // bimodal size distribution of snow
     Xs2 = dens * qs / As;
-    zerosw = 0.5 - std::copysign(0.5, Xs2 - 1.0E-12);
+    zerosw = 0.5 - copysign(0.5, Xs2 - 1.0E-12);
 
-    tems = std::min(-0.1, temc);
+    tems = min(-0.1, temc);
     coef_at[0] = paras.coef_a[0] + tems * ( paras.coef_a[1] + tems * ( paras.coef_a[4] + tems * paras.coef_a[8] ) );
     coef_at[1] = paras.coef_a[2] + tems * ( paras.coef_a[3] + tems *   paras.coef_a[6] );
     coef_at[2] = paras.coef_a[5] + tems *   paras.coef_a[7];
@@ -962,13 +1007,13 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // 0th moment
     loga_ = coef_at[0];
     b_    = coef_bt[0];
-    MOMs_0 = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_0 = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_0;
     // 1st moment
     nm = 1.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_1 = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw ) * b_) * ( 1.0 - zerosw )
+    MOMs_1 = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw ) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_1;
     // 2nd moment
     MOMs_2 = sw_roh2014 * Xs2 + (1.0 - sw_roh2014) * MOMs_2;
@@ -976,55 +1021,55 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     nm = 2.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_0bs = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_0bs = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_0bs;
     // 1 + Bs(=2) moment
     nm = 3.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_1bs = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_1bs = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_1bs;
     // 2 + Bs(=2) moment
     nm = 4.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_2bs = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_2bs = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_2bs;
     // 2 + Ds(=0.25) moment
     nm = 2.25;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_2ds = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_2ds = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_2ds;
     // ( 3 + Ds(=0.25) ) / 2  moment
     nm = 1.625;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_5ds_h = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_5ds_h = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                     + ( 1.0 - sw_roh2014 ) * MOMs_5ds_h;
     // Bs(=2) + Ds(=0.25) moment
     nm = 2.25;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    RMOMs_Vt = sw_roh2014 * std::exp(ln10 * loga_) * std::exp(std::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw ) / (MOMs_0bs + zerosw)
+    RMOMs_Vt = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw ) / (MOMs_0bs + zerosw)
                 + ( 1.0 - sw_roh2014 ) * RMOMs_Vt;
 
     // slope parameter lambda (Graupel)
-    zerosw = 0.5 - std::copysign(0.5, qg - 1.0E-12);
-    RLMDg  = std::sqrt( std::sqrt( dens * qg / ( Ag * N0g * GAM_1bg ) + zerosw ) ) * ( 1.0 - zerosw );
-    RLMDg_dg  = std::sqrt( RLMDg );       // **Dg
-    RLMDg_2   = std::pow(RLMDg, 2);
-    RLMDg_3   = std::pow(RLMDg, 3);
-    RLMDg_3dg = std::pow(RLMDg, 3) * RLMDg_dg;
-    RLMDg_5dg = std::pow(RLMDg, 5) * RLMDg_dg;
+    zerosw = 0.5 - copysign(0.5, qg - 1.0E-12);
+    RLMDg  = sqrt( sqrt( dens * qg / ( Ag * N0g * GAM_1bg ) + zerosw ) ) * ( 1.0 - zerosw );
+    RLMDg_dg  = sqrt( RLMDg );       // **Dg
+    RLMDg_2   = pow(RLMDg, 2);
+    RLMDg_3   = pow(RLMDg, 3);
+    RLMDg_3dg = pow(RLMDg, 3) * RLMDg_dg;
+    RLMDg_5dg = pow(RLMDg, 5) * RLMDg_dg;
 
     wk[I_RLMDr] = RLMDr;
     wk[I_RLMDs] = RLMDs;
     wk[I_RLMDg] = RLMDg;
 
     //---< terminal velocity >---
-    zerosw = 0.5 - std::copysign(0.5, qi - 1.0E-8 );
-    Vti = ( 1.0 - sw_constVti ) * (-3.29) * std::exp( std::log( dens * qi + zerosw ) * 0.16 ) * ( 1.0 - zerosw ) 
+    zerosw = 0.5 - copysign(0.5, qi - 1.0E-8 );
+    Vti = ( 1.0 - sw_constVti ) * (-3.29) * exp( log( dens * qi + zerosw ) * 0.16 ) * ( 1.0 - zerosw ) 
             + ( sw_constVti ) * (-CONST_Vti);
     Vtr = -Cr * rho_fact * GAM_1brdr / GAM_1br * RLMDr_dr;
     Vts = -Cs * rho_fact * RMOMs_Vt;
@@ -1032,20 +1077,20 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     //---< Nucleation >---
     // [Pigen] ice nucleation
-    Ni0 = std::max( std::exp(-0.1 * temc), 1.0 ) * 1000.0;
-    Qi0 = 4.92E-11 * std::exp( std::log(Ni0) * 1.33 ) * Rdens;
+    Ni0 = max( exp(-0.1 * temc), 1.0 ) * 1000.0;
+    Qi0 = 4.92E-11 * exp( log(Ni0) * 1.33 ) * Rdens;
 
-    wk[I_Pigen] = std::max( std::min( Qi0 - qi, qv - qsati(k,ij) ), 0.0 ) / dt;
+    wk[I_Pigen] = max( min( Qi0 - qi, qv - qsati(k,ij) ), 0.0 ) / dt;
 
     //---< Accretion >---
-    Esi_mod = std::min( Esi, Esi * std::exp( gamma_sacr * temc ) );
-    Egs_mod = std::min( Egs, Egs * std::exp( gamma_gacs * temc ) );
+    Esi_mod = min( Esi, Esi * exp( gamma_sacr * temc ) );
+    Egs_mod = min( Egs, Egs * exp( gamma_gacs * temc ) );
 
     // [Pracw] accretion rate of cloud water by rain
     Pracw_orig = qc * 0.25 * PI * Erw * N0r * Cr * GAM_3dr * RLMDr_3dr * rho_fact;
 
-    zerosw     = 0.5 - std::copysign(0.5, qc * qr - 1.0E-12 );
-    Pracw_kk   = 67.0 * std::exp( std::log( qc * qr + zerosw ) * 1.15 ) * ( 1.0 - zerosw ); // eq.(33) in KK(2000)
+    zerosw     = 0.5 - copysign(0.5, qc * qr - 1.0E-12 );
+    Pracw_kk   = 67.0 * exp( log( qc * qr + zerosw ) * 1.15 ) * ( 1.0 - zerosw ); // eq.(33) in KK(2000)
 
     // switch orig / k-k scheme
     wk[I_Pracw] = ( 1.0 - sw_kk2000 ) * Pracw_orig
@@ -1070,25 +1115,25 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Piacr] = qi * Ar / mi * 0.25 * PI * Eri * N0r * Cr * GAM_6dr * RLMDr_6dr * rho_fact;
 
     // [Psacr] accretion rate of rain by snow
-    wk[I_Psacr] = Ar * 0.25 * PI * Rdens * Esr * N0r * std::abs(Vtr - Vts)
+    wk[I_Psacr] = Ar * 0.25 * PI * Rdens * Esr * N0r * abs(Vtr - Vts)
                         * ( GAM_1br * RLMDr_1br * MOMs_2          
                             + 2.0 * GAM_2br * RLMDr_2br * MOMs_1          
                             + GAM_3br * RLMDr_3br * MOMs_0 );
 
     // [Pgacr] accretion rate of rain by graupel
-    wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * std::abs(Vtg - Vtr)
+    wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * abs(Vtg - Vtr)
                         * ( GAM_1br * RLMDr_1br * GAM_3 * RLMDg_3
                             + 2.0 * GAM_2br * RLMDr_2br * GAM_2 * RLMDg_2
                             + GAM_3br * RLMDr_3br * GAM * RLMDg );
 
     // [Pracs] accretion rate of snow by rain
-    wk[I_Pracs] = As * 0.25 * PI * Rdens * Esr *  N0r * std::abs(Vtr - Vts)
+    wk[I_Pracs] = As * 0.25 * PI * Rdens * Esr *  N0r * abs(Vtr - Vts)
                         * ( MOMs_0bs * GAM_3 * RLMDr_3
                             + 2.0 * MOMs_1bs * GAM_2 * RLMDr_2
                             + MOMs_2bs * GAM * RLMDr );
 
     // [Pgacs] accretion rate of snow by graupel
-    wk[I_Pgacs] = As * 0.25 * PI * Rdens * Egs_mod * N0g * std::abs(Vtg - Vts)
+    wk[I_Pgacs] = As * 0.25 * PI * Rdens * Egs_mod * N0g * abs(Vtg - Vts)
                         * ( MOMs_0bs * GAM_3 * RLMDg_3
                             + 2.0 * MOMs_1bs * GAM_2 * RLMDg_2
                             + MOMs_2bs * GAM * RLMDg );
@@ -1096,15 +1141,15 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     //---< Autoconversion >---            
     // [Praut] auto-conversion rate from cloud water to rain
     rhoqc = dens * qc * 1000.0; // [g/m3]
-    Dc    = 0.146 - 5.964E-2 * std::log( Nc(k,ij) / 2000.0 );
+    Dc    = 0.146 - 5.964E-2 * log( Nc(k,ij) / 2000.0 );
     Praut_berry = Rdens * 1.67E-5 * rhoqc * rhoqc / ( 5.0 + 3.66E-2 * Nc(k,ij) / ( Dc * rhoqc + EPS ) );
 
-    zerosw   = 0.5 - std::copysign(0.5, qc - 1.0E-12 );
+    zerosw   = 0.5 - copysign(0.5, qc - 1.0E-12 );
     Praut_kk = 1350.0                                           
-                * std::exp( std::log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
-                * std::exp( std::log( Nc(k,ij) ) * (-1.79) );                     // eq.(29) in KK(2000)
+                * exp( log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
+                * exp( log( Nc(k,ij) ) * (-1.79) );                     // eq.(29) in KK(2000)
 
-    Praut_kk = 1350.0 * std::pow(qc, 2.47) * std::pow(Nc(k,ij), -1.79);
+    Praut_kk = 1350.0 * pow(qc, 2.47) * pow(Nc(k,ij), -1.79);
 
 
     // switch berry / k-k scheme
@@ -1112,12 +1157,12 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
                     + sw_kk2000 * Praut_kk;
 
     // [Psaut] auto-conversion rate from cloud ice to snow
-    betai = std::min( beta_saut, beta_saut * std::exp( gamma_saut * temc ) );
-    wk[I_Psaut] = std::max( betai * (qi - qicrt_saut), 0.0 );
+    betai = min( beta_saut, beta_saut * exp( gamma_saut * temc ) );
+    wk[I_Psaut] = max( betai * (qi - qicrt_saut), 0.0 );
 
     // [Pgaut] auto-conversion rate from snow to graupel
-    betas = std::min( beta_gaut, beta_gaut * std::exp( gamma_gaut * temc ) );
-    wk[I_Pgaut] = std::max( betas * (qs - qscrt_gaut), 0.0 );
+    betas = min( beta_gaut, beta_gaut * exp( gamma_gaut * temc ) );
+    wk[I_Pgaut] = max( betas * (qs - qscrt_gaut), 0.0 );
 
     //---< Evaporation, Sublimation, Melting, and Freezing >---
     Ka  = ( Ka0 + dKa_dT * temc );
@@ -1129,15 +1174,15 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     Gil = 1.0 / ( LHF0/(Ka * temc) );
 
     // [Prevp] evaporation rate of rain
-    ventr = f1r * GAM_2 * RLMDr_2 + f2r * std::sqrt( Cr * rho_fact / Nu * RLMDr_5dr ) * GAM_5dr_h;
+    ventr = f1r * GAM_2 * RLMDr_2 + f2r * sqrt( Cr * rho_fact / Nu * RLMDr_5dr ) * GAM_5dr_h;
 
-    wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - std::min(Sliq, 1.0) ) * Glv * ventr;
+    wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - min(Sliq, 1.0) ) * Glv * ventr;
 
     // [Pidep,Pisub] deposition/sublimation rate for ice
-    rhoqi = std::max(dens * qi, EPS);
-    XNi   = std::min( std::max( 5.38E+7 * std::exp( std::log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
+    rhoqi = max(dens * qi, EPS);
+    XNi   = min( max( 5.38E+7 * exp( log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
     XMi   = rhoqi / XNi;
-    Di    = std::min( Di_a * std::sqrt(XMi), Di_max );
+    Di    = min( Di_a * sqrt(XMi), Di_max );
 
     tmp = 4.0 * Di * XNi * Rdens * ( Sice - 1.0 ) * Giv;
 
@@ -1145,24 +1190,24 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Pisub] = ( 1.0 - wk[I_spsati] ) * (-tmp); // Sice < 1
 
     // [Pihom] homogenious freezing at T < -40C
-    sw = ( 0.5 - std::copysign(0.5, temc + 40.0) ); // if T < -40C, sw=1
+    sw = ( 0.5 - copysign(0.5, temc + 40.0) ); // if T < -40C, sw=1
 
     wk[I_Pihom] = sw * qc / dt;
 
     // [Pihtr] heteroginous freezing at -40C < T < 0C
-    sw =   ( 0.5 + std::copysign(0.5, temc + 40.0) )
-            * ( 0.5 - std::copysign(0.5, temc       ) ); // if -40C < T < 0C, sw=1
+    sw =   ( 0.5 + copysign(0.5, temc + 40.0) )
+         * ( 0.5 - copysign(0.5, temc       ) ); // if -40C < T < 0C, sw=1
 
     wk[I_Pihtr] = sw * ( dens / rho_w * (qc*qc) / ( Nc_ihtr * 1.0E+6 ) )
-                        * B_frz * ( std::exp(-A_frz * temc) - 1.0 );
+                     * B_frz * ( exp(-A_frz * temc) - 1.0 );
 
     // [Pimlt] ice melting at T > 0C
-    sw = ( 0.5 + std::copysign(0.5, temc) ); // if T > 0C, sw=1
+    sw = ( 0.5 + copysign(0.5, temc) ); // if T > 0C, sw=1
 
     wk[I_Pimlt] = sw * qi / dt;
 
     // [Psdep,Pssub] deposition/sublimation rate for snow
-    vents = f1s * MOMs_1 + f2s * std::sqrt( Cs * rho_fact / Nu ) * MOMs_5ds_h;
+    vents = f1s * MOMs_1 + f2s * sqrt( Cs * rho_fact / Nu ) * MOMs_5ds_h;
 
     tmp = 2.0 * PI * Rdens * ( Sice - 1.0 ) * Giv * vents;
 
@@ -1172,10 +1217,10 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // [Psmlt] melting rate of snow
     wk[I_Psmlt] = 2.0 * PI * Rdens * Gil * vents
                     + CL * temc / LHF0 * ( wk[I_Psacw] + wk[I_Psacr] );
-    wk[I_Psmlt] = std::max( wk[I_Psmlt], 0.0 );
+    wk[I_Psmlt] = max( wk[I_Psmlt], 0.0 );
 
     // [Pgdep/pgsub] deposition/sublimation rate for graupel
-    ventg = f1g * GAM_2 * RLMDg_2 + f2g * std::sqrt( Cg * rho_fact / Nu * RLMDg_5dg ) * GAM_5dg_h;
+    ventg = f1g * GAM_2 * RLMDg_2 + f2g * sqrt( Cg * rho_fact / Nu * RLMDg_5dg ) * GAM_5dg_h;
 
     tmp = 2.0 * PI * Rdens * N0g * ( Sice - 1.0 ) * Giv * ventg;
 
@@ -1185,60 +1230,60 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // [Pgmlt] melting rate of graupel
     wk[I_Pgmlt] = 2.0 * PI * Rdens * N0g * Gil * ventg
                     + CL * temc / LHF0 * ( wk[I_Pgacw] + wk[I_Pgacr] );
-    wk[I_Pgmlt] = std::max( wk[I_Pgmlt], 0.0 );
+    wk[I_Pgmlt] = max( wk[I_Pgmlt], 0.0 );
 
     // [Pgfrz] freezing rate of graupel
-    wk[I_Pgfrz] = 2.0 * PI * Rdens * N0r * 60.0 * B_frz * Ar * ( std::exp(-A_frz * temc) - 1.0 ) * RLMDr_7;
+    wk[I_Pgfrz] = 2.0 * PI * Rdens * N0r * 60.0 * B_frz * Ar * ( exp(-A_frz * temc) - 1.0 ) * RLMDr_7;
 
     // [Psfw,Psfi] ( Bergeron process ) growth rate of snow by Bergeron process from cloud water/ice
-    dt1  = ( std::exp( std::log(mi50) * ma2(k,ij) )
-            - std::exp( std::log(mi40) * ma2(k,ij) ) ) / ( a1(k,ij) * ma2(k,ij) );
+    dt1  = ( exp( log(mi50) * ma2(k,ij) )
+           - exp( log(mi40) * ma2(k,ij) ) ) / ( a1(k,ij) * ma2(k,ij) );
     Ni50 = qi * dt / ( mi50 * dt1 );
 
-    wk[I_Psfw] = Ni50 * ( a1(k,ij) * std::pow(mi50, a2(k,ij))
+    wk[I_Psfw] = Ni50 * ( a1(k,ij) * pow(mi50, a2(k,ij))
                             + PI * Eiw * dens * qc * Ri50 * Ri50 * vti50 );
     wk[I_Psfi] = qi / dt1;
 
     //---< limiter >---
-    wk[I_Pigen] = std::min( wk[I_Pigen], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
-    wk[I_Pidep] = std::min( wk[I_Pidep], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
-    wk[I_Psdep] = std::min( wk[I_Psdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
-    wk[I_Pgdep] = std::min( wk[I_Pgdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
+    wk[I_Pigen] = min( wk[I_Pigen], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
+    wk[I_Pidep] = min( wk[I_Pidep], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
+    wk[I_Psdep] = min( wk[I_Psdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
+    wk[I_Pgdep] = min( wk[I_Pgdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
 
     wk[I_Pracw] = wk[I_Pracw]                           
                 + wk[I_Psacw] * ( 1.0 - wk[I_iceflg] )   // c->r by s
                 + wk[I_Pgacw] * ( 1.0 - wk[I_iceflg] );  // c->r by g
 
-    wk[I_Praut] = std::min( wk[I_Praut], wk[I_dqc_dt] ); 
-    wk[I_Pracw] = std::min( wk[I_Pracw], wk[I_dqc_dt] ); 
-    wk[I_Pihom] = std::min( wk[I_Pihom], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
-    wk[I_Pihtr] = std::min( wk[I_Pihtr], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
-    wk[I_Psacw] = std::min( wk[I_Psacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
-    wk[I_Psfw ] = std::min( wk[I_Psfw ], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_bergeron;
-    wk[I_Pgacw] = std::min( wk[I_Pgacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
+    wk[I_Praut] = min( wk[I_Praut], wk[I_dqc_dt] ); 
+    wk[I_Pracw] = min( wk[I_Pracw], wk[I_dqc_dt] ); 
+    wk[I_Pihom] = min( wk[I_Pihom], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
+    wk[I_Pihtr] = min( wk[I_Pihtr], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
+    wk[I_Psacw] = min( wk[I_Psacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
+    wk[I_Psfw ] = min( wk[I_Psfw ], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_bergeron;
+    wk[I_Pgacw] = min( wk[I_Pgacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
 
-    wk[I_Prevp] = std::min( wk[I_Prevp], wk[I_dqr_dt] );
-    wk[I_Piacr] = std::min( wk[I_Piacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
-    wk[I_Psacr] = std::min( wk[I_Psacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
-    wk[I_Pgacr] = std::min( wk[I_Pgacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
-    wk[I_Pgfrz] = std::min( wk[I_Pgfrz], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Prevp] = min( wk[I_Prevp], wk[I_dqr_dt] );
+    wk[I_Piacr] = min( wk[I_Piacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Psacr] = min( wk[I_Psacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Pgacr] = min( wk[I_Pgacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Pgfrz] = min( wk[I_Pgfrz], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
 
-    wk[I_Pisub] = std::min( wk[I_Pisub], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_expice;
-    wk[I_Pimlt] = std::min( wk[I_Pimlt], wk[I_dqi_dt] ) * ( 1.0 - wk[I_iceflg] ) * sw_expice;
-    wk[I_Psaut] = std::min( wk[I_Psaut], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
-    wk[I_Praci] = std::min( wk[I_Praci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
-    wk[I_Psaci] = std::min( wk[I_Psaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
-    wk[I_Psfi ] = std::min( wk[I_Psfi ], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_bergeron;
-    wk[I_Pgaci] = std::min( wk[I_Pgaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Pisub] = min( wk[I_Pisub], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_expice;
+    wk[I_Pimlt] = min( wk[I_Pimlt], wk[I_dqi_dt] ) * ( 1.0 - wk[I_iceflg] ) * sw_expice;
+    wk[I_Psaut] = min( wk[I_Psaut], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Praci] = min( wk[I_Praci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Psaci] = min( wk[I_Psaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Psfi ] = min( wk[I_Psfi ], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_bergeron;
+    wk[I_Pgaci] = min( wk[I_Pgaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
 
-    wk[I_Pssub] = std::min( wk[I_Pssub], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
-    wk[I_Psmlt] = std::min( wk[I_Psmlt], wk[I_dqs_dt] ) * ( 1.0 - wk[I_iceflg] );
-    wk[I_Pgaut] = std::min( wk[I_Pgaut], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
-    wk[I_Pracs] = std::min( wk[I_Pracs], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
-    wk[I_Pgacs] = std::min( wk[I_Pgacs], wk[I_dqs_dt] );
+    wk[I_Pssub] = min( wk[I_Pssub], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+    wk[I_Psmlt] = min( wk[I_Psmlt], wk[I_dqs_dt] ) * ( 1.0 - wk[I_iceflg] );
+    wk[I_Pgaut] = min( wk[I_Pgaut], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+    wk[I_Pracs] = min( wk[I_Pracs], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+    wk[I_Pgacs] = min( wk[I_Pgacs], wk[I_dqs_dt] );
 
-    wk[I_Pgsub] = std::min( wk[I_Pgsub], wk[I_dqg_dt] ) * (       wk[I_iceflg] );
-    wk[I_Pgmlt] = std::min( wk[I_Pgmlt], wk[I_dqg_dt] ) * ( 1.0 - wk[I_iceflg] );
+    wk[I_Pgsub] = min( wk[I_Pgsub], wk[I_dqg_dt] ) * (       wk[I_iceflg] );
+    wk[I_Pgmlt] = min( wk[I_Pgmlt], wk[I_dqg_dt] ) * ( 1.0 - wk[I_iceflg] );
 
     wk[I_Piacr_s] = ( 1.0 - wk[I_delta1] ) * wk[I_Piacr];
     wk[I_Piacr_g] = (       wk[I_delta1] ) * wk[I_Piacr];
@@ -1259,9 +1304,9 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Psfw ]  // [loss] c->s
         - wk[I_Pgacw]; // [loss] c->g
 
-    fac_sw = 0.5 + std::copysign( 0.5, net + EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + copysign( 0.5, net + EPS ); // if production > loss , fac_sw=1
     fac    = fac_sw + ( 1.0 - fac_sw ) 
-                * std::min( -wk[I_dqc_dt]/(net - fac_sw), 1.0 ); // loss limiter
+                * min( -wk[I_dqc_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Pimlt] = wk[I_Pimlt] * fac;
     wk[I_Praut] = wk[I_Praut] * fac;
@@ -1287,9 +1332,9 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Praci_g]  // [loss] i->g
         - wk[I_Pgaci  ]; // [loss] i->g
 
-    fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * std::min( -wk[I_dqi_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * min( -wk[I_dqi_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Pigen  ] = wk[I_Pigen  ] * fac;
     wk[I_Pidep  ] = wk[I_Pidep  ] * fac;
@@ -1319,9 +1364,9 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Pgacr  ]  // [loss] r->g
         - wk[I_Pgfrz  ]; // [loss] r->g
 
-    fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac    = fac_sw + ( 1.0 - fac_sw ) 
-                * std::min( -wk[I_dqr_dt]/(net - fac_sw), 1.0 ); // loss limiter
+                * min( -wk[I_dqr_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Praut  ] = wk[I_Praut  ] * fac;
     wk[I_Pracw  ] = wk[I_Pracw  ] * fac;
@@ -1346,9 +1391,9 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Psdep]  // [loss] v->s
         - wk[I_Pgdep]; // [loss] v->g
 
-    fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * std::min( -wk[I_dqv_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * min( -wk[I_dqv_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Prevp] = wk[I_Prevp] * fac;
     wk[I_Pisub] = wk[I_Pisub] * fac;
@@ -1376,9 +1421,9 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Pracs  ]  // [loss] s->g
         - wk[I_Pgacs  ]; // [loss] s->g
 
-    fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * std::min( -wk[I_dqs_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * min( -wk[I_dqs_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Psdep  ] = wk[I_Psdep  ] * fac;
     wk[I_Psacw  ] = wk[I_Psacw  ] * fac;
@@ -1411,9 +1456,9 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Pgsub  ]  // [loss] g->v
         - wk[I_Pgmlt  ]; // [loss] g->r
 
-    fac_sw = 0.5 + std::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * std::min( -wk[I_dqg_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * min( -wk[I_dqg_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Pgdep  ] = wk[I_Pgdep  ] * fac;
     wk[I_Pgacw  ] = wk[I_Pgacw  ] * fac;
@@ -1492,11 +1537,11 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
             - wk[I_Pgsub  ]  // [loss] g->v
             - wk[I_Pgmlt  ]; // [loss] g->r
 
-    qc_t = std::max( qc_t, -wk[I_dqc_dt] );
-    qr_t = std::max( qr_t, -wk[I_dqr_dt] );
-    qi_t = std::max( qi_t, -wk[I_dqi_dt] );
-    qs_t = std::max( qs_t, -wk[I_dqs_dt] );
-    qg_t = std::max( qg_t, -wk[I_dqg_dt] );
+    qc_t = max( qc_t, -wk[I_dqc_dt] );
+    qr_t = max( qr_t, -wk[I_dqr_dt] );
+    qi_t = max( qi_t, -wk[I_dqi_dt] );
+    qs_t = max( qs_t, -wk[I_dqs_dt] );
+    qg_t = max( qg_t, -wk[I_dqg_dt] );
 
     qv_t = - ( qc_t 
                 + qr_t 
@@ -1518,26 +1563,26 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     //--- Effective Radius of Liquid Water
     xf_qc = rhoqc / Nc(k,ij) * 1.0E-9;                            // mean mass   of qc [kg]
-    rf_qc = std::pow(( coef_xf * xf_qc + EPS ), 0.33333333);       // mean radius of qc [m]
+    rf_qc = pow(( coef_xf * xf_qc + EPS ), 0.33333333);       // mean radius of qc [m]
     r2_qc = coef_dgam * (rf_qc * rf_qc) * ( Nc(k,ij) * 1.0E+6 );  // r^2 moment  of qc
     r2_qr = 0.25 * N0r * GAM_3 * RLMDr_3;                          // r^2 moment  of qr
     r3_qc = coef_xf * dens * qc;                                   // r^3 moment  of qc
     r3_qr = coef_xf * dens * qr;                                   // r^3 moment  of qr
 
-    zerosw = 0.5 - std::copysign(0.5, (r2_qc + r2_qr) - r2_min );
+    zerosw = 0.5 - copysign(0.5, (r2_qc + r2_qr) - r2_min );
     rceff(k,ij) = ( r3_qc + r3_qr ) / ( r2_qc + r2_qr + zerosw ) * ( 1.0 - zerosw );
 
-    sw = ( 0.5 + std::copysign(0.5, (qc + qr) - q_min ) ) * zerosw; // if qc+qr > 0.01[g/kg], sw=1
+    sw = ( 0.5 + copysign(0.5, (qc + qr) - q_min ) ) * zerosw; // if qc+qr > 0.01[g/kg], sw=1
 
     rctop(0,ij) = (       sw ) * rceff(k,ij)
                     + ( 1.0 - sw ) * UNDEF;
     tctop(0,ij) = (       sw ) * temp
                     + ( 1.0 - sw ) * UNDEF;
 
-    zerosw = 0.5 - std::copysign( 0.5, r2_qc - r2_min );
+    zerosw = 0.5 - copysign( 0.5, r2_qc - r2_min );
     rceff_cld(k,ij) = r3_qc / ( r2_qc + zerosw ) * ( 1.0 - zerosw );
 
-    sw = ( 0.5 + std::copysign( 0.5, qc - q_min ) ) * zerosw; // if qc > 0.01[g/kg], sw=1
+    sw = ( 0.5 + copysign( 0.5, qc - q_min ) ) * zerosw; // if qc > 0.01[g/kg], sw=1
 
     rctop_cld(0,ij) = (       sw ) * rceff_cld(k,ij)
                         + ( 1.0 - sw ) * UNDEF;
@@ -1715,52 +1760,52 @@ void negative_filter( const View2D<double, DEFAULT_MEM>&  rhog,
 
     View2D<double, DEFAULT_MEM> qd ("qd", kdim, ijdim);
     View2D<double, DEFAULT_MEM> cva("cva", kdim, ijdim);
-    View<double> Rdry;
-    View<double> Rvap; 
-    Kokkos::deep_copy(Rdry, CONST_Rdry);
-    Kokkos::deep_copy(Rvap, CONST_Rvap); 
+    // View<double> Rdry;
+    // View<double> Rvap; 
+    // Kokkos::deep_copy(Rdry, CONST_Rdry);
+    // Kokkos::deep_copy(Rvap, CONST_Rvap); 
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
-                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                            double diffq = 0.0;
-                            for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
-                            {
-                                // total hydrometeor (before correction)
-                                diffq += rhogq(nq,k,ij);
-                                // remove negative value of hydrometeors (mass)
-                                rhogq(nq,k,ij) = max(rhogq(nq,k,ij), 0.0);
-                            }
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        double diffq = 0.0;
+        for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
+        {
+            // total hydrometeor (before correction)
+            diffq += rhogq(nq,k,ij);
+            // remove negative value of hydrometeors (mass)
+            rhogq(nq,k,ij) = max(rhogq(nq,k,ij), 0.0);
+        }
 
-                            for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
-                            {
-                                // difference between before and after correction
-                                diffq -= rhogq(nq,k,ij);
-                            }
+        for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
+        {
+            // difference between before and after correction
+            diffq -= rhogq(nq,k,ij);
+        }
 
-                            // Compensate for the lack of hydrometeors by the water vapor
-                            rhogq(I_QV,k,ij) += diffq; 
-                         });
+        // Compensate for the lack of hydrometeors by the water vapor
+        rhogq(I_QV,k,ij) += diffq; 
+    });
     
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
-                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                            double diffq = rhogq(I_QV,k,ij);
-                            // remove negative value of water vapor (mass)
-                            rhogq(I_QV,k,ij) = max(rhogq(I_QV,k,ij), 0.0);
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+       double diffq = rhogq(I_QV,k,ij);
+       // remove negative value of water vapor (mass)
+       rhogq(I_QV,k,ij) = max(rhogq(I_QV,k,ij), 0.0);
 
-                            diffq -= rhogq(I_QV,k,ij);
+       diffq -= rhogq(I_QV,k,ij);
 
-                            // Apply correction to total density
-                            rhog(k,ij) = rhog(k,ij) * (1.0 - diffq);
-                            rho (k,ij) = rhog(k,ij) / gsgam2(k,ij);
-                         });
-    
+       // Apply correction to total density
+       rhog(k,ij) = rhog(k,ij) * (1.0 - diffq);
+       rho (k,ij) = rhog(k,ij) / gsgam2(k,ij);
+    });
+
     for(int nq = NQW_STR; nq <= NQW_END; nq++)
     {
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
-                            KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                                //--- update mass concentration
-                                q(nq,k,ij) = rhogq(nq,k,ij) / rhog(k,ij);
-                            });
+        KOKKOS_LAMBDA(const size_t k, const size_t ij){
+            //--- update mass concentration
+            q(nq,k,ij) = rhogq(nq,k,ij) / rhog(k,ij);
+        });
     }
 
     /**
@@ -1776,10 +1821,12 @@ void negative_filter( const View2D<double, DEFAULT_MEM>&  rhog,
     THRMDYN_cv(qd, q, cva);
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
-                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                            rhoge(k,ij) = tem(k,ij) * rhog(k,ij) * cva(k,ij);
-                            pre  (k,ij) = rho(k,ij) * ( qd(k,ij) * Rdry() + q(I_QV,k,ij) * Rvap() ) * tem(k,ij);
-                         });
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        const double Rdry = CONST_Rdry;
+        const double Rvap = CONST_Rvap;
+        rhoge(k,ij) = tem(k,ij) * rhog(k,ij) * cva(k,ij);
+        pre  (k,ij) = rho(k,ij) * ( qd(k,ij) * Rdry + q(I_QV,k,ij) * Rvap ) * tem(k,ij);
+    });
 }
 
 void Bergeron_param( const View2D<double, DEFAULT_MEM> tem,

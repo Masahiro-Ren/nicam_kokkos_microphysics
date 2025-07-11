@@ -122,7 +122,7 @@ double sw_constVti = 0.0;
 double CONST_Vti;           // force constant terminal velocity for ice
 };
 
-GlobalParams para;
+extern GlobalParams para;
 
 namespace MP_NSW6{
 
