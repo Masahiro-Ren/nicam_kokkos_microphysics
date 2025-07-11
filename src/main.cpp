@@ -399,18 +399,18 @@ Kokkos::initialize(argc, argv);
         read_data_3d("ref_verify/calculated_QS5_DP.dat",    CHECK_QS5);
         read_data_3d("ref_verify/calculated_QG6_DP.dat",    CHECK_QG6);
 
-    //     PROF_val_check("rhog",   rhog,   CHECK_rhog);
-    //     PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
-    //     PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
-    //     PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
-    //     PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
-    //     PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
-    //     PROF_val_check("QV", rhogq_Lswp, I_QV, CHECK_QV1);
-    //     PROF_val_check("QC", rhogq_Lswp, I_QC, CHECK_QC2);
-    //     PROF_val_check("QR", rhogq_Lswp, I_QR, CHECK_QR3);
-    //     PROF_val_check("QI", rhogq_Lswp, I_QI, CHECK_QI4);
-    //     PROF_val_check("QS", rhogq_Lswp, I_QS, CHECK_QS5);
-    //     PROF_val_check("QG", rhogq_Lswp, I_QG, CHECK_QG6);
+        PROF_val_check("rhog",   rhog,   CHECK_rhog);
+        PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
+        PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
+        PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
+        PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
+        PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
+        PROF_val_check("QV", rhogq_Lswp, I_QV, CHECK_QV1);
+        PROF_val_check("QC", rhogq_Lswp, I_QC, CHECK_QC2);
+        PROF_val_check("QR", rhogq_Lswp, I_QR, CHECK_QR3);
+        PROF_val_check("QI", rhogq_Lswp, I_QI, CHECK_QI4);
+        PROF_val_check("QS", rhogq_Lswp, I_QS, CHECK_QS5);
+        PROF_val_check("QG", rhogq_Lswp, I_QG, CHECK_QG6);
     }
 
     std::cout << "============= All process finished =============== \n";
