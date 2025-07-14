@@ -497,6 +497,7 @@ void mp_driver( int l_region,
 		}
 		else if(MP_TYPE == "NSW6")
 		{
+			Kokkos::Timer timer;
 			mp_nsw6_new mp_nsw6(l_region,
 					rhog,
 					rhogvx,
@@ -544,6 +545,9 @@ void mp_driver( int l_region,
 				    para);
 				
 			mp_nsw6.compute();
+
+			double elapsed = timer.seconds();
+			std::cout << "NSW6 Elapsed Time: " << elapsed << std::endl;
 			
 			
 			Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 

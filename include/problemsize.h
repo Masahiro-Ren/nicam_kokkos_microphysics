@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_Abort.hpp>
+#include <Kokkos_Timer.hpp>
 // #include <Kokkos_StdAlgorithms.hpp>
 
 using Kokkos::View;
