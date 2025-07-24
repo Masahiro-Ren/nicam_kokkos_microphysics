@@ -675,7 +675,7 @@ void mp_nsw6_new::compute()
 
 void mp_nsw6_new::operator()(TagAerosolT, const size_t k, const size_t ij) const
 {
-    Nc(k,ij) = max( UNCCN(k,ij) * 1.0E-6, paras.Nc_def );
+    Nc(k,ij) = Kokkos::max( UNCCN(k,ij) * 1.0E-6, paras.Nc_def );
 }
 
 void mp_nsw6_new::operator()(TagAerosolF, const size_t k, const size_t ij) const
@@ -915,16 +915,16 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     dens = rho(k,ij);
     temp = tem(k,ij);
-    qv   = max( q(I_QV, k, ij), 0.0 );
-    qc   = max( q(I_QC, k, ij), 0.0 );
-    qr   = max( q(I_QR, k, ij), 0.0 );
-    qi   = max( q(I_QI, k, ij), 0.0 );
-    qs   = max( q(I_QS, k, ij), 0.0 );
-    qg   = max( q(I_QG, k, ij), 0.0 );
+    qv   = Kokkos::max( q(I_QV, k, ij), 0.0 );
+    qc   = Kokkos::max( q(I_QC, k, ij), 0.0 );
+    qr   = Kokkos::max( q(I_QR, k, ij), 0.0 );
+    qi   = Kokkos::max( q(I_QI, k, ij), 0.0 );
+    qs   = Kokkos::max( q(I_QS, k, ij), 0.0 );
+    qg   = Kokkos::max( q(I_QG, k, ij), 0.0 );
 
     // saturation ration S
-    Sliq = qv / (max(qsatl(k,ij), EPS));
-    Sice = qv / (max(qsati(k,ij), EPS));
+    Sliq = qv / (Kokkos::max(qsatl(k,ij), EPS));
+    Sice = qv / (Kokkos::max(qsati(k,ij), EPS));
 
     Rdens = 1.0 / dens;
     rho_fact = sqrt(dens00 * Rdens);
@@ -994,7 +994,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     Xs2 = dens * qs / As;
     zerosw = 0.5 - copysign(0.5, Xs2 - 1.0E-12);
 
-    tems = min(-0.1, temc);
+    tems = Kokkos::min(-0.1, temc);
     coef_at[0] = paras.coef_a[0] + tems * ( paras.coef_a[1] + tems * ( paras.coef_a[4] + tems * paras.coef_a[8] ) );
     coef_at[1] = paras.coef_a[2] + tems * ( paras.coef_a[3] + tems *   paras.coef_a[6] );
     coef_at[2] = paras.coef_a[5] + tems *   paras.coef_a[7];
@@ -1077,14 +1077,14 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     //---< Nucleation >---
     // [Pigen] ice nucleation
-    Ni0 = max( exp(-0.1 * temc), 1.0 ) * 1000.0;
+    Ni0 = Kokkos::max( exp(-0.1 * temc), 1.0 ) * 1000.0;
     Qi0 = 4.92E-11 * exp( log(Ni0) * 1.33 ) * Rdens;
 
-    wk[I_Pigen] = max( min( Qi0 - qi, qv - qsati(k,ij) ), 0.0 ) / dt;
+    wk[I_Pigen] = Kokkos::max( Kokkos::min( Qi0 - qi, qv - qsati(k,ij) ), 0.0 ) / dt;
 
     //---< Accretion >---
-    Esi_mod = min( Esi, Esi * exp( gamma_sacr * temc ) );
-    Egs_mod = min( Egs, Egs * exp( gamma_gacs * temc ) );
+    Esi_mod = Kokkos::min( Esi, Esi * exp( gamma_sacr * temc ) );
+    Egs_mod = Kokkos::min( Egs, Egs * exp( gamma_gacs * temc ) );
 
     // [Pracw] accretion rate of cloud water by rain
     Pracw_orig = qc * 0.25 * PI * Erw * N0r * Cr * GAM_3dr * RLMDr_3dr * rho_fact;
@@ -1157,12 +1157,12 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
                     + sw_kk2000 * Praut_kk;
 
     // [Psaut] auto-conversion rate from cloud ice to snow
-    betai = min( beta_saut, beta_saut * exp( gamma_saut * temc ) );
-    wk[I_Psaut] = max( betai * (qi - qicrt_saut), 0.0 );
+    betai = Kokkos::min( beta_saut, beta_saut * exp( gamma_saut * temc ) );
+    wk[I_Psaut] = Kokkos::max( betai * (qi - qicrt_saut), 0.0 );
 
     // [Pgaut] auto-conversion rate from snow to graupel
-    betas = min( beta_gaut, beta_gaut * exp( gamma_gaut * temc ) );
-    wk[I_Pgaut] = max( betas * (qs - qscrt_gaut), 0.0 );
+    betas = Kokkos::min( beta_gaut, beta_gaut * exp( gamma_gaut * temc ) );
+    wk[I_Pgaut] = Kokkos::max( betas * (qs - qscrt_gaut), 0.0 );
 
     //---< Evaporation, Sublimation, Melting, and Freezing >---
     Ka  = ( Ka0 + dKa_dT * temc );
@@ -1176,13 +1176,13 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // [Prevp] evaporation rate of rain
     ventr = f1r * GAM_2 * RLMDr_2 + f2r * sqrt( Cr * rho_fact / Nu * RLMDr_5dr ) * GAM_5dr_h;
 
-    wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - min(Sliq, 1.0) ) * Glv * ventr;
+    wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - Kokkos::min(Sliq, 1.0) ) * Glv * ventr;
 
     // [Pidep,Pisub] deposition/sublimation rate for ice
-    rhoqi = max(dens * qi, EPS);
-    XNi   = min( max( 5.38E+7 * exp( log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
+    rhoqi = Kokkos::max(dens * qi, EPS);
+    XNi   = Kokkos::min( Kokkos::max( 5.38E+7 * exp( log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
     XMi   = rhoqi / XNi;
-    Di    = min( Di_a * sqrt(XMi), Di_max );
+    Di    = Kokkos::min( Di_a * sqrt(XMi), Di_max );
 
     tmp = 4.0 * Di * XNi * Rdens * ( Sice - 1.0 ) * Giv;
 
@@ -1217,7 +1217,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // [Psmlt] melting rate of snow
     wk[I_Psmlt] = 2.0 * PI * Rdens * Gil * vents
                     + CL * temc / LHF0 * ( wk[I_Psacw] + wk[I_Psacr] );
-    wk[I_Psmlt] = max( wk[I_Psmlt], 0.0 );
+    wk[I_Psmlt] = Kokkos::max( wk[I_Psmlt], 0.0 );
 
     // [Pgdep/pgsub] deposition/sublimation rate for graupel
     ventg = f1g * GAM_2 * RLMDg_2 + f2g * sqrt( Cg * rho_fact / Nu * RLMDg_5dg ) * GAM_5dg_h;
@@ -1230,7 +1230,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // [Pgmlt] melting rate of graupel
     wk[I_Pgmlt] = 2.0 * PI * Rdens * N0g * Gil * ventg
                     + CL * temc / LHF0 * ( wk[I_Pgacw] + wk[I_Pgacr] );
-    wk[I_Pgmlt] = max( wk[I_Pgmlt], 0.0 );
+    wk[I_Pgmlt] = Kokkos::max( wk[I_Pgmlt], 0.0 );
 
     // [Pgfrz] freezing rate of graupel
     wk[I_Pgfrz] = 2.0 * PI * Rdens * N0r * 60.0 * B_frz * Ar * ( exp(-A_frz * temc) - 1.0 ) * RLMDr_7;
@@ -1245,45 +1245,45 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Psfi] = qi / dt1;
 
     //---< limiter >---
-    wk[I_Pigen] = min( wk[I_Pigen], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
-    wk[I_Pidep] = min( wk[I_Pidep], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
-    wk[I_Psdep] = min( wk[I_Psdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
-    wk[I_Pgdep] = min( wk[I_Pgdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
+    wk[I_Pigen] = Kokkos::min( wk[I_Pigen], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
+    wk[I_Pidep] = Kokkos::min( wk[I_Pidep], wk[I_dqv_dt] ) * ( wk[I_iceflg] ) * sw_expice;
+    wk[I_Psdep] = Kokkos::min( wk[I_Psdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
+    wk[I_Pgdep] = Kokkos::min( wk[I_Pgdep], wk[I_dqv_dt] ) * ( wk[I_iceflg] )            ;
 
     wk[I_Pracw] = wk[I_Pracw]                           
                 + wk[I_Psacw] * ( 1.0 - wk[I_iceflg] )   // c->r by s
                 + wk[I_Pgacw] * ( 1.0 - wk[I_iceflg] );  // c->r by g
 
-    wk[I_Praut] = min( wk[I_Praut], wk[I_dqc_dt] ); 
-    wk[I_Pracw] = min( wk[I_Pracw], wk[I_dqc_dt] ); 
-    wk[I_Pihom] = min( wk[I_Pihom], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
-    wk[I_Pihtr] = min( wk[I_Pihtr], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
-    wk[I_Psacw] = min( wk[I_Psacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
-    wk[I_Psfw ] = min( wk[I_Psfw ], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_bergeron;
-    wk[I_Pgacw] = min( wk[I_Pgacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
+    wk[I_Praut] = Kokkos::min( wk[I_Praut], wk[I_dqc_dt] ); 
+    wk[I_Pracw] = Kokkos::min( wk[I_Pracw], wk[I_dqc_dt] ); 
+    wk[I_Pihom] = Kokkos::min( wk[I_Pihom], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
+    wk[I_Pihtr] = Kokkos::min( wk[I_Pihtr], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_expice;
+    wk[I_Psacw] = Kokkos::min( wk[I_Psacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
+    wk[I_Psfw ] = Kokkos::min( wk[I_Psfw ], wk[I_dqc_dt] ) * (        wk[I_iceflg] ) * sw_bergeron;
+    wk[I_Pgacw] = Kokkos::min( wk[I_Pgacw], wk[I_dqc_dt] ) * (        wk[I_iceflg] )            ;
 
-    wk[I_Prevp] = min( wk[I_Prevp], wk[I_dqr_dt] );
-    wk[I_Piacr] = min( wk[I_Piacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
-    wk[I_Psacr] = min( wk[I_Psacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
-    wk[I_Pgacr] = min( wk[I_Pgacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
-    wk[I_Pgfrz] = min( wk[I_Pgfrz], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Prevp] = Kokkos::min( wk[I_Prevp], wk[I_dqr_dt] );
+    wk[I_Piacr] = Kokkos::min( wk[I_Piacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Psacr] = Kokkos::min( wk[I_Psacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Pgacr] = Kokkos::min( wk[I_Pgacr], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
+    wk[I_Pgfrz] = Kokkos::min( wk[I_Pgfrz], wk[I_dqr_dt] ) * (        wk[I_iceflg] );
 
-    wk[I_Pisub] = min( wk[I_Pisub], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_expice;
-    wk[I_Pimlt] = min( wk[I_Pimlt], wk[I_dqi_dt] ) * ( 1.0 - wk[I_iceflg] ) * sw_expice;
-    wk[I_Psaut] = min( wk[I_Psaut], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
-    wk[I_Praci] = min( wk[I_Praci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
-    wk[I_Psaci] = min( wk[I_Psaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
-    wk[I_Psfi ] = min( wk[I_Psfi ], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_bergeron;
-    wk[I_Pgaci] = min( wk[I_Pgaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Pisub] = Kokkos::min( wk[I_Pisub], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_expice;
+    wk[I_Pimlt] = Kokkos::min( wk[I_Pimlt], wk[I_dqi_dt] ) * ( 1.0 - wk[I_iceflg] ) * sw_expice;
+    wk[I_Psaut] = Kokkos::min( wk[I_Psaut], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Praci] = Kokkos::min( wk[I_Praci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Psaci] = Kokkos::min( wk[I_Psaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
+    wk[I_Psfi ] = Kokkos::min( wk[I_Psfi ], wk[I_dqi_dt] ) * (       wk[I_iceflg] ) * sw_bergeron;
+    wk[I_Pgaci] = Kokkos::min( wk[I_Pgaci], wk[I_dqi_dt] ) * (       wk[I_iceflg] )            ;
 
-    wk[I_Pssub] = min( wk[I_Pssub], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
-    wk[I_Psmlt] = min( wk[I_Psmlt], wk[I_dqs_dt] ) * ( 1.0 - wk[I_iceflg] );
-    wk[I_Pgaut] = min( wk[I_Pgaut], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
-    wk[I_Pracs] = min( wk[I_Pracs], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
-    wk[I_Pgacs] = min( wk[I_Pgacs], wk[I_dqs_dt] );
+    wk[I_Pssub] = Kokkos::min( wk[I_Pssub], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+    wk[I_Psmlt] = Kokkos::min( wk[I_Psmlt], wk[I_dqs_dt] ) * ( 1.0 - wk[I_iceflg] );
+    wk[I_Pgaut] = Kokkos::min( wk[I_Pgaut], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+    wk[I_Pracs] = Kokkos::min( wk[I_Pracs], wk[I_dqs_dt] ) * (       wk[I_iceflg] );
+    wk[I_Pgacs] = Kokkos::min( wk[I_Pgacs], wk[I_dqs_dt] );
 
-    wk[I_Pgsub] = min( wk[I_Pgsub], wk[I_dqg_dt] ) * (       wk[I_iceflg] );
-    wk[I_Pgmlt] = min( wk[I_Pgmlt], wk[I_dqg_dt] ) * ( 1.0 - wk[I_iceflg] );
+    wk[I_Pgsub] = Kokkos::min( wk[I_Pgsub], wk[I_dqg_dt] ) * (       wk[I_iceflg] );
+    wk[I_Pgmlt] = Kokkos::min( wk[I_Pgmlt], wk[I_dqg_dt] ) * ( 1.0 - wk[I_iceflg] );
 
     wk[I_Piacr_s] = ( 1.0 - wk[I_delta1] ) * wk[I_Piacr];
     wk[I_Piacr_g] = (       wk[I_delta1] ) * wk[I_Piacr];
@@ -1306,7 +1306,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     fac_sw = 0.5 + copysign( 0.5, net + EPS ); // if production > loss , fac_sw=1
     fac    = fac_sw + ( 1.0 - fac_sw ) 
-                * min( -wk[I_dqc_dt]/(net - fac_sw), 1.0 ); // loss limiter
+                * Kokkos::min( -wk[I_dqc_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Pimlt] = wk[I_Pimlt] * fac;
     wk[I_Praut] = wk[I_Praut] * fac;
@@ -1334,7 +1334,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * min( -wk[I_dqi_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * Kokkos::min( -wk[I_dqi_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Pigen  ] = wk[I_Pigen  ] * fac;
     wk[I_Pidep  ] = wk[I_Pidep  ] * fac;
@@ -1366,7 +1366,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac    = fac_sw + ( 1.0 - fac_sw ) 
-                * min( -wk[I_dqr_dt]/(net - fac_sw), 1.0 ); // loss limiter
+                * Kokkos::min( -wk[I_dqr_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Praut  ] = wk[I_Praut  ] * fac;
     wk[I_Pracw  ] = wk[I_Pracw  ] * fac;
@@ -1393,7 +1393,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * min( -wk[I_dqv_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * Kokkos::min( -wk[I_dqv_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Prevp] = wk[I_Prevp] * fac;
     wk[I_Pisub] = wk[I_Pisub] * fac;
@@ -1423,7 +1423,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * min( -wk[I_dqs_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * Kokkos::min( -wk[I_dqs_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Psdep  ] = wk[I_Psdep  ] * fac;
     wk[I_Psacw  ] = wk[I_Psacw  ] * fac;
@@ -1458,7 +1458,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
-            * min( -wk[I_dqg_dt]/(net - fac_sw), 1.0 ); // loss limiter
+            * Kokkos::min( -wk[I_dqg_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
     wk[I_Pgdep  ] = wk[I_Pgdep  ] * fac;
     wk[I_Pgacw  ] = wk[I_Pgacw  ] * fac;
@@ -1537,11 +1537,11 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
             - wk[I_Pgsub  ]  // [loss] g->v
             - wk[I_Pgmlt  ]; // [loss] g->r
 
-    qc_t = max( qc_t, -wk[I_dqc_dt] );
-    qr_t = max( qr_t, -wk[I_dqr_dt] );
-    qi_t = max( qi_t, -wk[I_dqi_dt] );
-    qs_t = max( qs_t, -wk[I_dqs_dt] );
-    qg_t = max( qg_t, -wk[I_dqg_dt] );
+    qc_t = Kokkos::max( qc_t, -wk[I_dqc_dt] );
+    qr_t = Kokkos::max( qr_t, -wk[I_dqr_dt] );
+    qi_t = Kokkos::max( qi_t, -wk[I_dqi_dt] );
+    qs_t = Kokkos::max( qs_t, -wk[I_dqs_dt] );
+    qg_t = Kokkos::max( qg_t, -wk[I_dqg_dt] );
 
     qv_t = - ( qc_t 
                 + qr_t 
@@ -1773,7 +1773,7 @@ void negative_filter( const View2D<double, DEFAULT_MEM>&  rhog,
             // total hydrometeor (before correction)
             diffq += rhogq(nq,k,ij);
             // remove negative value of hydrometeors (mass)
-            rhogq(nq,k,ij) = max(rhogq(nq,k,ij), 0.0);
+            rhogq(nq,k,ij) = Kokkos::max(rhogq(nq,k,ij), 0.0);
         }
 
         for(int nq = NQW_STR + 1; nq <= NQW_END; nq++)
@@ -1790,7 +1790,7 @@ void negative_filter( const View2D<double, DEFAULT_MEM>&  rhog,
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
        double diffq = rhogq(I_QV,k,ij);
        // remove negative value of water vapor (mass)
-       rhogq(I_QV,k,ij) = max(rhogq(I_QV,k,ij), 0.0);
+       rhogq(I_QV,k,ij) = Kokkos::max(rhogq(I_QV,k,ij), 0.0);
 
        diffq -= rhogq(I_QV,k,ij);
 
@@ -1872,7 +1872,7 @@ void Bergeron_param( const View2D<double, DEFAULT_MEM> tem,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
                          KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                            double temc = min( max( tem(k,ij) - TEM00, -30.99 ), 0.0 );
+                            double temc = Kokkos::min( Kokkos::max( tem(k,ij) - TEM00, -30.99 ), 0.0 );
                             // itemc = int(-temc) + 1; in fortran 
                             int itemc = int(-temc);
                             double fact = -(temc + double(itemc - 1));
