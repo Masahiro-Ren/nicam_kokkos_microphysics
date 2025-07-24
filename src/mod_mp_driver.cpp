@@ -497,6 +497,7 @@ void mp_driver( int l_region,
 		}
 		else if(MP_TYPE == "NSW6")
 		{
+			Kokkos::fence();
 			Kokkos::Timer timer;
 			mp_nsw6_new mp_nsw6(l_region,
 					rhog,
@@ -546,6 +547,7 @@ void mp_driver( int l_region,
 				
 			mp_nsw6.compute();
 
+			Kokkos::fence();
 			double elapsed = timer.seconds();
 			std::cout << "NSW6 Elapsed Time: " << elapsed << std::endl;
 			
