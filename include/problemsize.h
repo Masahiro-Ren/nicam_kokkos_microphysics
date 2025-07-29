@@ -21,16 +21,20 @@ using Kokkos::Schedule;
 
 // Rename execution space
 using HOST_SPACE = Kokkos::OpenMP;
-using DEVICE_SPACE = Kokkos::Cuda;
 // Rename memory space
-using DEVICE_MEM = Kokkos::CudaSpace;
 using HOST_MEM = Kokkos::HostSpace;
 
 #if defined(USE_OPENMP)
+using DEVICE_SPACE = Kokkos::OpenMP;
+using DEVICE_MEM = Kokkos::HostSpace;
 using DEFAULT_MEM = HOST_MEM;
 #elif defined(USE_CUDA)
+using DEVICE_SPACE = Kokkos::Cuda;
+using DEVICE_MEM = Kokkos::CudaSpace;
 using DEFAULT_MEM = DEVICE_MEM;
 #else
+using DEVICE_SPACE = Kokkos::OpenMP;
+using DEVICE_MEM = Kokkos::HostSpace;
 using DEFAULT_MEM = HOST_MEM;
 #endif
 
