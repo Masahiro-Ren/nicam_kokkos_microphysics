@@ -714,12 +714,12 @@ void mp_nsw6_new::operator()(TagUpdateCLD, const size_t ij) const
     rceff    (kmax+1,ij) = 0.0;
     rceff_cld(kmax+1,ij) = 0.0;
 
-    double sw = ( 0.5 + copysign(0.5, tctop(0,ij) - TEM00 ) ); // if T > 0C, sw=1
+    double sw = ( 0.5 + Kokkos::copysign(0.5, tctop(0,ij) - TEM00 ) ); // if T > 0C, sw=1
 
     rwtop(0,ij) =  (       sw ) * rctop(0,ij)
                 + ( 1.0 - sw ) * UNDEF;
 
-    sw = ( 0.5 + copysign(0.5, rctop_cld(0,ij) - TEM00 ) ); // if T > 0C, sw=1
+    sw = ( 0.5 + Kokkos::copysign(0.5, rctop_cld(0,ij) - TEM00 ) ); // if T > 0C, sw=1
 
     rwtop_cld(0,ij) =  (       sw ) * rctop_cld(0,ij)
                     + ( 1.0 - sw ) * UNDEF;
@@ -927,17 +927,17 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     Sice = qv / (Kokkos::max(qsati(k,ij), EPS));
 
     Rdens = 1.0 / dens;
-    rho_fact = sqrt(dens00 * Rdens);
+    rho_fact = Kokkos::sqrt(dens00 * Rdens);
     temc = temp - TEM00;
 
-    wk[I_delta1] = ( 0.5 + copysign(0.5, qr - 1.0E-4) );
+    wk[I_delta1] = ( 0.5 + Kokkos::copysign(0.5, qr - 1.0E-4) );
 
-    wk[I_delta2] = ( 0.5 + copysign(0.5, 1.0E-4 - qr) )
-                    * ( 0.5 + copysign(0.5, 1.0E-4 - qs) );
+    wk[I_delta2] = ( 0.5 + Kokkos::copysign(0.5, 1.0E-4 - qr) )
+                    * ( 0.5 + Kokkos::copysign(0.5, 1.0E-4 - qs) );
     
-    wk[I_spsati] = 0.5 + copysign(0.5, Sice - 1.0);
+    wk[I_spsati] = 0.5 + Kokkos::copysign(0.5, Sice - 1.0);
 
-    wk[I_iceflg] = 0.5 - copysign(0.5, temc); // 0: warm, 1: ice
+    wk[I_iceflg] = 0.5 - Kokkos::copysign(0.5, temc); // 0: warm, 1: ice
 
     wk[I_dqv_dt] = qv / dt;
     wk[I_dqc_dt] = qc / dt;
@@ -946,37 +946,37 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_dqs_dt] = qs / dt;
     wk[I_dqg_dt] = qg / dt;
 
-    sw_bergeron = ( 0.5 + copysign(0.5, temc + 30.0) )
-                    * ( 0.5 + copysign(0.5, 0.0 - temc) )
+    sw_bergeron = ( 0.5 + Kokkos::copysign(0.5, temc + 30.0) )
+                    * ( 0.5 + Kokkos::copysign(0.5, 0.0 - temc) )
                     * ( 1.0 - sw_expice );
     
     // slope parameter lambda (Rain)
-    zerosw = 0.5 - copysign(0.5, qr - 1.0E-12);
-    RLMDr = sqrt( sqrt( dens * qr / (Ar * N0r * GAM_1br) + zerosw ) ) * (1.0 - zerosw);
+    zerosw = 0.5 - Kokkos::copysign(0.5, qr - 1.0E-12);
+    RLMDr = Kokkos::sqrt( Kokkos::sqrt( dens * qr / (Ar * N0r * GAM_1br) + zerosw ) ) * (1.0 - zerosw);
 
-    RLMDr_dr  = sqrt(RLMDr);   // **Dr
-    RLMDr_2   = pow(RLMDr, 2);
-    RLMDr_3   = pow(RLMDr, 3);
-    RLMDr_7   = pow(RLMDr, 7);
-    RLMDr_1br = pow(RLMDr, 4); // (1+Br)
-    RLMDr_2br = pow(RLMDr, 5); // (2+Br)
-    RLMDr_3br = pow(RLMDr, 6); // (3+Br)
-    RLMDr_3dr = pow(RLMDr, 3) * RLMDr_dr;
-    RLMDr_5dr = pow(RLMDr, 5) * RLMDr_dr;
-    RLMDr_6dr = pow(RLMDr, 6) * RLMDr_dr;
+    RLMDr_dr  = Kokkos::sqrt(RLMDr);   // **Dr
+    RLMDr_2   = Kokkos::pow(RLMDr, 2);
+    RLMDr_3   = Kokkos::pow(RLMDr, 3);
+    RLMDr_7   = Kokkos::pow(RLMDr, 7);
+    RLMDr_1br = Kokkos::pow(RLMDr, 4); // (1+Br)
+    RLMDr_2br = Kokkos::pow(RLMDr, 5); // (2+Br)
+    RLMDr_3br = Kokkos::pow(RLMDr, 6); // (3+Br)
+    RLMDr_3dr = Kokkos::pow(RLMDr, 3) * RLMDr_dr;
+    RLMDr_5dr = Kokkos::pow(RLMDr, 5) * RLMDr_dr;
+    RLMDr_6dr = Kokkos::pow(RLMDr, 6) * RLMDr_dr;
 
     // slope parameter lambda (Snow)
-    zerosw = 0.5 - copysign(0.5, qs - 1.0E-12);
-    RLMDs  = sqrt( sqrt( dens * qs / ( As * N0s * GAM_1bs ) + zerosw ) ) * ( 1.0 - zerosw );
+    zerosw = 0.5 - Kokkos::copysign(0.5, qs - 1.0E-12);
+    RLMDs  = Kokkos::sqrt( Kokkos::sqrt( dens * qs / ( As * N0s * GAM_1bs ) + zerosw ) ) * ( 1.0 - zerosw );
 
-    RLMDs_ds  = sqrt( sqrt(RLMDs) ); // **Ds
-    RLMDs_2   = pow(RLMDs, 2);
-    RLMDs_3   = pow(RLMDs, 3);
-    RLMDs_1bs = pow(RLMDs, 4); // (1+Bs)
-    RLMDs_2bs = pow(RLMDs, 5); // (2+Bs)
-    RLMDs_3bs = pow(RLMDs, 6); // (3+Bs)
-    RLMDs_3ds = pow(RLMDs, 3) * RLMDs_ds;
-    RLMDs_5ds = pow(RLMDs, 5) * RLMDs_ds;
+    RLMDs_ds  = Kokkos::sqrt( Kokkos::sqrt(RLMDs) ); // **Ds
+    RLMDs_2   = Kokkos::pow(RLMDs, 2);
+    RLMDs_3   = Kokkos::pow(RLMDs, 3);
+    RLMDs_1bs = Kokkos::pow(RLMDs, 4); // (1+Bs)
+    RLMDs_2bs = Kokkos::pow(RLMDs, 5); // (2+Bs)
+    RLMDs_3bs = Kokkos::pow(RLMDs, 6); // (3+Bs)
+    RLMDs_3ds = Kokkos::pow(RLMDs, 3) * RLMDs_ds;
+    RLMDs_5ds = Kokkos::pow(RLMDs, 5) * RLMDs_ds;
 
     MOMs_0     = N0s * GAM       * RLMDs    ;       // Ns * 0th moment
     MOMs_1     = N0s * GAM_2     * RLMDs_2  ;       // Ns * 1st moment
@@ -985,14 +985,14 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     MOMs_1bs   = N0s * GAM_2bs   * RLMDs_2bs;       // Ns * 1+bs
     MOMs_2bs   = N0s * GAM_3bs   * RLMDs_3bs;       // Ns * 2+bs
     MOMs_2ds   = N0s * GAM_3ds   * RLMDs_3ds;       // Ns * 2+ds
-    MOMs_5ds_h = N0s * GAM_5ds_h * sqrt(RLMDs_5ds); // Ns * (5+ds)/2
+    MOMs_5ds_h = N0s * GAM_5ds_h * Kokkos::sqrt(RLMDs_5ds); // Ns * (5+ds)/2
     RMOMs_Vt   = GAM_1bsds / GAM_1bs * RLMDs_ds;
 
     //---< modification by Roh and Satoh (2014) >---
 
     // bimodal size distribution of snow
     Xs2 = dens * qs / As;
-    zerosw = 0.5 - copysign(0.5, Xs2 - 1.0E-12);
+    zerosw = 0.5 - Kokkos::copysign(0.5, Xs2 - 1.0E-12);
 
     tems = Kokkos::min(-0.1, temc);
     coef_at[0] = paras.coef_a[0] + tems * ( paras.coef_a[1] + tems * ( paras.coef_a[4] + tems * paras.coef_a[8] ) );
@@ -1007,13 +1007,13 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     // 0th moment
     loga_ = coef_at[0];
     b_    = coef_bt[0];
-    MOMs_0 = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_0 = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_0;
     // 1st moment
     nm = 1.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_1 = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw ) * b_) * ( 1.0 - zerosw )
+    MOMs_1 = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw ) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_1;
     // 2nd moment
     MOMs_2 = sw_roh2014 * Xs2 + (1.0 - sw_roh2014) * MOMs_2;
@@ -1021,55 +1021,55 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     nm = 2.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_0bs = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_0bs = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_0bs;
     // 1 + Bs(=2) moment
     nm = 3.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_1bs = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_1bs = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_1bs;
     // 2 + Bs(=2) moment
     nm = 4.0;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_2bs = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_2bs = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_2bs;
     // 2 + Ds(=0.25) moment
     nm = 2.25;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_2ds = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_2ds = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                 + ( 1.0 - sw_roh2014 ) * MOMs_2ds;
     // ( 3 + Ds(=0.25) ) / 2  moment
     nm = 1.625;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    MOMs_5ds_h = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
+    MOMs_5ds_h = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw )
                     + ( 1.0 - sw_roh2014 ) * MOMs_5ds_h;
     // Bs(=2) + Ds(=0.25) moment
     nm = 2.25;
     loga_ = coef_at[0] + nm * ( coef_at[1] + nm * ( coef_at[2] + nm * coef_at[3] ) );
     b_    = coef_bt[0] + nm * ( coef_bt[1] + nm * ( coef_bt[2] + nm * coef_bt[3] ) );
-    RMOMs_Vt = sw_roh2014 * exp(ln10 * loga_) * exp(log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw ) / (MOMs_0bs + zerosw)
+    RMOMs_Vt = sw_roh2014 * Kokkos::exp(ln10 * loga_) * Kokkos::exp(Kokkos::log(Xs2 + zerosw) * b_) * ( 1.0 - zerosw ) / (MOMs_0bs + zerosw)
                 + ( 1.0 - sw_roh2014 ) * RMOMs_Vt;
 
     // slope parameter lambda (Graupel)
-    zerosw = 0.5 - copysign(0.5, qg - 1.0E-12);
-    RLMDg  = sqrt( sqrt( dens * qg / ( Ag * N0g * GAM_1bg ) + zerosw ) ) * ( 1.0 - zerosw );
-    RLMDg_dg  = sqrt( RLMDg );       // **Dg
-    RLMDg_2   = pow(RLMDg, 2);
-    RLMDg_3   = pow(RLMDg, 3);
-    RLMDg_3dg = pow(RLMDg, 3) * RLMDg_dg;
-    RLMDg_5dg = pow(RLMDg, 5) * RLMDg_dg;
+    zerosw = 0.5 - Kokkos::copysign(0.5, qg - 1.0E-12);
+    RLMDg  = Kokkos::sqrt( Kokkos::sqrt( dens * qg / ( Ag * N0g * GAM_1bg ) + zerosw ) ) * ( 1.0 - zerosw );
+    RLMDg_dg  = Kokkos::sqrt( RLMDg );       // **Dg
+    RLMDg_2   = Kokkos::pow(RLMDg, 2);
+    RLMDg_3   = Kokkos::pow(RLMDg, 3);
+    RLMDg_3dg = Kokkos::pow(RLMDg, 3) * RLMDg_dg;
+    RLMDg_5dg = Kokkos::pow(RLMDg, 5) * RLMDg_dg;
 
     wk[I_RLMDr] = RLMDr;
     wk[I_RLMDs] = RLMDs;
     wk[I_RLMDg] = RLMDg;
 
     //---< terminal velocity >---
-    zerosw = 0.5 - copysign(0.5, qi - 1.0E-8 );
-    Vti = ( 1.0 - sw_constVti ) * (-3.29) * exp( log( dens * qi + zerosw ) * 0.16 ) * ( 1.0 - zerosw ) 
+    zerosw = 0.5 - Kokkos::copysign(0.5, qi - 1.0E-8 );
+    Vti = ( 1.0 - sw_constVti ) * (-3.29) * Kokkos::exp( Kokkos::log( dens * qi + zerosw ) * 0.16 ) * ( 1.0 - zerosw ) 
             + ( sw_constVti ) * (-CONST_Vti);
     Vtr = -Cr * rho_fact * GAM_1brdr / GAM_1br * RLMDr_dr;
     Vts = -Cs * rho_fact * RMOMs_Vt;
@@ -1077,20 +1077,20 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     //---< Nucleation >---
     // [Pigen] ice nucleation
-    Ni0 = Kokkos::max( exp(-0.1 * temc), 1.0 ) * 1000.0;
-    Qi0 = 4.92E-11 * exp( log(Ni0) * 1.33 ) * Rdens;
+    Ni0 = Kokkos::max( Kokkos::exp(-0.1 * temc), 1.0 ) * 1000.0;
+    Qi0 = 4.92E-11 * Kokkos::exp( log(Ni0) * 1.33 ) * Rdens;
 
     wk[I_Pigen] = Kokkos::max( Kokkos::min( Qi0 - qi, qv - qsati(k,ij) ), 0.0 ) / dt;
 
     //---< Accretion >---
-    Esi_mod = Kokkos::min( Esi, Esi * exp( gamma_sacr * temc ) );
-    Egs_mod = Kokkos::min( Egs, Egs * exp( gamma_gacs * temc ) );
+    Esi_mod = Kokkos::min( Esi, Esi * Kokkos::exp( gamma_sacr * temc ) );
+    Egs_mod = Kokkos::min( Egs, Egs * Kokkos::exp( gamma_gacs * temc ) );
 
     // [Pracw] accretion rate of cloud water by rain
     Pracw_orig = qc * 0.25 * PI * Erw * N0r * Cr * GAM_3dr * RLMDr_3dr * rho_fact;
 
-    zerosw     = 0.5 - copysign(0.5, qc * qr - 1.0E-12 );
-    Pracw_kk   = 67.0 * exp( log( qc * qr + zerosw ) * 1.15 ) * ( 1.0 - zerosw ); // eq.(33) in KK(2000)
+    zerosw     = 0.5 - Kokkos::copysign(0.5, qc * qr - 1.0E-12 );
+    Pracw_kk   = 67.0 * Kokkos::exp( Kokkos::log( qc * qr + zerosw ) * 1.15 ) * ( 1.0 - zerosw ); // eq.(33) in KK(2000)
 
     // switch orig / k-k scheme
     wk[I_Pracw] = ( 1.0 - sw_kk2000 ) * Pracw_orig
@@ -1115,25 +1115,25 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Piacr] = qi * Ar / mi * 0.25 * PI * Eri * N0r * Cr * GAM_6dr * RLMDr_6dr * rho_fact;
 
     // [Psacr] accretion rate of rain by snow
-    wk[I_Psacr] = Ar * 0.25 * PI * Rdens * Esr * N0r * abs(Vtr - Vts)
+    wk[I_Psacr] = Ar * 0.25 * PI * Rdens * Esr * N0r * Kokkos::abs(Vtr - Vts)
                         * ( GAM_1br * RLMDr_1br * MOMs_2          
                             + 2.0 * GAM_2br * RLMDr_2br * MOMs_1          
                             + GAM_3br * RLMDr_3br * MOMs_0 );
 
     // [Pgacr] accretion rate of rain by graupel
-    wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * abs(Vtg - Vtr)
+    wk[I_Pgacr] = Ar * 0.25 * PI * Rdens * Egr * N0g * N0r * Kokkos::abs(Vtg - Vtr)
                         * ( GAM_1br * RLMDr_1br * GAM_3 * RLMDg_3
                             + 2.0 * GAM_2br * RLMDr_2br * GAM_2 * RLMDg_2
                             + GAM_3br * RLMDr_3br * GAM * RLMDg );
 
     // [Pracs] accretion rate of snow by rain
-    wk[I_Pracs] = As * 0.25 * PI * Rdens * Esr *  N0r * abs(Vtr - Vts)
+    wk[I_Pracs] = As * 0.25 * PI * Rdens * Esr *  N0r * Kokkos::abs(Vtr - Vts)
                         * ( MOMs_0bs * GAM_3 * RLMDr_3
                             + 2.0 * MOMs_1bs * GAM_2 * RLMDr_2
                             + MOMs_2bs * GAM * RLMDr );
 
     // [Pgacs] accretion rate of snow by graupel
-    wk[I_Pgacs] = As * 0.25 * PI * Rdens * Egs_mod * N0g * abs(Vtg - Vts)
+    wk[I_Pgacs] = As * 0.25 * PI * Rdens * Egs_mod * N0g * Kokkos::abs(Vtg - Vts)
                         * ( MOMs_0bs * GAM_3 * RLMDg_3
                             + 2.0 * MOMs_1bs * GAM_2 * RLMDg_2
                             + MOMs_2bs * GAM * RLMDg );
@@ -1141,15 +1141,15 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     //---< Autoconversion >---            
     // [Praut] auto-conversion rate from cloud water to rain
     rhoqc = dens * qc * 1000.0; // [g/m3]
-    Dc    = 0.146 - 5.964E-2 * log( Nc(k,ij) / 2000.0 );
+    Dc    = 0.146 - 5.964E-2 * Kokkos::log( Nc(k,ij) / 2000.0 );
     Praut_berry = Rdens * 1.67E-5 * rhoqc * rhoqc / ( 5.0 + 3.66E-2 * Nc(k,ij) / ( Dc * rhoqc + EPS ) );
 
-    zerosw   = 0.5 - copysign(0.5, qc - 1.0E-12 );
+    zerosw   = 0.5 - Kokkos::copysign(0.5, qc - 1.0E-12 );
     Praut_kk = 1350.0                                           
-                * exp( log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
-                * exp( log( Nc(k,ij) ) * (-1.79) );                     // eq.(29) in KK(2000)
+                * Kokkos::exp( Kokkos::log( qc + zerosw ) * 2.47 ) * ( 1.0 - zerosw ) 
+                * Kokkos::exp( Kokkos::log( Nc(k,ij) ) * (-1.79) );                     // eq.(29) in KK(2000)
 
-    Praut_kk = 1350.0 * pow(qc, 2.47) * pow(Nc(k,ij), -1.79);
+    Praut_kk = 1350.0 * Kokkos::pow(qc, 2.47) * Kokkos::pow(Nc(k,ij), -1.79);
 
 
     // switch berry / k-k scheme
@@ -1157,11 +1157,11 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
                     + sw_kk2000 * Praut_kk;
 
     // [Psaut] auto-conversion rate from cloud ice to snow
-    betai = Kokkos::min( beta_saut, beta_saut * exp( gamma_saut * temc ) );
+    betai = Kokkos::min( beta_saut, beta_saut * Kokkos::exp( gamma_saut * temc ) );
     wk[I_Psaut] = Kokkos::max( betai * (qi - qicrt_saut), 0.0 );
 
     // [Pgaut] auto-conversion rate from snow to graupel
-    betas = Kokkos::min( beta_gaut, beta_gaut * exp( gamma_gaut * temc ) );
+    betas = Kokkos::min( beta_gaut, beta_gaut * Kokkos::exp( gamma_gaut * temc ) );
     wk[I_Pgaut] = Kokkos::max( betas * (qs - qscrt_gaut), 0.0 );
 
     //---< Evaporation, Sublimation, Melting, and Freezing >---
@@ -1174,15 +1174,15 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     Gil = 1.0 / ( LHF0/(Ka * temc) );
 
     // [Prevp] evaporation rate of rain
-    ventr = f1r * GAM_2 * RLMDr_2 + f2r * sqrt( Cr * rho_fact / Nu * RLMDr_5dr ) * GAM_5dr_h;
+    ventr = f1r * GAM_2 * RLMDr_2 + f2r * Kokkos::sqrt( Cr * rho_fact / Nu * RLMDr_5dr ) * GAM_5dr_h;
 
     wk[I_Prevp] = 2.0 * PI * Rdens * N0r * ( 1.0 - Kokkos::min(Sliq, 1.0) ) * Glv * ventr;
 
     // [Pidep,Pisub] deposition/sublimation rate for ice
     rhoqi = Kokkos::max(dens * qi, EPS);
-    XNi   = Kokkos::min( Kokkos::max( 5.38E+7 * exp( log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
+    XNi   = Kokkos::min( Kokkos::max( 5.38E+7 * Kokkos::exp( Kokkos::log(rhoqi) * 0.75 ), 1.0E+3 ), 1.0E+6 );
     XMi   = rhoqi / XNi;
-    Di    = Kokkos::min( Di_a * sqrt(XMi), Di_max );
+    Di    = Kokkos::min( Di_a * Kokkos::sqrt(XMi), Di_max );
 
     tmp = 4.0 * Di * XNi * Rdens * ( Sice - 1.0 ) * Giv;
 
@@ -1190,24 +1190,24 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Pisub] = ( 1.0 - wk[I_spsati] ) * (-tmp); // Sice < 1
 
     // [Pihom] homogenious freezing at T < -40C
-    sw = ( 0.5 - copysign(0.5, temc + 40.0) ); // if T < -40C, sw=1
+    sw = ( 0.5 - Kokkos::copysign(0.5, temc + 40.0) ); // if T < -40C, sw=1
 
     wk[I_Pihom] = sw * qc / dt;
 
     // [Pihtr] heteroginous freezing at -40C < T < 0C
-    sw =   ( 0.5 + copysign(0.5, temc + 40.0) )
-         * ( 0.5 - copysign(0.5, temc       ) ); // if -40C < T < 0C, sw=1
+    sw =   ( 0.5 + Kokkos::copysign(0.5, temc + 40.0) )
+         * ( 0.5 - Kokkos::copysign(0.5, temc       ) ); // if -40C < T < 0C, sw=1
 
     wk[I_Pihtr] = sw * ( dens / rho_w * (qc*qc) / ( Nc_ihtr * 1.0E+6 ) )
-                     * B_frz * ( exp(-A_frz * temc) - 1.0 );
+                     * B_frz * ( Kokkos::exp(-A_frz * temc) - 1.0 );
 
     // [Pimlt] ice melting at T > 0C
-    sw = ( 0.5 + copysign(0.5, temc) ); // if T > 0C, sw=1
+    sw = ( 0.5 + Kokkos::copysign(0.5, temc) ); // if T > 0C, sw=1
 
     wk[I_Pimlt] = sw * qi / dt;
 
     // [Psdep,Pssub] deposition/sublimation rate for snow
-    vents = f1s * MOMs_1 + f2s * sqrt( Cs * rho_fact / Nu ) * MOMs_5ds_h;
+    vents = f1s * MOMs_1 + f2s * Kokkos::sqrt( Cs * rho_fact / Nu ) * MOMs_5ds_h;
 
     tmp = 2.0 * PI * Rdens * ( Sice - 1.0 ) * Giv * vents;
 
@@ -1220,7 +1220,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Psmlt] = Kokkos::max( wk[I_Psmlt], 0.0 );
 
     // [Pgdep/pgsub] deposition/sublimation rate for graupel
-    ventg = f1g * GAM_2 * RLMDg_2 + f2g * sqrt( Cg * rho_fact / Nu * RLMDg_5dg ) * GAM_5dg_h;
+    ventg = f1g * GAM_2 * RLMDg_2 + f2g * Kokkos::sqrt( Cg * rho_fact / Nu * RLMDg_5dg ) * GAM_5dg_h;
 
     tmp = 2.0 * PI * Rdens * N0g * ( Sice - 1.0 ) * Giv * ventg;
 
@@ -1233,11 +1233,11 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     wk[I_Pgmlt] = Kokkos::max( wk[I_Pgmlt], 0.0 );
 
     // [Pgfrz] freezing rate of graupel
-    wk[I_Pgfrz] = 2.0 * PI * Rdens * N0r * 60.0 * B_frz * Ar * ( exp(-A_frz * temc) - 1.0 ) * RLMDr_7;
+    wk[I_Pgfrz] = 2.0 * PI * Rdens * N0r * 60.0 * B_frz * Ar * ( Kokkos::exp(-A_frz * temc) - 1.0 ) * RLMDr_7;
 
     // [Psfw,Psfi] ( Bergeron process ) growth rate of snow by Bergeron process from cloud water/ice
-    dt1  = ( exp( log(mi50) * ma2(k,ij) )
-           - exp( log(mi40) * ma2(k,ij) ) ) / ( a1(k,ij) * ma2(k,ij) );
+    dt1  = ( Kokkos::exp( Kokkos::log(mi50) * ma2(k,ij) )
+           - Kokkos::exp( Kokkos::log(mi40) * ma2(k,ij) ) ) / ( a1(k,ij) * ma2(k,ij) );
     Ni50 = qi * dt / ( mi50 * dt1 );
 
     wk[I_Psfw] = Ni50 * ( a1(k,ij) * pow(mi50, a2(k,ij))
@@ -1304,7 +1304,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Psfw ]  // [loss] c->s
         - wk[I_Pgacw]; // [loss] c->g
 
-    fac_sw = 0.5 + copysign( 0.5, net + EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + Kokkos::copysign( 0.5, net + EPS ); // if production > loss , fac_sw=1
     fac    = fac_sw + ( 1.0 - fac_sw ) 
                 * Kokkos::min( -wk[I_dqc_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
@@ -1332,7 +1332,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Praci_g]  // [loss] i->g
         - wk[I_Pgaci  ]; // [loss] i->g
 
-    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + Kokkos::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
             * Kokkos::min( -wk[I_dqi_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
@@ -1364,7 +1364,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Pgacr  ]  // [loss] r->g
         - wk[I_Pgfrz  ]; // [loss] r->g
 
-    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + Kokkos::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac    = fac_sw + ( 1.0 - fac_sw ) 
                 * Kokkos::min( -wk[I_dqr_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
@@ -1391,7 +1391,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Psdep]  // [loss] v->s
         - wk[I_Pgdep]; // [loss] v->g
 
-    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + Kokkos::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
             * Kokkos::min( -wk[I_dqv_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
@@ -1421,7 +1421,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Pracs  ]  // [loss] s->g
         - wk[I_Pgacs  ]; // [loss] s->g
 
-    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + Kokkos::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
             * Kokkos::min( -wk[I_dqs_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
@@ -1456,7 +1456,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
         - wk[I_Pgsub  ]  // [loss] g->v
         - wk[I_Pgmlt  ]; // [loss] g->r
 
-    fac_sw = 0.5 + copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
+    fac_sw = 0.5 + Kokkos::copysign( 0.5, net+EPS ); // if production > loss , fac_sw=1
     fac = fac_sw + ( 1.0 - fac_sw ) 
             * Kokkos::min( -wk[I_dqg_dt]/(net - fac_sw), 1.0 ); // loss limiter
 
@@ -1563,26 +1563,26 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     //--- Effective Radius of Liquid Water
     xf_qc = rhoqc / Nc(k,ij) * 1.0E-9;                            // mean mass   of qc [kg]
-    rf_qc = pow(( coef_xf * xf_qc + EPS ), 0.33333333);       // mean radius of qc [m]
+    rf_qc = Kokkos::pow(( coef_xf * xf_qc + EPS ), 0.33333333);       // mean radius of qc [m]
     r2_qc = coef_dgam * (rf_qc * rf_qc) * ( Nc(k,ij) * 1.0E+6 );  // r^2 moment  of qc
     r2_qr = 0.25 * N0r * GAM_3 * RLMDr_3;                          // r^2 moment  of qr
     r3_qc = coef_xf * dens * qc;                                   // r^3 moment  of qc
     r3_qr = coef_xf * dens * qr;                                   // r^3 moment  of qr
 
-    zerosw = 0.5 - copysign(0.5, (r2_qc + r2_qr) - r2_min );
+    zerosw = 0.5 - Kokkos::copysign(0.5, (r2_qc + r2_qr) - r2_min );
     rceff(k,ij) = ( r3_qc + r3_qr ) / ( r2_qc + r2_qr + zerosw ) * ( 1.0 - zerosw );
 
-    sw = ( 0.5 + copysign(0.5, (qc + qr) - q_min ) ) * zerosw; // if qc+qr > 0.01[g/kg], sw=1
+    sw = ( 0.5 + Kokkos::copysign(0.5, (qc + qr) - q_min ) ) * zerosw; // if qc+qr > 0.01[g/kg], sw=1
 
     rctop(0,ij) = (       sw ) * rceff(k,ij)
                     + ( 1.0 - sw ) * UNDEF;
     tctop(0,ij) = (       sw ) * temp
                     + ( 1.0 - sw ) * UNDEF;
 
-    zerosw = 0.5 - copysign( 0.5, r2_qc - r2_min );
+    zerosw = 0.5 - Kokkos::copysign( 0.5, r2_qc - r2_min );
     rceff_cld(k,ij) = r3_qc / ( r2_qc + zerosw ) * ( 1.0 - zerosw );
 
-    sw = ( 0.5 + copysign( 0.5, qc - q_min ) ) * zerosw; // if qc > 0.01[g/kg], sw=1
+    sw = ( 0.5 + Kokkos::copysign( 0.5, qc - q_min ) ) * zerosw; // if qc > 0.01[g/kg], sw=1
 
     rctop_cld(0,ij) = (       sw ) * rceff_cld(k,ij)
                         + ( 1.0 - sw ) * UNDEF;
@@ -1882,7 +1882,7 @@ void Bergeron_param( const View2D<double, DEFAULT_MEM> tem,
                                         (fact) * a2_tab[itemc + 1];
                             ma2(k,ij) = 1.0 - a2(k,ij);
 
-                            a1(k,ij) = a1(k,ij) * pow(1.0E-3, ma2(k,ij));
+                            a1(k,ij) = a1(k,ij) * Kokkos::pow(1.0E-3, ma2(k,ij));
                          });
 }
 

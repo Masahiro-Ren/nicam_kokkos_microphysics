@@ -1027,9 +1027,9 @@ void precip_transport_new(  const View2D<double, DEFAULT_MEM>&  rhog            
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
             if(kin_h(k,ij) > 1.0E-20)
             {
-                vx_t(k,ij) = vx_t(k,ij) * sqrt( abs(kin_h0(k,ij) / kin_h(k,ij)) );
-                vy_t(k,ij) = vy_t(k,ij) * sqrt( abs(kin_h0(k,ij) / kin_h(k,ij)) );
-                vz_t(k,ij) = vz_t(k,ij) * sqrt( abs(kin_h0(k,ij) / kin_h(k,ij)) );
+                vx_t(k,ij) = vx_t(k,ij) * Kokkos::sqrt( Kokkos::abs(kin_h0(k,ij) / kin_h(k,ij)) );
+                vy_t(k,ij) = vy_t(k,ij) * Kokkos::sqrt( Kokkos::abs(kin_h0(k,ij) / kin_h(k,ij)) );
+                vz_t(k,ij) = vz_t(k,ij) * Kokkos::sqrt( Kokkos::abs(kin_h0(k,ij) / kin_h(k,ij)) );
             }
         });
         
@@ -1050,14 +1050,14 @@ void precip_transport_new(  const View2D<double, DEFAULT_MEM>&  rhog            
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
             kin_v0(k,ij) = rhogkin_v(k,ij) / rhogh(k,ij); // bug fix: kin_h0 -> kin_v0
             w_t   (k,ij) = rhogw(k,ij) / rhogh(k,ij);
-            kin_v (k,ij) = 0.5 * pow(w_t(k,ij), 2);
+            kin_v (k,ij) = 0.5 * Kokkos::pow(w_t(k,ij), 2);
         });
         
         Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,0},{kmax+2,ijdim}), 
         KOKKOS_LAMBDA(const size_t k, const size_t ij){
             if( kin_v(k,ij) > 1.0E-20 )
             {
-                w_t(k,ij) = w_t(k,ij) * sqrt( abs(kin_v0(k,ij) / kin_v(k,ij)) );
+                w_t(k,ij) = w_t(k,ij) * Kokkos::sqrt( Kokkos::abs(kin_v0(k,ij) / kin_v(k,ij)) );
             }
         });
         

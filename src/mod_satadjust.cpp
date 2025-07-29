@@ -99,8 +99,8 @@ void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<do
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
             double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
 
-            psat(k,ij) = PSAT0() * pow((tem(k,ij) * RTEM00()), CPovR_liq()) * 
-                                 exp(LovR_liq() * (RTEM00() - rtem));
+            psat(k,ij) = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * 
+                                   Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
     });
 }
 
@@ -152,8 +152,8 @@ void SATURATION_psat_ice(const View2D<double, DEFAULT_MEM>& tem, const View2D<do
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
             double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
 
-            psat(k,ij) = PSAT0() * pow((tem(k,ij) * RTEM00()), CPovR_ice()) * 
-                                 exp(LovR_ice() * (RTEM00() - rtem));
+            psat(k,ij) = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_ice()) * 
+                                   Kokkos::exp(LovR_ice() * (RTEM00() - rtem));
     });
 }
 
@@ -678,8 +678,8 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
         double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
 
-        double psatl = PSAT0() * pow((tem(k,ij) * RTEM00()), CPovR_liq()) * exp(LovR_liq() * (RTEM00() - rtem));
-        double psati = PSAT0() * pow((tem(k,ij) * RTEM00()), CPovR_ice()) * exp(LovR_ice() * (RTEM00() - rtem));
+        double psatl = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
+        double psati = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_ice()) * Kokkos::exp(LovR_ice() * (RTEM00() - rtem));
         double psat  = psatl * alpha + psati * (1.0 - alpha);
 
         double qsat = psat / ( rho(k,ij) * Rvap() * tem(k,ij) );
@@ -696,8 +696,8 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
                 rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
 
-                psatl = PSAT0() * pow((tem(k,ij) * RTEM00()), CPovR_liq()) * exp(LovR_liq() * (RTEM00() - rtem));
-                psati = PSAT0() * pow((tem(k,ij) * RTEM00()), CPovR_ice()) * exp(LovR_ice() * (RTEM00() - rtem));
+                psatl = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
+                psati = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_ice()) * Kokkos::exp(LovR_ice() * (RTEM00() - rtem));
                 psat  = psatl * alpha + psati * (1.0 - alpha);
 
                 double qsatl = psatl / ( rho(k,ij) * Rvap() * tem(k,ij) );
@@ -716,12 +716,12 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
                 double Emoist_new = tem(k,ij) * CVtot + q(I_QV,k,ij) * LHV - q(I_QI,k,ij) * LHF;
 
                 // dx/dT
-                double lim1 = 0.5 + copysign(0.5, SATURATION_ULIMIT_TEMP() - tem(k,ij));
-                double lim2 = 0.5 + copysign(0.5, tem(k,ij) - SATURATION_LLIMIT_TEMP());
+                double lim1 = 0.5 + Kokkos::copysign(0.5, SATURATION_ULIMIT_TEMP() - tem(k,ij));
+                double lim2 = 0.5 + Kokkos::copysign(0.5, tem(k,ij) - SATURATION_LLIMIT_TEMP());
                 double dalpha_dT = lim1 * lim2 / ( SATURATION_ULIMIT_TEMP() - SATURATION_LLIMIT_TEMP() );
 
-                double dqsatl_dT = ( LovR_liq() / (pow(tem(k,ij), 2)) + CVovR_liq() / tem(k,ij) ) * qsatl;
-                double dqsati_dT = ( LovR_ice() / (pow(tem(k,ij), 2)) + CVovR_ice() / tem(k,ij) ) * qsati;
+                double dqsatl_dT = ( LovR_liq() / (Kokkos::pow(tem(k,ij), 2)) + CVovR_liq() / tem(k,ij) ) * qsatl;
+                double dqsati_dT = ( LovR_ice() / (Kokkos::pow(tem(k,ij), 2)) + CVovR_ice() / tem(k,ij) ) * qsati;
                 double dqsat_dT  = qsatl * dalpha_dT + dqsatl_dT * alpha -
                         qsati * dalpha_dT + dqsati_dT * (1.0 - alpha);
                 
@@ -741,7 +741,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
                 tem(k,ij) = tem(k,ij) - dtemp;
 
-                if(abs(dtemp) < dtemp_criteria())
+                if(Kokkos::abs(dtemp) < dtemp_criteria())
                 {
                     converged = true;
                     break;
@@ -826,7 +826,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
         double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
 
-        double psat = PSAT0() * ( pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * exp(LovR_liq() * (RTEM00() - rtem));
+        double psat = PSAT0() * ( Kokkos::pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
 
         double qsat = psat / ( rho(k,ij) * Rvap() * tem(k,ij) ); 
 
@@ -840,7 +840,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
             {
                 rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
 
-                psat = PSAT0() * ( pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * exp(LovR_liq() * (RTEM00() - rtem));
+                psat = PSAT0() * ( Kokkos::pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
 
                 qsat = psat / ( rho(k,ij) * Rvap() * tem(k,ij) );
 
@@ -855,7 +855,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
                 double Emoist_new = tem(k,ij) * CVtot + q(I_QV,k,ij) * LHV;
 
                 // dx/dT
-                double dqsat_dT = ( LovR_liq() / (pow(tem(k,ij), 2)) + CVovR_liq() / tem(k,ij) ) * qsat;
+                double dqsat_dT = ( LovR_liq() / (Kokkos::pow(tem(k,ij), 2)) + CVovR_liq() / tem(k,ij) ) * qsat;
 
                 double dCVtot_dT = dqsat_dT * ( CVW(I_QV) - CVW(I_QC) );
 
@@ -867,7 +867,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
 
                 tem(k,ij) = tem(k,ij) - dtemp;
 
-                if(std::abs(dtemp) < dtemp_criteria())
+                if(Kokkos::abs(dtemp) < dtemp_criteria())
                 {
                     converged = true;
                     break;

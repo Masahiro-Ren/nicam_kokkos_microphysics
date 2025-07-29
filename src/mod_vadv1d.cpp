@@ -460,8 +460,8 @@ void vadv1d_getflux_new( int    mkmin,
                 //                      * (  ( copysign(1, k2 - (kcell(k,ij)+1)) + 1.0 ) * ( copysign(1, (k-1) - k2) + 1.0 )
                 //                      - ( copysign(1, k2 - k) + 1.0 ) * ( copysign(1, (kcell(k,ij) - 1) - k2) + 1.0 ) );
                 double fact = dz(k2) * 0.25
-                                     * (  ( copysign(1.0, f1) + 1.0 ) * ( copysign(1.0, f2) + 1.0 )
-                                     - ( copysign(1.0, f3) + 1.0 ) * ( copysign(1.0, f4) + 1.0 ) );
+                                     * (  ( Kokkos::copysign(1.0, f1) + 1.0 ) * ( Kokkos::copysign(1.0, f2) + 1.0 )
+                                     - ( Kokkos::copysign(1.0, f3) + 1.0 ) * ( Kokkos::copysign(1.0, f4) + 1.0 ) );
                 
                 frhof(k,ij) = frhof(k,ij) + rhof(k2,ij) * fact;
                 zdis(k,ij) = zdis0(k,ij) - fact;
@@ -474,7 +474,7 @@ void vadv1d_getflux_new( int    mkmin,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        frhof(k,ij) = frhof(k,ij) * ( 0.5 + copysign(0.5, abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
+        frhof(k,ij) = frhof(k,ij) * ( 0.5 + Kokkos::copysign(0.5, abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
     });
 }
 
