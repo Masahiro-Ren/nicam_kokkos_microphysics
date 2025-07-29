@@ -125,69 +125,6 @@ Kokkos::initialize(argc, argv);
 
     std::cout << "============= Start Initialize =============== \n";
 
-    /**
-     * Create Host Mirror
-     */
-    // Example: View3D<double, Kokkos::CudaSpace>::HostMirror h_rhog   = Kokkos::create_mirror_view(rhog  );
-    // auto h_rhog   = Kokkos::create_mirror_view(rhog  );
-    // auto h_rhogvx = Kokkos::create_mirror_view(rhogvx);
-    // auto h_rhogvy = Kokkos::create_mirror_view(rhogvy);
-    // auto h_rhogvz = Kokkos::create_mirror_view(rhogvz);
-    // auto h_rhogw  = Kokkos::create_mirror_view(rhogw );
-    // auto h_rhoge  = Kokkos::create_mirror_view(rhoge );
-    // auto h_vx     = Kokkos::create_mirror_view(vx    );
-    // auto h_vy     = Kokkos::create_mirror_view(vy    );
-    // auto h_vz     = Kokkos::create_mirror_view(vz    );
-    // auto h_w      = Kokkos::create_mirror_view(w     );
-    // auto h_unccn  = Kokkos::create_mirror_view(unccn );
-    // auto h_rho    = Kokkos::create_mirror_view(rho   );
-    // auto h_pre    = Kokkos::create_mirror_view(pre   );
-    // auto h_tem    = Kokkos::create_mirror_view(tem   );
-
-    // auto h_rhogq_Lswp = Kokkos::create_mirror_view(rhogq_Lswp);
-    // auto h_q_Lswp     = Kokkos::create_mirror_view(q_Lswp    );
-
-    // auto h_precip_mp  = Kokkos::create_mirror_view(precip_mp );
-    // auto h_precip1_mp = Kokkos::create_mirror_view(precip1_mp);
-    // auto h_precip2_mp = Kokkos::create_mirror_view(precip2_mp);
-
-    // auto h_rhoein_precip_mp = Kokkos::create_mirror_view(rhoein_precip_mp);
-    // auto h_lh_precip_mp     = Kokkos::create_mirror_view(lh_precip_mp    );
-    // auto h_rhophi_precip_mp = Kokkos::create_mirror_view(rhophi_precip_mp);
-    // auto h_rhokin_precip_mp = Kokkos::create_mirror_view(rhokin_precip_mp);
-
-    // auto h_frhoge_af  = Kokkos::create_mirror_view(frhoge_af );
-    // auto h_frhogqv_af = Kokkos::create_mirror_view(frhogqv_af);
-    // auto h_frhoge_rad = Kokkos::create_mirror_view(frhoge_rad);
-    // auto h_qke        = Kokkos::create_mirror_view(qke       );
-    // auto h_gsgam2     = Kokkos::create_mirror_view(gsgam2    );
-    // auto h_gsgam2h    = Kokkos::create_mirror_view(gsgam2h   );
-    // auto h_gam2       = Kokkos::create_mirror_view(gam2      );
-    // auto h_gam2h      = Kokkos::create_mirror_view(gam2h     );
-
-    // auto h_ix = Kokkos::create_mirror_view(ix);
-    // auto h_iy = Kokkos::create_mirror_view(iy);
-    // auto h_iz = Kokkos::create_mirror_view(iz);
-    // auto h_jx = Kokkos::create_mirror_view(jx);
-    // auto h_jy = Kokkos::create_mirror_view(jy);
-    // auto h_jz = Kokkos::create_mirror_view(jz);
-
-    // auto h_z           = Kokkos::create_mirror_view(z          );
-    // auto h_zh          = Kokkos::create_mirror_view(zh         );
-    // auto h_GPREC       = Kokkos::create_mirror_view(GPREC      );
-    // auto h_CBMFX       = Kokkos::create_mirror_view(CBMFX      );
-    // auto h_qd          = Kokkos::create_mirror_view(qd         );
-    // auto h_rceff       = Kokkos::create_mirror_view(rceff      );
-    // auto h_rceff_solid = Kokkos::create_mirror_view(rceff_solid);
-    // auto h_rceff_cld   = Kokkos::create_mirror_view(rceff_cld  );
-
-    // auto h_rctop  = Kokkos::create_mirror_view(rctop );
-    // auto h_rwtop  = Kokkos::create_mirror_view(rwtop );
-    // auto h_tctop  = Kokkos::create_mirror_view(tctop );
-
-    // auto h_GDCLW  = Kokkos::create_mirror_view(GDCLW );
-    // auto h_GDCFRC = Kokkos::create_mirror_view(GDCFRC);
-
     read_data_3d("data/rhog.dat",   rhog);
     read_data_3d("data/rhogvx.dat", rhogvx);
     read_data_3d("data/rhogvy.dat", rhogvy);
