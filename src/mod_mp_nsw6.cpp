@@ -911,6 +911,8 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
 
     const double sw_roh2014 = paras.sw_roh2014;
     const double ln10 = paras.ln10;
+
+    const double dens00 = ::dens00;
     // ---- < END create alias from global params > ----
 
     dens = rho(k,ij);
@@ -1078,7 +1080,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
     //---< Nucleation >---
     // [Pigen] ice nucleation
     Ni0 = Kokkos::max( Kokkos::exp(-0.1 * temc), 1.0 ) * 1000.0;
-    Qi0 = 4.92E-11 * Kokkos::exp( log(Ni0) * 1.33 ) * Rdens;
+    Qi0 = 4.92E-11 * Kokkos::exp( Kokkos::log(Ni0) * 1.33 ) * Rdens;
 
     wk[I_Pigen] = Kokkos::max( Kokkos::min( Qi0 - qi, qv - qsati(k,ij) ), 0.0 ) / dt;
 
@@ -1240,7 +1242,7 @@ void mp_nsw6_new::operator()(TagBigLoop, const size_t k, const size_t ij) const
            - Kokkos::exp( Kokkos::log(mi40) * ma2(k,ij) ) ) / ( a1(k,ij) * ma2(k,ij) );
     Ni50 = qi * dt / ( mi50 * dt1 );
 
-    wk[I_Psfw] = Ni50 * ( a1(k,ij) * pow(mi50, a2(k,ij))
+    wk[I_Psfw] = Ni50 * ( a1(k,ij) * Kokkos::pow(mi50, a2(k,ij))
                             + PI * Eiw * dens * qc * Ri50 * Ri50 * vti50 );
     wk[I_Psfi] = qi / dt1;
 
@@ -1871,19 +1873,20 @@ void Bergeron_param( const View2D<double, DEFAULT_MEM> tem,
     Kokkos::deep_copy(a2_tab, h_a2_tab);
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
-                         KOKKOS_LAMBDA(const size_t k, const size_t ij){
-                            double temc = Kokkos::min( Kokkos::max( tem(k,ij) - TEM00, -30.99 ), 0.0 );
-                            // itemc = int(-temc) + 1; in fortran 
-                            int itemc = int(-temc);
-                            double fact = -(temc + double(itemc - 1));
-                            a1(k,ij) = (1.0 - fact) * a1_tab[itemc] +
-                                        (fact) * a1_tab[itemc + 1];
-                            a2(k,ij) = (1.0 - fact) * a2_tab[itemc] +
-                                        (fact) * a2_tab[itemc + 1];
-                            ma2(k,ij) = 1.0 - a2(k,ij);
-
-                            a1(k,ij) = a1(k,ij) * Kokkos::pow(1.0E-3, ma2(k,ij));
-                         });
+    KOKKOS_LAMBDA(const size_t k, const size_t ij){
+        const double tem00 = TEM00;
+        double temc = Kokkos::min( Kokkos::max( tem(k,ij) - tem00, -30.99 ), 0.0 );
+        // itemc = int(-temc) + 1; in fortran 
+        int itemc = int(-temc);
+        double fact = -(temc + double(itemc - 1));
+        a1(k,ij) = (1.0 - fact) * a1_tab[itemc] +
+                    (fact) * a1_tab[itemc + 1];
+        a2(k,ij) = (1.0 - fact) * a2_tab[itemc] +
+                    (fact) * a2_tab[itemc + 1];
+        ma2(k,ij) = 1.0 - a2(k,ij);
+        
+        a1(k,ij) = a1(k,ij) * Kokkos::pow(1.0E-3, ma2(k,ij));
+    });
 }
 
 

@@ -412,36 +412,6 @@ void vadv1d_getflux_new( int    mkmin,
         frhof(k,ij) = 0.0;
     });
 
-    // for(int k = mkmin; k <= mkmax; k++)
-    // {
-    //     if( kcell_min(k) == k && kcell_max(k) == k )
-    //     {
-    //         Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
-    //             zdis(k,ij) = zdis0(k,ij);
-    //         });
-    //     }
-    //     else
-    //     {
-    //         for(int k2 = kcell_min(k); k2 <= kcell_max(k); k2++)
-    //         {
-    //             Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
-    //                 double fact = dz(k2) * 0.25
-    //                                      * (  ( copysign(1, k2 - (kcell(k,ij)+1)) + 1.0 ) * ( copysign(1, (k-1) - k2) + 1.0 )
-    //                                         - ( copysign(1, k2 - k) + 1.0 ) * ( copysign(1, (kcell(k,ij) - 1) - k2) + 1.0 ) );
-                    
-    //                 frhof(k,ij) = frhof(k,ij) + rhof(k2,ij) * fact;
-    //                 zdis(k,ij) = zdis0(k,ij) - fact;
-    //             });
-
-    //         }
-    //     }
-
-    //     Kokkos::parallel_for(RangePolicy<>(0,ijdim), KOKKOS_LAMBDA(const size_t ij){
-    //         int kc = kcell(k,ij);
-    //         frhof(k,ij) = frhof(k,ij) + rhof(kc,ij) * zdis(k,ij);
-    //     });
-    // }
-
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({mkmin,0},{mkmax+1, ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
         if( kcell_min(k) == k && kcell_max(k) == k )
@@ -474,7 +444,8 @@ void vadv1d_getflux_new( int    mkmin,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        frhof(k,ij) = frhof(k,ij) * ( 0.5 + Kokkos::copysign(0.5, abs(frhof(k,ij)) - CONST_EPS ) ); // small negative filter
+        const double const_eps = PROBLEM_SIZE::CONST_EPS;
+        frhof(k,ij) = frhof(k,ij) * ( 0.5 + Kokkos::copysign(0.5, Kokkos::abs(frhof(k,ij)) - const_eps ) ); // small negative filter
     });
 }
 

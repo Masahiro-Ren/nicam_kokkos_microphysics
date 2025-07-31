@@ -97,10 +97,11 @@ void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<do
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
-            double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
+        const double tem_min = TEM_MIN;
+        double rtem = 1.0 / ( Kokkos::max(tem(k,ij), tem_min) );
 
-            psat(k,ij) = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * 
-                                   Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
+        psat(k,ij) = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * 
+                                Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
     });
 }
 
@@ -150,7 +151,8 @@ void SATURATION_psat_ice(const View2D<double, DEFAULT_MEM>& tem, const View2D<do
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({0,0},{kdim,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
-            double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
+            const double tem_min = TEM_MIN;
+            double rtem = 1.0 / ( Kokkos::max(tem(k,ij), tem_min) );
 
             psat(k,ij) = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_ice()) * 
                                    Kokkos::exp(LovR_ice() * (RTEM00() - rtem));
@@ -673,10 +675,11 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
     KOKKOS_LAMBDA(const size_t k,  const size_t ij){
+        const double tem_min = TEM_MIN;
         double alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP() ) / ( SATURATION_ULIMIT_TEMP() - SATURATION_LLIMIT_TEMP() );
         alpha = Kokkos::min( Kokkos::max(alpha, 0.0), 1.0 );
 
-        double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
+        double rtem = 1.0 / ( Kokkos::max(tem(k,ij), tem_min) );
 
         double psatl = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
         double psati = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_ice()) * Kokkos::exp(LovR_ice() * (RTEM00() - rtem));
@@ -694,7 +697,7 @@ void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
                 alpha = ( tem(k,ij) - SATURATION_LLIMIT_TEMP() ) / ( SATURATION_ULIMIT_TEMP() - SATURATION_LLIMIT_TEMP() );
                 alpha = Kokkos::min( Kokkos::max(alpha, 0.0), 1.0 );
 
-                rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
+                rtem = 1.0 / ( Kokkos::max(tem(k,ij), tem_min) );
 
                 psatl = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_liq()) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
                 psati = PSAT0() * Kokkos::pow((tem(k,ij) * RTEM00()), CPovR_ice()) * Kokkos::exp(LovR_ice() * (RTEM00() - rtem));
@@ -824,7 +827,8 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
 
     Kokkos::parallel_for(MDRangePolicy<Kokkos::Rank<2>>({kmin,IDX_ZERO},{kmax+1,ijdim}), 
     KOKKOS_LAMBDA(const size_t k, const size_t ij){
-        double rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
+        const double tem_min = TEM_MIN;
+        double rtem = 1.0 / ( Kokkos::max(tem(k,ij), tem_min) );
 
         double psat = PSAT0() * ( Kokkos::pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
 
@@ -838,7 +842,7 @@ void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
 
             for(ite = 0; ite < itelim; ite++)
             {
-                rtem = 1.0 / ( Kokkos::max(tem(k,ij), TEM_MIN) );
+                rtem = 1.0 / ( Kokkos::max(tem(k,ij), tem_min) );
 
                 psat = PSAT0() * ( Kokkos::pow(tem(k,ij) * RTEM00(), CPovR_liq()) ) * Kokkos::exp(LovR_liq() * (RTEM00() - rtem));
 
