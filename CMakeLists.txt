@@ -19,10 +19,10 @@ include_directories(include)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 # Create executable
-add_executable(phy.exe ${SOURCES})
+add_executable(physicskernel_microphysics.exe ${SOURCES})
 
 # Link Kokkos
-target_link_libraries(phy.exe Kokkos::kokkos)
+target_link_libraries(physicskernel_microphysics.exe Kokkos::kokkos)
 
 # Optional: show compile flags
 message(STATUS "Compiling with CXX Flags: ${CMAKE_CXX_FLAGS}")
