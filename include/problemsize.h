@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <Kokkos_Core.hpp>
+#include <Kokkos_Abort.hpp>
+#include <Kokkos_Timer.hpp>
 // #include <Kokkos_StdAlgorithms.hpp>
 
 using Kokkos::View;
@@ -16,18 +18,34 @@ using Kokkos::subview;
 using Kokkos::RangePolicy;
 using Kokkos::MDRangePolicy;
 using Kokkos::Schedule;
-#ifdef USEOPENMP
-    using EXE_SPACE = Kokkos::OpenMP;
+
+// Rename execution space
+using HOST_SPACE = Kokkos::OpenMP;
+// Rename memory space
+using HOST_MEM = Kokkos::HostSpace;
+
+#if defined(USE_OPENMP)
+using DEVICE_SPACE = Kokkos::OpenMP;
+using DEVICE_MEM = Kokkos::HostSpace;
+using DEFAULT_MEM = HOST_MEM;
+#elif defined(USE_CUDA)
+using DEVICE_SPACE = Kokkos::Cuda;
+using DEVICE_MEM = Kokkos::CudaSpace;
+using DEFAULT_MEM = DEVICE_MEM;
 #else
-    using EXE_SPACE = Kokkos::Serial;
+using DEVICE_SPACE = Kokkos::OpenMP;
+using DEVICE_MEM = Kokkos::HostSpace;
+using DEFAULT_MEM = HOST_MEM;
 #endif
-// using EXE_SPACE = Kokkos::OpenMP;
 
-// template <typename T>
-// using Vec1d = std::vector<T>;
-
-// template <typename T>
-// using Vec2d = std::vector<std::vector<T>>;
+template<typename T, typename S>
+using View1D = Kokkos::View<T*, Kokkos::LayoutRight, S>;
+template<typename T, typename S>
+using View2D = Kokkos::View<T**, Kokkos::LayoutRight, S>;
+template<typename T, typename S>
+using View3D = Kokkos::View<T***, Kokkos::LayoutRight, S>;
+template<typename T, typename S>
+using View4D = Kokkos::View<T****, Kokkos::LayoutRight, S>;
 
 namespace PROBLEM_SIZE 
 {
@@ -122,65 +140,108 @@ constexpr double TEM00 = CONST_TEM00 ;
 constexpr int    RP_PREC = 15;
 
 // grd, gmtr, vmtr
-extern double GRD_gz   [ADM_kall];
-extern double GRD_gzh  [ADM_kall];
-extern double GRD_dgz  [ADM_kall];
-extern double GRD_dgzh [ADM_kall];
-extern double GRD_rdgz [ADM_kall];
-extern double GRD_rdgzh[ADM_kall];
-extern double GRD_afact[ADM_kall];
-extern double GRD_bfact[ADM_kall];
-extern double GRD_cfact[ADM_kall];
-extern double GRD_dfact[ADM_kall];
+extern double arrGRD_gz   [ADM_kall];
+extern double arrGRD_gzh  [ADM_kall];
+extern double arrGRD_dgz  [ADM_kall];
+extern double arrGRD_dgzh [ADM_kall];
+extern double arrGRD_rdgz [ADM_kall];
+extern double arrGRD_rdgzh[ADM_kall];
+extern double arrGRD_afact[ADM_kall];
+extern double arrGRD_bfact[ADM_kall];
+extern double arrGRD_cfact[ADM_kall];
+extern double arrGRD_dfact[ADM_kall];
+// view version of grd, gmtr, vmtr
+extern View1D<double, DEFAULT_MEM> GRD_gz   ;
+extern View1D<double, DEFAULT_MEM> GRD_gzh  ;
+extern View1D<double, DEFAULT_MEM> GRD_dgz  ;
+extern View1D<double, DEFAULT_MEM> GRD_dgzh ;
+extern View1D<double, DEFAULT_MEM> GRD_rdgz ;
+extern View1D<double, DEFAULT_MEM> GRD_rdgzh;
+extern View1D<double, DEFAULT_MEM> GRD_afact;
+extern View1D<double, DEFAULT_MEM> GRD_bfact;
+extern View1D<double, DEFAULT_MEM> GRD_cfact;
+extern View1D<double, DEFAULT_MEM> GRD_dfact;
 
 // run conf
 extern std::string EIN_TYPE  ;
 extern std::string RAIN_TYPE ;
 extern std::string MP_TYPE   ;
 extern std::string vgrid_fname;
-extern int MP_DIV_NUM;
-extern bool opt_2moment_water   ;
-extern bool ISOTOPE             ;
-extern bool opt_offline_aerosol ;
-extern bool opt_aerosol_forcing ;
+// extern int MP_DIV_NUM;
+// extern bool opt_2moment_water   ;
+// extern bool ISOTOPE             ;
+// extern bool opt_offline_aerosol ;
+// extern bool opt_aerosol_forcing ;
+constexpr int MP_DIV_NUM           = 1;
+constexpr bool opt_2moment_water   = false;
+constexpr bool ISOTOPE             = false;
+constexpr bool opt_offline_aerosol = false;
+constexpr bool opt_aerosol_forcing = false;
 extern std::string PRCIP_TRN_ECORRECT;
 
 extern std::string RD_TYPE;
 extern std::string AE_TYPE;
-extern int KAPCL          ;
-extern int NCRF           ;
-extern int NRBND          ;
-extern int NRBND_VIS      ;
-extern int NRBND_NIR      ;
-extern int NRBND_IR       ;
-extern int NRDIR          ;
-extern int NRDIR_DIRECT   ;
-extern int NRDIR_DIFFUSE  ;
-extern int NTAU           ;
-extern int NPRES          ;
-extern int HYDRO_MAX      ;
+// extern int KAPCL          ;
+// extern int NCRF           ;
+// extern int NRBND          ;
+// extern int NRBND_VIS      ;
+// extern int NRBND_NIR      ;
+// extern int NRBND_IR       ;
+// extern int NRDIR          ;
+// extern int NRDIR_DIRECT   ;
+// extern int NRDIR_DIFFUSE  ;
+// extern int NTAU           ;
+// extern int NPRES          ;
+// extern int HYDRO_MAX      ;
+constexpr int KAPCL               = 7;
+constexpr int NCRF                = 2;
+constexpr int NRBND               = 3;
+constexpr int NRBND_VIS           = 1;
+constexpr int NRBND_NIR           = 2;
+constexpr int NRBND_IR            = 3;
+constexpr int NRDIR               = 2;
+constexpr int NRDIR_DIRECT        = 1;
+constexpr int NRDIR_DIFFUSE       = 2;
+constexpr int NTAU                = 7;
+constexpr int NPRES               = 7;
+constexpr int HYDRO_MAX           = 7;
 
-extern size_t NQW_STR; 
-extern size_t NQW_END; 
-extern int I_QV ;
-extern int I_QC ;
-extern int I_QR ;
-extern int I_QI ;
-extern int I_QS ;
-extern int I_QG ;
-extern int I_QH ;
-extern int I_NC ;
-extern int I_NR ;
-extern int I_NI ;
-extern int I_NS ;
-extern int I_NG ;
+// extern size_t NQW_STR; 
+// extern size_t NQW_END; 
+// extern int I_QV ;
+// extern int I_QC ;
+// extern int I_QR ;
+// extern int I_QI ;
+// extern int I_QS ;
+// extern int I_QG ;
+// extern int I_QH ;
+// extern int I_NC ;
+// extern int I_NR ;
+// extern int I_NI ;
+// extern int I_NS ;
+// extern int I_NG ;
+constexpr size_t NQW_STR = 1; // 2 in fortran
+constexpr size_t NQW_END = 5; // 6 in fortran
+// values below are all +1 in fortran impl.
+constexpr int I_QV =  0;
+constexpr int I_QC =  1;
+constexpr int I_QR =  2;
+constexpr int I_QI =  3;
+constexpr int I_QS =  4;
+constexpr int I_QG =  5;
+constexpr int I_QH =  6;
+constexpr int I_NC =  6;
+constexpr int I_NR =  7;
+constexpr int I_NI =  8;
+constexpr int I_NS =  9;
+constexpr int I_NG = 10;
 
 extern std::vector<std::string> TRC_name;
 
-// extern std::vector<double> CVW;
-// extern std::vector<double> CPW;
-extern double CVW[];
-extern double CPW[];
+// extern double CVW[];
+// extern double CPW[];
+extern View1D<double, DEFAULT_MEM> CVW;
+extern View1D<double, DEFAULT_MEM> CPW;
 
 extern int SET_iteration;
 extern bool SET_check;

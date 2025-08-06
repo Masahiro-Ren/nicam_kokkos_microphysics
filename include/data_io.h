@@ -112,35 +112,38 @@ constexpr size_t SIZE_BUF_4D = ADM_lall * TRC_VMAX * ADM_kall * ADM_gall_in * si
 constexpr size_t SIZE_BUF_4D2 = 2 * ADM_lall * ADM_KNONE * ADM_gall_in * sizeof(double);
 
 void read_data_1d(const std::string& filename, double arr1d[ADM_kall]);
-/**
- * Kokkos ver.
- */
-void read_data_1d(const std::string& filename, View<double*>& arr1d);
 
 void read_data_2d(const std::string& filename, double arr2d[ADM_lall][ADM_gall_in]);
-/**
- * Kokkos ver.
- */
-void read_data_2d(const std::string& filename, View<double**>& arr2d);
 
 void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_kall][ADM_gall_in]);
 void read_data_3d(const std::string& filename, double arr3d[ADM_lall][ADM_KNONE][ADM_gall_in]);
-/**
- * Kokkos ver.
- */
-void read_data_3d(const std::string& filename, View<double***>& arr3d);
 
 void read_data_4d(const std::string& filename, double arr4d[ADM_lall][TRC_VMAX][ADM_kall][ADM_gall_in]);
 void read_data_4d(const std::string& filename, double arr4d[2][ADM_lall][ADM_KNONE][ADM_gall_in]);
+
 /**
  * Kokkos ver.
  */
-void read_data_4d(const std::string& filename, View<double****>& arr4d);
+// void read_data_1d(const std::string& filename, View<double*>& arr1d);
+template<typename MEM_SPACE>
+void read_data_1d(const std::string& filename, View1D<double, MEM_SPACE> arr1d);
+template<typename MEM_SPACE>
+void read_data_2d(const std::string& filename, View2D<double, MEM_SPACE> arr2d);
+template<typename MEM_SPACE>
+void read_data_3d(const std::string& filename, View3D<double, MEM_SPACE> arr3d);
+template<typename MEM_SPACE>
+void read_data_4d(const std::string& filename, View4D<double, MEM_SPACE> arr4d);
 
+extern template void read_data_1d<HOST_MEM>(const std::string& filename, View1D<double, HOST_MEM> arr1d); 
+extern template void read_data_2d<HOST_MEM>(const std::string& filename, View2D<double, HOST_MEM> arr2d); 
+extern template void read_data_3d<HOST_MEM>(const std::string& filename, View3D<double, HOST_MEM> arr3d); 
+extern template void read_data_4d<HOST_MEM>(const std::string& filename, View4D<double, HOST_MEM> arr4d); 
 
-// template<size_t LDIM, size_t KDIM, size_t IJDIM>
-// void read_data_3d(const std::string& filename, double arr3d[LDIM][KDIM][IJDIM]);
+#ifdef USE_CUDA
+extern template void read_data_1d<DEVICE_MEM>(const std::string& filename, View1D<double, DEVICE_MEM> arr1d); 
+extern template void read_data_2d<DEVICE_MEM>(const std::string& filename, View2D<double, DEVICE_MEM> arr2d); 
+extern template void read_data_3d<DEVICE_MEM>(const std::string& filename, View3D<double, DEVICE_MEM> arr3d); 
+extern template void read_data_4d<DEVICE_MEM>(const std::string& filename, View4D<double, DEVICE_MEM> arr4d); 
+#endif
 
-// template<size_t WDIM, size_t LDIM, size_t KDIM, size_t IJDIM>
-// void read_data_4d(const std::string& filename, double arr4d[WDIM][LDIM][KDIM][IJDIM]);
 }

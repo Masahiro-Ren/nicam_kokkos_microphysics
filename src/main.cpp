@@ -11,101 +11,99 @@ using namespace SATADJUST;
 using namespace MP_DRIVER;
 
 
-/**
- * For result checking
- */
-// double CHECK_rhog  [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogvx[ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogvy[ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogvz[ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhogw [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_rhoge [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QV1   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QC2   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QR3   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QI4   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QS5   [ADM_lall][ADM_kall][ADM_gall_in];
-// double CHECK_QG6   [ADM_lall][ADM_kall][ADM_gall_in];
-
 int main(int argc, char* argv[])
 {
 Kokkos::initialize(argc, argv);
 {
     // declare all variables
-    View<double***> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhog  ("rhog  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogvx("rhogvx", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogvy("rhogvy", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogvz("rhogvz", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhogw ("rhogw ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhoge ("rhoge ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> vx    ("vx    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> vy    ("vy    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> vz    ("vz    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> w     ("w     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> unccn ("unccn ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rho   ("rho   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> pre   ("pre   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> tem   ("tem   ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View<double****> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
-    View<double****> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> rhogq_Lswp ("rhogq_Lswp", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> q_Lswp     ("q_Lswp    ", ADM_lall, TRC_VMAX, ADM_kall, ADM_gall_in);
 
-    View<double****> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double****> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double****> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> precip_mp  ("precip_mp ", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> precip1_mp ("precip1_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
+    View4D<double, DEFAULT_MEM> precip2_mp ("precip2_mp", 2, ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View<double***> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhoein_precip_mp ("rhoein_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> lh_precip_mp     ("lh_precip_mp    ", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhophi_precip_mp ("rhophi_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rhokin_precip_mp ("rhokin_precip_mp", ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View<double***> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> frhoge_af ("frhoge_af ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> frhogqv_af("frhogqv_af", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> frhoge_rad("frhoge_rad", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> qke       ("qke       ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gsgam2    ("gsgam2    ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gsgam2h   ("gsgam2h   ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gam2      ("gam2      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> gam2h     ("gam2h     ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View<double**> ix ("ix", ADM_lall, ADM_gall_in);
-    View<double**> iy ("iy", ADM_lall, ADM_gall_in);
-    View<double**> iz ("iz", ADM_lall, ADM_gall_in);
-    View<double**> jx ("jx", ADM_lall, ADM_gall_in);
-    View<double**> jy ("jy", ADM_lall, ADM_gall_in);
-    View<double**> jz ("jz", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> ix ("ix", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> iy ("iy", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> iz ("iz", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> jx ("jx", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> jy ("jy", ADM_lall, ADM_gall_in);
+    View2D<double, DEFAULT_MEM> jz ("jz", ADM_lall, ADM_gall_in);
 
-    View<double***> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> z           ("z          ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> zh          ("zh         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> GPREC       ("GPREC      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> CBMFX       ("CBMFX      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> qd          ("qd         ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rceff       ("rceff      ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rceff_solid ("rceff_solid", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rceff_cld   ("rceff_cld  ", ADM_lall, ADM_kall, ADM_gall_in);
 
-    View<double***> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
-    View<double***> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rctop ("rctop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> rwtop ("rwtop", ADM_lall, ADM_KNONE, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> tctop ("tctop", ADM_lall, ADM_KNONE, ADM_gall_in);
 
-    View<double***> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
-    View<double***> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> GDCLW  ("GDCLW ", ADM_lall, ADM_kall, ADM_gall_in);
+    View3D<double, DEFAULT_MEM> GDCFRC ("GDCFRC", ADM_lall, ADM_kall, ADM_gall_in);
+
+    GRD_gz   = View1D<double, DEFAULT_MEM> ("GRD_gz   ", ADM_kall);
+    GRD_gzh  = View1D<double, DEFAULT_MEM> ("GRD_gzh  ", ADM_kall);
+    GRD_dgz  = View1D<double, DEFAULT_MEM> ("GRD_dgz  ", ADM_kall);
+    GRD_dgzh = View1D<double, DEFAULT_MEM> ("GRD_dgzh ", ADM_kall);
+    GRD_rdgz = View1D<double, DEFAULT_MEM> ("GRD_rdgz ", ADM_kall);
+    GRD_rdgzh= View1D<double, DEFAULT_MEM> ("GRD_rdgzh", ADM_kall);
+    GRD_afact= View1D<double, DEFAULT_MEM> ("GRD_afact", ADM_kall);
+    GRD_bfact= View1D<double, DEFAULT_MEM> ("GRD_bfact", ADM_kall);
+    GRD_cfact= View1D<double, DEFAULT_MEM> ("GRD_cfact", ADM_kall);
+    GRD_dfact= View1D<double, DEFAULT_MEM> ("GRD_dfact", ADM_kall);
+
+    CVW = View1D<double, DEFAULT_MEM>("CVW", 6);
+    CPW = View1D<double, DEFAULT_MEM>("CPW", 6);
 
     /**
      * For result checking
      */
-    View<double***> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
-    View<double***> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhog  ("CHECK_rhog  ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogvx("CHECK_rhogvx",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogvy("CHECK_rhogvy",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogvz("CHECK_rhogvz",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhogw ("CHECK_rhogw ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_rhoge ("CHECK_rhoge ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QV1   ("CHECK_QV1   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QC2   ("CHECK_QC2   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QR3   ("CHECK_QR3   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QI4   ("CHECK_QI4   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QS5   ("CHECK_QS5   ",ADM_lall,ADM_kall,ADM_gall_in);
+    View3D<double, HOST_MEM> CHECK_QG6   ("CHECK_QG6   ",ADM_lall,ADM_kall,ADM_gall_in);
     
     /**
      * Display Execution Configurations
@@ -127,41 +125,41 @@ Kokkos::initialize(argc, argv);
 
     std::cout << "============= Start Initialize =============== \n";
 
-    read_data_3d("data/rhog.dat", rhog);
+    read_data_3d("data/rhog.dat",   rhog);
     read_data_3d("data/rhogvx.dat", rhogvx);
     read_data_3d("data/rhogvy.dat", rhogvy);
     read_data_3d("data/rhogvz.dat", rhogvz);
-    read_data_3d("data/rhogw.dat", rhogw);
-    read_data_3d("data/rhoge.dat", rhoge);
-    read_data_3d("data/vx.dat", vx);
-    read_data_3d("data/vy.dat", vy);
-    read_data_3d("data/vz.dat", vz);
-    read_data_3d("data/w.dat", w);
-    read_data_3d("data/unccn.dat", unccn);
-    read_data_3d("data/rho.dat", rho);
-    read_data_3d("data/pre.dat", pre);
-    read_data_3d("data/tem.dat", tem);
+    read_data_3d("data/rhogw.dat",  rhogw);
+    read_data_3d("data/rhoge.dat",  rhoge);
+    read_data_3d("data/vx.dat",     vx);
+    read_data_3d("data/vy.dat",     vy);
+    read_data_3d("data/vz.dat",     vz);
+    read_data_3d("data/w.dat",      w);
+    read_data_3d("data/unccn.dat",  unccn);
+    read_data_3d("data/rho.dat",    rho);
+    read_data_3d("data/pre.dat",    pre);
+    read_data_3d("data/tem.dat",    tem);
 
     read_data_4d("data/rhogq_Lswp.dat", rhogq_Lswp);
-    read_data_4d("data/q_Lswp.dat", q_Lswp);
+    read_data_4d("data/q_Lswp.dat",     q_Lswp);
 
-    read_data_4d("data/precip_mp.dat", precip_mp);
+    read_data_4d("data/precip_mp.dat",  precip_mp);
     read_data_4d("data/precip1_mp.dat", precip1_mp);
     read_data_4d("data/precip2_mp.dat", precip2_mp);
 
     read_data_3d("data/rhoein_precip_mp.dat", rhoein_precip_mp);
-    read_data_3d("data/lh_precip_mp.dat", lh_precip_mp);
+    read_data_3d("data/lh_precip_mp.dat",     lh_precip_mp);
     read_data_3d("data/rhophi_precip_mp.dat", rhophi_precip_mp);
     read_data_3d("data/rhokin_precip_mp.dat", rhokin_precip_mp);
 
-    read_data_3d("data/frhoge_af.dat", frhoge_af);
+    read_data_3d("data/frhoge_af.dat",  frhoge_af);
     read_data_3d("data/frhogqv_af.dat", frhogqv_af);
     read_data_3d("data/frhoge_rad.dat", frhoge_rad);
-    read_data_3d("data/qke.dat", qke);
-    read_data_3d("data/gsgam2.dat", gsgam2);
+    read_data_3d("data/qke.dat",     qke);
+    read_data_3d("data/gsgam2.dat",  gsgam2);
     read_data_3d("data/gsgam2h.dat", gsgam2h);
-    read_data_3d("data/gam2.dat", gam2);
-    read_data_3d("data/gam2h.dat", gam2h);
+    read_data_3d("data/gam2.dat",    gam2);
+    read_data_3d("data/gam2h.dat",   gam2h);
 
     read_data_2d("data/ix.dat", ix);
     read_data_2d("data/iy.dat", iy);
@@ -170,7 +168,7 @@ Kokkos::initialize(argc, argv);
     read_data_2d("data/jy.dat", jy);
     read_data_2d("data/jz.dat", jz);
 
-    read_data_3d("data/z.dat", z);
+    read_data_3d("data/z.dat",  z);
     read_data_3d("data/zh.dat", zh);
     read_data_3d("data/GPREC.dat", GPREC);
     read_data_3d("data/CBMFX.dat", CBMFX);
@@ -179,9 +177,10 @@ Kokkos::initialize(argc, argv);
      * Vertical grid setup
      */
     GRD_Setup();
-    // /**
-    //  * Saturation set_up
-    //  */
+    CVW_CPW_Setup();
+    /**
+     * Saturation set_up
+     */
     SATURATION_Setup();
     // /**
     //  * microphysics initialization
@@ -197,9 +196,9 @@ Kokkos::initialize(argc, argv);
     // */
     std::cout << "============= Start Kernel =============== \n";
 
-    // /**
-    //  * create sub views:
-    //  */
+    /**
+     * create sub views:
+     */
     auto sub_rhog   = subview(rhog  , 0, Kokkos::ALL(), Kokkos::ALL());
     auto sub_rhogvx = subview(rhogvx, 0, Kokkos::ALL(), Kokkos::ALL());
     auto sub_rhogvy = subview(rhogvy, 0, Kokkos::ALL(), Kokkos::ALL());
@@ -324,25 +323,25 @@ Kokkos::initialize(argc, argv);
     {
         std::cout << "Checking Reuslts \n";
 
-        read_data_3d("ref_verify/calculated_rhog_DP.dat", CHECK_rhog);
+        read_data_3d("ref_verify/calculated_rhog_DP.dat",   CHECK_rhog);
         read_data_3d("ref_verify/calculated_rhogvx_DP.dat", CHECK_rhogvx);
         read_data_3d("ref_verify/calculated_rhogvy_DP.dat", CHECK_rhogvy);
         read_data_3d("ref_verify/calculated_rhogvz_DP.dat", CHECK_rhogvz);
-        read_data_3d("ref_verify/calculated_rhoge_DP.dat", CHECK_rhoge);
-        read_data_3d("ref_verify/calculated_rhogw_DP.dat", CHECK_rhogw);
-        read_data_3d("ref_verify/calculated_QV1_DP.dat", CHECK_QV1);
-        read_data_3d("ref_verify/calculated_QC2_DP.dat", CHECK_QC2);
-        read_data_3d("ref_verify/calculated_QR3_DP.dat", CHECK_QR3);
-        read_data_3d("ref_verify/calculated_QI4_DP.dat", CHECK_QI4);
-        read_data_3d("ref_verify/calculated_QS5_DP.dat", CHECK_QS5);
-        read_data_3d("ref_verify/calculated_QG6_DP.dat", CHECK_QG6);
+        read_data_3d("ref_verify/calculated_rhoge_DP.dat",  CHECK_rhoge);
+        read_data_3d("ref_verify/calculated_rhogw_DP.dat",  CHECK_rhogw);
+        read_data_3d("ref_verify/calculated_QV1_DP.dat",    CHECK_QV1);
+        read_data_3d("ref_verify/calculated_QC2_DP.dat",    CHECK_QC2);
+        read_data_3d("ref_verify/calculated_QR3_DP.dat",    CHECK_QR3);
+        read_data_3d("ref_verify/calculated_QI4_DP.dat",    CHECK_QI4);
+        read_data_3d("ref_verify/calculated_QS5_DP.dat",    CHECK_QS5);
+        read_data_3d("ref_verify/calculated_QG6_DP.dat",    CHECK_QG6);
 
         PROF_val_check("rhog",   rhog,   CHECK_rhog);
         PROF_val_check("rhogvx", rhogvx, CHECK_rhogvx);
         PROF_val_check("rhogvy", rhogvy, CHECK_rhogvy);
         PROF_val_check("rhogvz", rhogvz, CHECK_rhogvz);
-        PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
         PROF_val_check("rhogw",  rhogw,  CHECK_rhogw);
+        PROF_val_check("rhoge",  rhoge,  CHECK_rhoge);
         PROF_val_check("QV", rhogq_Lswp, I_QV, CHECK_QV1);
         PROF_val_check("QC", rhogq_Lswp, I_QC, CHECK_QC2);
         PROF_val_check("QR", rhogq_Lswp, I_QR, CHECK_QR3);
@@ -352,6 +351,22 @@ Kokkos::initialize(argc, argv);
     }
 
     std::cout << "============= All process finished =============== \n";
+
+    // Clean up
+    GRD_gz   = View1D<double, DEFAULT_MEM>();
+    GRD_gzh  = View1D<double, DEFAULT_MEM>();
+    GRD_dgz  = View1D<double, DEFAULT_MEM>();
+    GRD_dgzh = View1D<double, DEFAULT_MEM>();
+    GRD_rdgz = View1D<double, DEFAULT_MEM>();
+    GRD_rdgzh= View1D<double, DEFAULT_MEM>();
+    GRD_afact= View1D<double, DEFAULT_MEM>();
+    GRD_bfact= View1D<double, DEFAULT_MEM>();
+    GRD_cfact= View1D<double, DEFAULT_MEM>();
+    GRD_dfact= View1D<double, DEFAULT_MEM>();
+
+    CVW= View1D<double, DEFAULT_MEM>();
+    CPW= View1D<double, DEFAULT_MEM>();
+
 }
 Kokkos::finalize();
 }

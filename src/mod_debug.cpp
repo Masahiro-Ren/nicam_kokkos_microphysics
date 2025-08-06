@@ -32,16 +32,6 @@ namespace DEBUG {
         {
             for(int ij = 0; ij < ADM_gall_in; ij++)
             {
-                // double err;
-                // if(std::abs(CHECK_arr2d[k][ij]) > CONST_EPS)
-                // {
-                //     err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) / CHECK_arr2d[k][ij] );
-                // }
-                // else
-                // {
-                //     err = std::abs(arr2d[k][ij]);
-                // }
-
                 double err = std::abs( ( arr2d[k][ij] - CHECK_arr2d[k][ij] ) );
                 err_sum += err;
                 err_max = std::max(err_max, err);
@@ -69,16 +59,6 @@ namespace DEBUG {
             {
                 for(int ij = 0; ij < ADM_gall_in; ij++)
                 {
-                    // double err;
-                    // if(std::abs(CHECK_arr3d[l][k][ij]) > CONST_EPS)
-                    // {
-                    //     err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) / CHECK_arr3d[l][k][ij] );
-                    // }
-                    // else
-                    // {
-                    //     err = std::abs(arr3d[l][k][ij]);
-                    // }
-
                     double err = std::abs( ( arr3d[l][k][ij] - CHECK_arr3d[l][k][ij] ) );
                     err_sum += err;
                     err_max = std::max(err_max, err);
@@ -93,22 +73,37 @@ namespace DEBUG {
         std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
     }
 
+    void CVW_CPW_Setup()
+    {
+        auto h_CVW = Kokkos::create_mirror_view(CVW);
+        auto h_CPW = Kokkos::create_mirror_view(CPW);
+
+        for(int i = 0; i < 6; i++)
+        {
+            h_CVW(i) = CONST_CVdry;
+            h_CPW(i) = CONST_CVdry;
+        }
+        h_CPW(0) = CONST_CPdry;
+
+        Kokkos::deep_copy(CVW, h_CVW);
+        Kokkos::deep_copy(CPW, h_CPW);
+    }
+
     void GRD_Setup()
     {
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 
-        // Setting the vertical coordinate
-        // GRD_gz    = new double[ADM_kall];
-        // GRD_gzh   = new double[ADM_kall];
-        // GRD_dgz   = new double[ADM_kall];
-        // GRD_dgzh  = new double[ADM_kall];
-        // GRD_rdgz  = new double[ADM_kall];
-        // GRD_rdgzh = new double[ADM_kall];
-        // Vertical interpolation factor
-        // GRD_afact = new double[ADM_kall];
-        // GRD_bfact = new double[ADM_kall];
-        // GRD_cfact = new double[ADM_kall];
-        // GRD_dfact = new double[ADM_kall];
+        // host mirror of GRD
+        auto h_GRD_gz    = Kokkos::create_mirror_view(GRD_gz   );
+        auto h_GRD_gzh   = Kokkos::create_mirror_view(GRD_gzh  );
+        auto h_GRD_dgz   = Kokkos::create_mirror_view(GRD_dgz  );
+        auto h_GRD_dgzh  = Kokkos::create_mirror_view(GRD_dgzh );
+        auto h_GRD_rdgz  = Kokkos::create_mirror_view(GRD_rdgz );
+        auto h_GRD_rdgzh = Kokkos::create_mirror_view(GRD_rdgzh);
+        auto h_GRD_afact = Kokkos::create_mirror_view(GRD_afact);
+        auto h_GRD_bfact = Kokkos::create_mirror_view(GRD_bfact);
+        auto h_GRD_cfact = Kokkos::create_mirror_view(GRD_cfact);
+        auto h_GRD_dfact = Kokkos::create_mirror_view(GRD_dfact);
 
         // Reading data from vgrid94.dat
         // GRD_Input_vgrid(vgrid_fname);
@@ -117,22 +112,22 @@ namespace DEBUG {
         // calculation of grid intervals ( cell center )
         for(int k = ADM_kmin - 1; k <= ADM_kmax; k++)
         {
-            GRD_dgz[k] = GRD_gzh[k+1] - GRD_gzh[k];
+            arrGRD_dgz[k] = arrGRD_gzh[k+1] - arrGRD_gzh[k];
         }
-        GRD_dgz[ADM_kmax + 1] = GRD_dgz[ADM_kmax];
+        arrGRD_dgz[ADM_kmax + 1] = arrGRD_dgz[ADM_kmax];
 
         // calculation of grid intervals ( cell wall )
         for(int k = ADM_kmin; k <= ADM_kmax + 1; k++)
         {
-            GRD_dgzh[k] = GRD_gz[k] - GRD_gz[k-1];
+            arrGRD_dgzh[k] = arrGRD_gz[k] - arrGRD_gz[k-1];
         }
-        GRD_dgzh[ADM_kmin - 1] = GRD_dgzh[ADM_kmin];
+        arrGRD_dgzh[ADM_kmin - 1] = arrGRD_dgzh[ADM_kmin];
 
         // calculation of 1/dgz and 1/dgzh
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_rdgz[k] = 1.0 / GRD_dgz  [k];
-            GRD_rdgzh[k] = 1.0 / GRD_dgzh[k];
+            arrGRD_rdgz[k]  = 1.0 / arrGRD_dgz [k];
+            arrGRD_rdgzh[k] = 1.0 / arrGRD_dgzh[k];
         }
 
         //---< vertical interpolation factor >---
@@ -140,36 +135,63 @@ namespace DEBUG {
         // vertical interpolation factor
         for(int k = ADM_kmin; k <= ADM_kmax + 1; k++)
         {
-            GRD_afact[k] = ( GRD_gzh[k] - GRD_gz[k-1] ) /
-                            ( GRD_gz[k] - GRD_gz[k-1] );
+            arrGRD_afact[k] = ( arrGRD_gzh[k] - arrGRD_gz[k-1] ) /
+                              ( arrGRD_gz[k] -  arrGRD_gz[k-1] );
         }
-        GRD_afact[ADM_kmin-1] = 1.0;
+        arrGRD_afact[ADM_kmin-1] = 1.0;
 
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_bfact[k] = 1.0 - GRD_afact[k];
+            arrGRD_bfact[k] = 1.0 - arrGRD_afact[k];
         }
 
         for(int k = ADM_kmin; k <= ADM_kmax; k++)
         {
-            GRD_cfact[k] =   ( GRD_gz[k] - GRD_gzh[k] )
-                           / ( GRD_gzh[k+1] - GRD_gzh[k] );
+            arrGRD_cfact[k] =   ( arrGRD_gz[k] - arrGRD_gzh[k] )
+                              / ( arrGRD_gzh[k+1] - arrGRD_gzh[k] );
         }
-        GRD_cfact[ADM_kmin - 1] = 1.0;
-        GRD_cfact[ADM_kmax + 1] = 0.0;
+        arrGRD_cfact[ADM_kmin - 1] = 1.0;
+        arrGRD_cfact[ADM_kmax + 1] = 0.0;
 
         for(int k = 0; k < ADM_kall; k++)
         {
-            GRD_dfact[k] = 1.0 - GRD_cfact[k];
+            arrGRD_dfact[k] = 1.0 - arrGRD_cfact[k];
         }
+
+        // copy data to host views
+        for(size_t k = 0; k < ADM_kall; k++)
+        {
+            h_GRD_gz   (k) = arrGRD_gz   [k];
+            h_GRD_gzh  (k) = arrGRD_gzh  [k];
+            h_GRD_dgz  (k) = arrGRD_dgz  [k];
+            h_GRD_dgzh (k) = arrGRD_dgzh [k];
+            h_GRD_rdgz (k) = arrGRD_rdgz [k];
+            h_GRD_rdgzh(k) = arrGRD_rdgzh[k];
+            h_GRD_afact(k) = arrGRD_afact[k];
+            h_GRD_bfact(k) = arrGRD_bfact[k];
+            h_GRD_cfact(k) = arrGRD_cfact[k];
+            h_GRD_dfact(k) = arrGRD_dfact[k];
+        }
+
+        Kokkos::deep_copy(GRD_gz   , h_GRD_gz   );
+        Kokkos::deep_copy(GRD_gzh  , h_GRD_gzh  );
+        Kokkos::deep_copy(GRD_dgz  , h_GRD_dgz  );
+        Kokkos::deep_copy(GRD_dgzh , h_GRD_dgzh );
+        Kokkos::deep_copy(GRD_rdgz , h_GRD_rdgz );
+        Kokkos::deep_copy(GRD_rdgzh, h_GRD_rdgzh);
+        Kokkos::deep_copy(GRD_afact, h_GRD_afact);
+        Kokkos::deep_copy(GRD_bfact, h_GRD_bfact);
+        Kokkos::deep_copy(GRD_cfact, h_GRD_cfact);
+        Kokkos::deep_copy(GRD_dfact, h_GRD_dfact);
+        Kokkos::fence();
     }
 
     void GRD_Input_vgrid()
     {
         /** Waiting for implementing */
         std::cout << __PRETTY_FUNCTION__ << " Reading vgrid data " << std::endl;
-        read_data_1d("data/vgrid/GRD_gz.dat", GRD_gz);
-        read_data_1d("data/vgrid/GRD_gzh.dat", GRD_gzh);
+        read_data_1d("data/vgrid/GRD_gz.dat", arrGRD_gz);
+        read_data_1d("data/vgrid/GRD_gzh.dat", arrGRD_gzh);
     }
 
     void cnvvar_rhogkin_in(
@@ -184,7 +206,7 @@ namespace DEBUG {
         double rhogkin_h[kdim][ijdim],
         double rhogkin_v[kdim][ijdim] )
     {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -245,18 +267,18 @@ namespace DEBUG {
     }
 
     void cnvvar_rhogkin_in(
-        const View<double**>&  rhog     ,
-        const View<double**>&  rhogvx   ,
-        const View<double**>&  rhogvy   ,
-        const View<double**>&  rhogvz   ,
-        const View<double**>&  rhogw    ,
-        const View<double***>& C2Wfact  ,
-        const View<double***>& W2Cfact  ,
-        const View<double**>&  rhogkin  ,
-        const View<double**>&  rhogkin_h,
-        const View<double**>&  rhogkin_v )
+        const View2D<double, DEFAULT_MEM>&  rhog     ,
+        const View2D<double, DEFAULT_MEM>&  rhogvx   ,
+        const View2D<double, DEFAULT_MEM>&  rhogvy   ,
+        const View2D<double, DEFAULT_MEM>&  rhogvz   ,
+        const View2D<double, DEFAULT_MEM>&  rhogw    ,
+        const View3D<double, DEFAULT_MEM>&  C2Wfact  ,
+        const View3D<double, DEFAULT_MEM>&  W2Cfact  ,
+        const View2D<double, DEFAULT_MEM>&  rhogkin  ,
+        const View2D<double, DEFAULT_MEM>&  rhogkin_h,
+        const View2D<double, DEFAULT_MEM>&  rhogkin_v )
     {
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
@@ -338,22 +360,25 @@ namespace DEBUG {
         return f;
     }
 
-    void PROF_val_check(const std::string& val_name, const View<double****>& arr4d, const size_t idx_arr2d, const View<double***>& CHECK_arr3d)
+    void PROF_val_check(const std::string& val_name, const View4D<double, DEFAULT_MEM>& arr4d, const size_t idx_arr2d, const View3D<double, HOST_MEM>& CHECK_arr3d)
     {
-        auto sub_arr2d = subview(arr4d, 0, idx_arr2d, Kokkos::ALL(), Kokkos::ALL());
+        auto h_arr4d = Kokkos::create_mirror_view_and_copy(HOST_MEM(), arr4d);
+
+        auto sub_arr2d = subview(h_arr4d, 0, idx_arr2d, Kokkos::ALL(), Kokkos::ALL());
         auto sub_check_arr2d = subview(CHECK_arr3d, 0, Kokkos::ALL(), Kokkos::ALL());
 
         double err_sum;
         double err_max;
         double err_min;
 
-        Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<2>>({0,0},{ADM_kall,ADM_gall_in}),
+        Kokkos::parallel_reduce(MDRangePolicy<HOST_SPACE, Kokkos::Rank<2>>({0,0},{ADM_kall,ADM_gall_in}),
         KOKKOS_LAMBDA(const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
-            double err = std::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
+            // double err = Kokkos::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
+            double err = sub_arr2d(k,ij) - sub_check_arr2d(k,ij);
             local_sum += err;
-            local_min = std::min(local_min, err);
-            local_max = std::max(local_max, err);
-        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
+            local_min = Kokkos::min(local_min, err);
+            local_max = Kokkos::max(local_max, err);
+        }, err_sum, Kokkos::Min<double, HOST_MEM>(err_min), Kokkos::Max<double,HOST_MEM>(err_max));
 
         std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";
@@ -361,19 +386,22 @@ namespace DEBUG {
         std::cout << "Sum = " << std::setprecision(16) << std::scientific << err_sum << "; " << std::endl;
     }
 
-    void PROF_val_check(const std::string& val_name, const View<double***>& arr3d, const View<double***>& CHECK_arr3d)
+    void PROF_val_check(const std::string& val_name, const View3D<double, DEFAULT_MEM>& arr3d, const View3D<double, HOST_MEM>& CHECK_arr3d)
     {
+        auto h_arr3d = Kokkos::create_mirror_view_and_copy(HOST_MEM(), arr3d);
+
         double err_sum;
         double err_max;
         double err_min;
 
-        Kokkos::parallel_reduce(MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ADM_lall,ADM_kall,ADM_gall_in}),
+        Kokkos::parallel_reduce(MDRangePolicy<HOST_SPACE, Kokkos::Rank<3>>({0,0,0},{ADM_lall,ADM_kall,ADM_gall_in}),
         KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
-            double err = std::abs(arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
+            // double err = Kokkos::abs(h_arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
+            double err = h_arr3d(l,k,ij) - CHECK_arr3d(l,k,ij);
             local_sum += err;
-            local_min = std::min(local_min, err);
-            local_max = std::max(local_max, err);
-        }, err_sum, Kokkos::Min<double>(err_min), Kokkos::Max<double>(err_max));
+            local_min = Kokkos::min(local_min, err);
+            local_max = Kokkos::max(local_max, err);
+        }, err_sum, Kokkos::Min<double, HOST_MEM>(err_min), Kokkos::Max<double, HOST_MEM>(err_max));
 
         std::cout << "Checking [" << val_name << "] ";
         std::cout << "Max = " << std::setprecision(16) << std::scientific << err_max << "; ";

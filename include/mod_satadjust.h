@@ -26,7 +26,7 @@ void SATURATION_Setrange(double Tw, double Ti);
  */
 void SATURATION_psat_liq(double tem[kdim][ijdim], double psat[kdim][ijdim]);
 //Kokkos ver.
-void SATURATION_psat_liq(const View<double**>& tem, const View<double**>& psat);
+void SATURATION_psat_liq(const View2D<double, DEFAULT_MEM>& tem, const View2D<double, DEFAULT_MEM>& psat);
 
 /**
  * > calc saturation vapor pressure from Clausius-Clapeyron equation (2D) 
@@ -35,7 +35,7 @@ void SATURATION_psat_liq(const View<double**>& tem, const View<double**>& psat);
  */
 void SATURATION_psat_ice(double tem[kdim][ijdim], double psat[kdim][ijdim]);
 //Kokkos ver.
-void SATURATION_psat_ice(const View<double**>& tem, const View<double**>& psat);
+void SATURATION_psat_ice(const View2D<double, DEFAULT_MEM>& tem, const View2D<double, DEFAULT_MEM>& psat);
 
 void SATURATION_adjustment( double rhog   [kdim][ijdim],
                             double rhoge  [kdim][ijdim],
@@ -49,13 +49,13 @@ void SATURATION_adjustment( double rhog   [kdim][ijdim],
 /**
  * Kokkos ver.
  */
-void SATURATION_adjustment( const View<double**>&  rhog   ,
-                            const View<double**>&  rhoge  ,
-                            const View<double***>& rhogq  ,
-                            const View<double**>&  tem    ,
-                            const View<double***>& q      ,
-                            const View<double**>&  qd     ,
-                            const View<double**>&  gsgam2 ,
+void SATURATION_adjustment( const View2D<double, DEFAULT_MEM>&  rhog   ,
+                            const View2D<double, DEFAULT_MEM>&  rhoge  ,
+                            const View3D<double, DEFAULT_MEM>& rhogq  ,
+                            const View2D<double, DEFAULT_MEM>&  tem    ,
+                            const View3D<double, DEFAULT_MEM>& q      ,
+                            const View2D<double, DEFAULT_MEM>&  qd     ,
+                            const View2D<double, DEFAULT_MEM>&  gsgam2 ,
                             bool   ice_adjust );
 
 // private procedures
@@ -72,15 +72,15 @@ void satadjust_liq( double rho    [kdim][ijdim],
                     double q      [nqmax][kdim][ijdim] );
 
 // Kokkos private procedures
-void satadjust_all( const View<double**>&  rho    ,
-                    const View<double**>&  Emoist ,
-                    const View<double**>&  qsum   ,
-                    const View<double**>&  tem    ,
-                    const View<double***>& q       );
+void satadjust_all( const View2D<double, DEFAULT_MEM>&  rho    ,
+                    const View2D<double, DEFAULT_MEM>&  Emoist ,
+                    const View2D<double, DEFAULT_MEM>&  qsum   ,
+                    const View2D<double, DEFAULT_MEM>&  tem    ,
+                    const View3D<double, DEFAULT_MEM>&  q       );
 
-void satadjust_liq( const View<double**>&  rho    ,
-                    const View<double**>&  Emoist ,
-                    const View<double**>&  qsum   ,
-                    const View<double**>&  tem    ,
-                    const View<double***>& q       );
+void satadjust_liq( const View2D<double, DEFAULT_MEM>&  rho    ,
+                    const View2D<double, DEFAULT_MEM>&  Emoist ,
+                    const View2D<double, DEFAULT_MEM>&  qsum   ,
+                    const View2D<double, DEFAULT_MEM>&  tem    ,
+                    const View3D<double, DEFAULT_MEM>&  q       );
 }
