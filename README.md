@@ -66,7 +66,21 @@ If you plan to run the program using OpenMP-only, it is recommended to maintain 
 ```
 Make sure to point Kokkos_ROOT to the appropriate version during configuration.
 
-# Results Verification
+## Running Instructions
+
+Copy the executable file to the `run` directory, and create a job script suitable for your own system.
+
+The structure of the `run` directory should be as follows:
+
+```bash
+run
+├── data             # contains input data
+│   └── vgrid        # contains vgrid data
+└── ref_verify       # contains verification data
+```
+**NOTE**: A proper location for storing all input data has not yet been determined. Currently, only the vgrid data and verification data are available in the repository.
+
+## Results Verification
 🔹 Results from Original Fortran Code
 ```
  ### Check ###
