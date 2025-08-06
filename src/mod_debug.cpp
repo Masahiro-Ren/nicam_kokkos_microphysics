@@ -373,7 +373,8 @@ namespace DEBUG {
 
         Kokkos::parallel_reduce(MDRangePolicy<HOST_SPACE, Kokkos::Rank<2>>({0,0},{ADM_kall,ADM_gall_in}),
         KOKKOS_LAMBDA(const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
-            double err = Kokkos::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
+            // double err = Kokkos::abs(sub_arr2d(k,ij) - sub_check_arr2d(k,ij));
+            double err = sub_arr2d(k,ij) - sub_check_arr2d(k,ij);
             local_sum += err;
             local_min = Kokkos::min(local_min, err);
             local_max = Kokkos::max(local_max, err);
@@ -395,7 +396,8 @@ namespace DEBUG {
 
         Kokkos::parallel_reduce(MDRangePolicy<HOST_SPACE, Kokkos::Rank<3>>({0,0,0},{ADM_lall,ADM_kall,ADM_gall_in}),
         KOKKOS_LAMBDA(const size_t l, const size_t k, const size_t ij, double& local_sum, double& local_min, double& local_max){
-            double err = Kokkos::abs(h_arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
+            // double err = Kokkos::abs(h_arr3d(l,k,ij) - CHECK_arr3d(l,k,ij));
+            double err = h_arr3d(l,k,ij) - CHECK_arr3d(l,k,ij);
             local_sum += err;
             local_min = Kokkos::min(local_min, err);
             local_max = Kokkos::max(local_max, err);
